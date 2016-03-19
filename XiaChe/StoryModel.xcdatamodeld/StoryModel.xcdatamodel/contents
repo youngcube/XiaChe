@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15D21" minimumToolsVersion="Xcode 7.0">
+    <entity name="FunDetail" syncable="YES">
+        <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="css" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="detailId" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="FunStory" representedClassName="FunStory" syncable="YES">
+        <attribute name="storyDate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="storyId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="FunDetail" positionX="-54" positionY="-9" width="128" height="88"/>
+        <element name="FunStory" positionX="54" positionY="36" width="128" height="90"/>
+    </elements>
+</model>
