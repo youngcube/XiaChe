@@ -1,5 +1,5 @@
 //
-//  FunStory.h
+//  FunDetail.h
 //  XiaChe
 //
 //  Created by cube on 3/21/16.
@@ -9,11 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class FunDetail;
+@class FunStory;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FunStory : NSManagedObject
+@interface FunDetail : NSManagedObject
 
 // Insert code here to declare functionality of your managed object subclass
 
@@ -21,4 +21,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#import "FunStory+CoreDataProperties.h"
+#import "FunDetail+CoreDataProperties.h"

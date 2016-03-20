@@ -7,6 +7,7 @@
 //
 
 #define EACH_TIME_FETCH_NUM 20
+#define NOTIFICATION_FINISHLOADING  @"notification_finishloading"
 
 static NSString* const LatestNewsString = @"http://news-at.zhihu.com/api/4/news/latest";
 static NSString* const BeforeNewsString = @"http://news.at.zhihu.com/api/4/news/before/";

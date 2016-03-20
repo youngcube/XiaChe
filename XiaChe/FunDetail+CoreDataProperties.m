@@ -1,5 +1,5 @@
 //
-//  FunStory+CoreDataProperties.m
+//  FunDetail+CoreDataProperties.m
 //  XiaChe
 //
 //  Created by cube on 3/21/16.
@@ -9,13 +9,13 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "FunStory+CoreDataProperties.h"
+#import "FunDetail+CoreDataProperties.h"
 
-@implementation FunStory (CoreDataProperties)
+@implementation FunDetail (CoreDataProperties)
 
-@dynamic storyDate;
-@dynamic storyId;
-@dynamic title;
 @dynamic detailId;
+@dynamic body;
+@dynamic css;
+@dynamic storyId;
 
 @end

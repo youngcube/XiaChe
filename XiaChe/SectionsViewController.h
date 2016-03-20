@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface SectionsViewController : UITableViewController
-
+#import "StorageManager.h"
+@interface SectionsViewController : UITableViewController<NSFetchedResultsControllerDelegate>
+@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @end

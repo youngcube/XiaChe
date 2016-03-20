@@ -68,7 +68,7 @@
         
         [self getJsonWithString:str];
     }
-    [[StorageManager sharedInstance].managedObjectContext save:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISHLOADING object:nil];
     return YES;
 }
 
@@ -83,7 +83,6 @@
         NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
         [self getJsonWithString:oldDateRangeString];
     }
-    [[StorageManager sharedInstance].managedObjectContext save:nil];
 }
 
 #pragma mark - 获取CoreData内存储的 最新:NO / 最老:YES 日期
@@ -97,6 +96,7 @@
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
     NSArray *late = [manager.managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *fun = [late firstObject];
+//    NSLog(@"%@",fun.storyDate);
     return fun.storyDate;
 }
 
@@ -116,6 +116,7 @@
                 st.storyId = story.storyId;
             }
         }
+        [[StorageManager sharedInstance].managedObjectContext save:nil];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
@@ -138,6 +139,7 @@
                 st.storyId = story.storyId;
             }
         }
+        [[StorageManager sharedInstance].managedObjectContext save:nil];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];

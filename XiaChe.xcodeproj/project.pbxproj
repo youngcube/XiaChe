@@ -17,10 +17,12 @@
 		8660B6A41C999EE9006917FC /* StoryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6A21C999EE8006917FC /* StoryModel.xcdatamodeld */; };
 		8660B6A71C99A090006917FC /* StorageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6A61C99A090006917FC /* StorageManager.m */; };
 		8660B6A91C99A0EB006917FC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8660B6A81C99A0EB006917FC /* CoreData.framework */; };
-		8660B6C61C99A90C006917FC /* FunStory+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6C31C99A90C006917FC /* FunStory+CoreDataProperties.m */; };
-		8660B6C71C99A90C006917FC /* FunStory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6C51C99A90C006917FC /* FunStory.m */; };
 		8660B6CA1C99CE7E006917FC /* SectionFooterView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6C91C99CE7E006917FC /* SectionFooterView.m */; };
 		8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6D41C9C6CC9006917FC /* SearchForNewFun.m */; };
+		8660B6E21C9F0104006917FC /* FunStory+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6DF1C9F0103006917FC /* FunStory+CoreDataProperties.m */; };
+		8660B6E31C9F0104006917FC /* FunStory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E11C9F0103006917FC /* FunStory.m */; };
+		8660B6E81C9F0137006917FC /* FunDetail+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */; };
+		8660B6E91C9F0137006917FC /* FunDetail.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E71C9F0137006917FC /* FunDetail.m */; };
 		E2F4C05251C05686DFE83893 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E49BE52C9BF52D623685A7 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -46,14 +48,18 @@
 		8660B6A51C99A090006917FC /* StorageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageManager.h; sourceTree = "<group>"; };
 		8660B6A61C99A090006917FC /* StorageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StorageManager.m; sourceTree = "<group>"; };
 		8660B6A81C99A0EB006917FC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		8660B6C21C99A90C006917FC /* FunStory+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FunStory+CoreDataProperties.h"; sourceTree = "<group>"; };
-		8660B6C31C99A90C006917FC /* FunStory+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FunStory+CoreDataProperties.m"; sourceTree = "<group>"; };
-		8660B6C41C99A90C006917FC /* FunStory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FunStory.h; sourceTree = "<group>"; };
-		8660B6C51C99A90C006917FC /* FunStory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunStory.m; sourceTree = "<group>"; };
 		8660B6C81C99CE7E006917FC /* SectionFooterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SectionFooterView.h; sourceTree = "<group>"; };
 		8660B6C91C99CE7E006917FC /* SectionFooterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SectionFooterView.m; sourceTree = "<group>"; };
 		8660B6D31C9C6CC9006917FC /* SearchForNewFun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchForNewFun.h; sourceTree = "<group>"; };
 		8660B6D41C9C6CC9006917FC /* SearchForNewFun.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchForNewFun.m; sourceTree = "<group>"; };
+		8660B6DE1C9F0103006917FC /* FunStory+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FunStory+CoreDataProperties.h"; sourceTree = "<group>"; };
+		8660B6DF1C9F0103006917FC /* FunStory+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FunStory+CoreDataProperties.m"; sourceTree = "<group>"; };
+		8660B6E01C9F0103006917FC /* FunStory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FunStory.h; sourceTree = "<group>"; };
+		8660B6E11C9F0103006917FC /* FunStory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunStory.m; sourceTree = "<group>"; };
+		8660B6E41C9F0137006917FC /* FunDetail+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FunDetail+CoreDataProperties.h"; sourceTree = "<group>"; };
+		8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FunDetail+CoreDataProperties.m"; sourceTree = "<group>"; };
+		8660B6E61C9F0137006917FC /* FunDetail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FunDetail.h; sourceTree = "<group>"; };
+		8660B6E71C9F0137006917FC /* FunDetail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunDetail.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,14 +105,11 @@
 		8660B67D1C999855006917FC /* XiaChe */ = {
 			isa = PBXGroup;
 			children = (
+				8660B6D71C9E9D59006917FC /* ViewController */,
 				8660B6D61C9D4308006917FC /* View */,
 				8660B69F1C999A13006917FC /* Others */,
 				8660B6A11C999ECE006917FC /* Data */,
 				8660B6A01C999A32006917FC /* Model */,
-				8660B6981C99989B006917FC /* SectionsViewController.h */,
-				8660B6991C99989B006917FC /* SectionsViewController.m */,
-				8660B69A1C99989B006917FC /* StoryDetailViewController.h */,
-				8660B69B1C99989B006917FC /* StoryDetailViewController.m */,
 			);
 			path = XiaChe;
 			sourceTree = "<group>";
@@ -147,11 +150,15 @@
 		8660B6A11C999ECE006917FC /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				8660B6E41C9F0137006917FC /* FunDetail+CoreDataProperties.h */,
+				8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */,
+				8660B6E61C9F0137006917FC /* FunDetail.h */,
+				8660B6E71C9F0137006917FC /* FunDetail.m */,
+				8660B6DE1C9F0103006917FC /* FunStory+CoreDataProperties.h */,
+				8660B6DF1C9F0103006917FC /* FunStory+CoreDataProperties.m */,
+				8660B6E01C9F0103006917FC /* FunStory.h */,
+				8660B6E11C9F0103006917FC /* FunStory.m */,
 				8660B6A21C999EE8006917FC /* StoryModel.xcdatamodeld */,
-				8660B6C21C99A90C006917FC /* FunStory+CoreDataProperties.h */,
-				8660B6C31C99A90C006917FC /* FunStory+CoreDataProperties.m */,
-				8660B6C41C99A90C006917FC /* FunStory.h */,
-				8660B6C51C99A90C006917FC /* FunStory.m */,
 				8660B6A51C99A090006917FC /* StorageManager.h */,
 				8660B6A61C99A090006917FC /* StorageManager.m */,
 			);
@@ -165,6 +172,17 @@
 				8660B6C91C99CE7E006917FC /* SectionFooterView.m */,
 			);
 			name = View;
+			sourceTree = "<group>";
+		};
+		8660B6D71C9E9D59006917FC /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				8660B6981C99989B006917FC /* SectionsViewController.h */,
+				8660B6991C99989B006917FC /* SectionsViewController.m */,
+				8660B69A1C99989B006917FC /* StoryDetailViewController.h */,
+				8660B69B1C99989B006917FC /* StoryDetailViewController.m */,
+			);
+			name = ViewController;
 			sourceTree = "<group>";
 		};
 		EC762E8FA8B7ED454061C336 /* Pods */ = {
@@ -296,17 +314,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8660B6E81C9F0137006917FC /* FunDetail+CoreDataProperties.m in Sources */,
 				8660B69E1C99989B006917FC /* StoryDetailViewController.m in Sources */,
 				8660B6831C999855006917FC /* AppDelegate.m in Sources */,
+				8660B6E31C9F0104006917FC /* FunStory.m in Sources */,
 				8660B6801C999855006917FC /* main.m in Sources */,
+				8660B6E21C9F0104006917FC /* FunStory+CoreDataProperties.m in Sources */,
 				8660B6A41C999EE9006917FC /* StoryModel.xcdatamodeld in Sources */,
-				8660B6C71C99A90C006917FC /* FunStory.m in Sources */,
 				8660B6CA1C99CE7E006917FC /* SectionFooterView.m in Sources */,
 				8660B69C1C99989B006917FC /* SectionModel.m in Sources */,
-				8660B6C61C99A90C006917FC /* FunStory+CoreDataProperties.m in Sources */,
 				8660B6A71C99A090006917FC /* StorageManager.m in Sources */,
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,
+				8660B6E91C9F0137006917FC /* FunDetail.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
