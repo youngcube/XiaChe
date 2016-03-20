@@ -16,11 +16,14 @@
 #import "SectionFooterView.h"
 #import "SearchForNewFun.h"
 
+#define NOTIFICATION_FINISHLOADING  @"notification_finishloading"
+
 @interface SectionsViewController ()<NSFetchedResultsControllerDelegate>
 @property (nonatomic, strong) SectionModel *model;
-@property (nonatomic, strong) NSArray *funStoryArray;
+//@property (nonatomic, strong) NSArray *funStoryArray;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @property (nonatomic, strong) NSDateFormatter *formatter;
+
 @end
 
 @implementation SectionsViewController
@@ -29,8 +32,7 @@
 {
     self = [super initWithStyle:style];
     if (self){
-//        self.eachTimeGet = 50;
-//        self.getCount = 1;
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:[SearchForNewFun sharedInstance] action:@selector(accordingDateToLoopOldData)];
     }
     return self;
 }
@@ -40,25 +42,64 @@
     [super viewDidLoad];
     self.formatter = [[NSDateFormatter alloc] init];
     [self.formatter setDateFormat:@"YYYYMMdd"];
-    [self getNowDate];
-    [self setupFooter];
-//    [self showJson];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushToLastestStory) name:NOTIFICATION_FINISHLOADING object:nil];
+//    [self gcd];
+    
+    [self decideIfShouldGetNewJson];
     
     
     
-    [self accordingDateToLoopOldData];
     
+//    [self pushToLastestStory];
+}
+
+- (void)gcd
+{
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_group_async(group, queue, ^{
+        [self decideIfShouldGetNewJson];
+    });
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        [self pushToLastestStory];
+    });
+}
+
+- (void)decideIfShouldGetNewJson
+{
+    NSString *str = [NSString stringWithFormat:@"%@",LatestNewsString];
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
+        if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
+            NSLog(@"不要刷新");
+            
+        }else{
+            NSLog(@"刷新");
+            if ([[SearchForNewFun sharedInstance] accordingDateToLoopNewData]){
+                [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISHLOADING object:nil];
+            };
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"failed! %@",error);
+        
+    }];
 }
 
 - (void)pushToLastestStory
 {
-    FunStory *fun = [self.funStoryArray firstObject];
-    StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
-    NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,fun.storyId];
-    detail.url = url;
-    [self.navigationController pushViewController:detail animated:NO];
+//    [self.fetchedResultsController performFetch:nil];
+    FunStory *fun = [[self.fetchedResultsController fetchedObjects] firstObject];
+    NSLog(@"%@",fun.storyDate);
+//    StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
+//    NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,fun.storyId];
+//    detail.url = url;
+//    [self.navigationController pushViewController:detail animated:NO];
 }
 
+#pragma mark - UI
 - (void)setupFooter
 {
     SectionFooterView *foot = [SectionFooterView footer];
@@ -66,38 +107,6 @@
     self.tableView.tableFooterView = foot;
     foot.hidden = YES;
 }
-
-- (NSArray *)funStoryArray
-{
-    if (!_funStoryArray){
-        _funStoryArray = [NSArray array];
-    }
-    return _funStoryArray;
-}
-
-- (NSFetchedResultsController *)fetchedResultsController
-{
-    if (!_fetchedResultsController){
-        StorageManager *manager = [StorageManager sharedInstance];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
-        [fetchRequest setEntity:entity];
-        
-        NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO];
-        [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-        
-        NSFetchedResultsController *fetchCtrl = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                                    managedObjectContext:manager.managedObjectContext
-                                                                                      sectionNameKeyPath:nil cacheName:nil];
-        fetchCtrl.delegate = self;
-        self.fetchedResultsController = fetchCtrl;
-        
-        [self.fetchedResultsController performFetch:nil];
-    }
-    return _fetchedResultsController;
-}
-
-
 
 #pragma mark - ScrollView Delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -120,176 +129,7 @@
 //    }
 }
 
-- (void)getOldJsonWithString:(NSString *)oldTimes
-{
-    NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,oldTimes];
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        StorageManager *manager = [StorageManager sharedInstance];
-        self.model = [SectionModel yy_modelWithJSON:responseObject];
-        
-        for (Story *story in self.model.stories){
-            if ([story.title hasPrefix:@"瞎扯"]) {
-                NSLog(@"%@ -- %@ -- %@",self.model.date,story.title,story.storyId);
-                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
-                st.storyDate = self.model.date;
-                st.title = story.title;
-                st.storyId = story.storyId;
-            }
-        }
-        [manager.managedObjectContext save:nil];
-        [self showJson];
-        [self.fetchedResultsController performFetch:nil];
-        [self.tableView reloadData];
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
-    }];
-}
-
-#pragma mark - 获取今天的时间
-- (void)getNowDate
-{
-    NSDateFormatter *format = [[NSDateFormatter alloc] init];
-    [format setDateFormat:@"YYYYMMdd"];
-    NSDate *date = [NSDate date];
-    NSString *str = [format stringFromDate:date];
-    [self decideIfWillGetNewFromDate:str];
-}
-
-#pragma mark - 获取CoreData内存储的 最新NO / 最老YES 日期
-- (NSString *)fetchLastestDayFromStorage:(BOOL)lastest
-{
-    StorageManager *manager = [StorageManager sharedInstance];
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
-    [fetchRequest setEntity:entity];
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:lastest]; // YES返回最老的
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    NSArray *late = [manager.managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    FunStory *fun = [late firstObject];
-    return fun.storyDate;
-}
-
-#pragma mark - 判断是否使用需要get新日期
-- (void)decideIfWillGetNewFromDate:(NSString *)dateString
-{
-    NSString *str = [NSString stringWithFormat:@"%@",LatestNewsString];
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
-        if (model.date == [self fetchLastestDayFromStorage:NO]){
-            NSLog(@"不要刷新");
-            [self showJson];
-            [self pushToLastestStory];
-        }else{
-            NSLog(@"刷新");
-            [self accordingDateToLoopNewData];
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
-    }];
-}
-
-- (void)accordingDateToLoopNewData
-{
-    [self getLastestJson];
-    // 如果一下子取超过50，可能会把第一个值返回多次。
-    for (int i = 0 ; i < EACH_TIME_FETCH_NUM - 1 ; i ++){
-        NSDate *date = [NSDate dateWithTimeIntervalSinceNow:-86400*i];
-        NSString *str = [self.formatter stringFromDate:date];
-
-        [self getJsonWithString:str];
-    }
-    [self showJson];
-    [self.fetchedResultsController performFetch:nil];
-    [self pushToLastestStory];
-}
-
-- (void)accordingDateToLoopOldData
-{
-    NSString *oldString = [self fetchLastestDayFromStorage:YES];
-    for (int i = 0 ; i < EACH_TIME_FETCH_NUM ; i ++){
-        NSDate *oldDate = [self.formatter dateFromString:oldString];
-        NSDate *oldDateRange = [NSDate dateWithTimeInterval:-86400*i sinceDate:oldDate];
-        
-        NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
-        [self getJsonWithString:oldDateRangeString];
-    }
-    [self showJson];
-}
-
-- (void)getLastestJson
-{
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        StorageManager *manager = [StorageManager sharedInstance];
-        self.model = [SectionModel yy_modelWithJSON:responseObject];
-        
-        for (Story *story in self.model.stories){
-            if ([story.title hasPrefix:@"瞎扯"]) {
-                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
-                st.storyDate = self.model.date;
-                st.title = story.title;
-                st.storyId = story.storyId;
-            }
-        }
-        [manager.managedObjectContext save:nil];
-        [self showJson];
-//        [self.tableView reloadData];
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
-    }];
-
-}
-
-- (void)getJsonWithString:(NSString *)dateString
-{
-    NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        StorageManager *manager = [StorageManager sharedInstance];
-        self.model = [SectionModel yy_modelWithJSON:responseObject];
-
-        for (Story *story in self.model.stories){
-            if ([story.title hasPrefix:@"瞎扯"]) {
-                
-                NSLog(@"%@ -- %@ -- %@",self.model.date,story.title,story.storyId);
-                
-                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
-                st.storyDate = self.model.date;
-                st.title = story.title;
-                st.storyId = story.storyId;
-
-            }
-        }
-        [manager.managedObjectContext save:nil];
-//        [self showJson];
-        [self.tableView reloadData];
-        
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
-    }];
-}
-
-- (void)showJson
-{
-    StorageManager *manager = [StorageManager sharedInstance];
-    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"FunStory"];
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO];
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    self.funStoryArray = [manager.managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    
-//    [self.tableView reloadData];
-}
-
+#pragma mark - TableView DataSource
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][section];
@@ -303,10 +143,16 @@
     if (!cell){
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellId];
     }
-    NSManagedObject *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    cell.textLabel.text = [object valueForKey:@"title"];
-    cell.detailTextLabel.text = [object valueForKey:@"storyDate"];
+    [self configureCell:cell atIndexPath:indexPath];
     return cell;
+}
+
+#pragma mark - TableView Delegate
+- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    FunStory *fun = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    cell.textLabel.text = fun.title;
+    cell.detailTextLabel.text = fun.storyDate;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -316,7 +162,80 @@
     NSString *storyId = [object valueForKey:@"storyId"];
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,storyId];
     detail.url = url;
+    NSLog(@"%@",indexPath);
     [self.navigationController pushViewController:detail animated:YES];
 }
+
+#pragma mark - NSFetchedResultsController Delegate
+- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(nonnull id)anObject atIndexPath:(nullable NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(nullable NSIndexPath *)newIndexPath
+{
+    UITableView *tableView = self.tableView;
+    switch (type) {
+            case NSFetchedResultsChangeInsert:
+                [tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            break;
+            case NSFetchedResultsChangeDelete:
+                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            break;
+            case NSFetchedResultsChangeMove:
+                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                [tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            break;
+            case NSFetchedResultsChangeUpdate:
+                [self configureCell:[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
+            break;
+    }
+}
+
+- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
+{
+    [[self tableView] beginUpdates];
+}
+
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
+{
+    [[self tableView] endUpdates];
+}
+
+#pragma mark - lazy NSFetchedResultsController
+- (NSFetchedResultsController *)fetchedResultsController
+{
+    if (!_fetchedResultsController){
+        StorageManager *manager = [StorageManager sharedInstance];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
+        [fetchRequest setEntity:entity];
+        
+        NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO];
+        [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+        [fetchRequest setFetchBatchSize:20];
+        
+        NSFetchedResultsController *fetchCtrl = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                                    managedObjectContext:manager.managedObjectContext
+                                                                                      sectionNameKeyPath:nil cacheName:@"funCell"];
+        fetchCtrl.delegate = self;
+        self.fetchedResultsController = fetchCtrl;
+        NSError *error;
+        if (![self.fetchedResultsController performFetch:&error]){
+            NSLog(@"%@",error);
+            abort();
+        }
+    }
+    return _fetchedResultsController;
+}
+
+//- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id )sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
+//    
+//    switch(type) {
+//            
+//        case NSFetchedResultsChangeInsert:
+//            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+//            break;
+//            
+//        case NSFetchedResultsChangeDelete:
+//            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+//            break;
+//    }
+//}
 
 @end

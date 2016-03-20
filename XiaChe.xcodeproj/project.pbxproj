@@ -99,6 +99,7 @@
 		8660B67D1C999855006917FC /* XiaChe */ = {
 			isa = PBXGroup;
 			children = (
+				8660B6D61C9D4308006917FC /* View */,
 				8660B69F1C999A13006917FC /* Others */,
 				8660B6A11C999ECE006917FC /* Data */,
 				8660B6A01C999A32006917FC /* Model */,
@@ -106,8 +107,6 @@
 				8660B6991C99989B006917FC /* SectionsViewController.m */,
 				8660B69A1C99989B006917FC /* StoryDetailViewController.h */,
 				8660B69B1C99989B006917FC /* StoryDetailViewController.m */,
-				8660B6C81C99CE7E006917FC /* SectionFooterView.h */,
-				8660B6C91C99CE7E006917FC /* SectionFooterView.m */,
 			);
 			path = XiaChe;
 			sourceTree = "<group>";
@@ -157,6 +156,15 @@
 				8660B6A61C99A090006917FC /* StorageManager.m */,
 			);
 			name = Data;
+			sourceTree = "<group>";
+		};
+		8660B6D61C9D4308006917FC /* View */ = {
+			isa = PBXGroup;
+			children = (
+				8660B6C81C99CE7E006917FC /* SectionFooterView.h */,
+				8660B6C91C99CE7E006917FC /* SectionFooterView.m */,
+			);
+			name = View;
 			sourceTree = "<group>";
 		};
 		EC762E8FA8B7ED454061C336 /* Pods */ = {

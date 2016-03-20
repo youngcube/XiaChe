@@ -17,7 +17,11 @@
 
 + (instancetype)sharedInstance
 {
-    StorageManager *manager = [[self alloc] init];
+    static StorageManager *manager = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        manager = [[self alloc] init];
+    });
     return manager;
 }
 
