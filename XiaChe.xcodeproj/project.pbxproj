@@ -17,7 +17,6 @@
 		8660B6A41C999EE9006917FC /* StoryModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6A21C999EE8006917FC /* StoryModel.xcdatamodeld */; };
 		8660B6A71C99A090006917FC /* StorageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6A61C99A090006917FC /* StorageManager.m */; };
 		8660B6A91C99A0EB006917FC /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8660B6A81C99A0EB006917FC /* CoreData.framework */; };
-		8660B6CA1C99CE7E006917FC /* SectionFooterView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6C91C99CE7E006917FC /* SectionFooterView.m */; };
 		8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6D41C9C6CC9006917FC /* SearchForNewFun.m */; };
 		8660B6E21C9F0104006917FC /* FunStory+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6DF1C9F0103006917FC /* FunStory+CoreDataProperties.m */; };
 		8660B6E31C9F0104006917FC /* FunStory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E11C9F0103006917FC /* FunStory.m */; };
@@ -48,8 +47,6 @@
 		8660B6A51C99A090006917FC /* StorageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageManager.h; sourceTree = "<group>"; };
 		8660B6A61C99A090006917FC /* StorageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StorageManager.m; sourceTree = "<group>"; };
 		8660B6A81C99A0EB006917FC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		8660B6C81C99CE7E006917FC /* SectionFooterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SectionFooterView.h; sourceTree = "<group>"; };
-		8660B6C91C99CE7E006917FC /* SectionFooterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SectionFooterView.m; sourceTree = "<group>"; };
 		8660B6D31C9C6CC9006917FC /* SearchForNewFun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchForNewFun.h; sourceTree = "<group>"; };
 		8660B6D41C9C6CC9006917FC /* SearchForNewFun.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchForNewFun.m; sourceTree = "<group>"; };
 		8660B6DE1C9F0103006917FC /* FunStory+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FunStory+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -105,9 +102,9 @@
 		8660B67D1C999855006917FC /* XiaChe */ = {
 			isa = PBXGroup;
 			children = (
+				8660B69F1C999A13006917FC /* Others */,
 				8660B6D71C9E9D59006917FC /* ViewController */,
 				8660B6D61C9D4308006917FC /* View */,
-				8660B69F1C999A13006917FC /* Others */,
 				8660B6A11C999ECE006917FC /* Data */,
 				8660B6A01C999A32006917FC /* Model */,
 			);
@@ -168,8 +165,6 @@
 		8660B6D61C9D4308006917FC /* View */ = {
 			isa = PBXGroup;
 			children = (
-				8660B6C81C99CE7E006917FC /* SectionFooterView.h */,
-				8660B6C91C99CE7E006917FC /* SectionFooterView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -321,7 +316,6 @@
 				8660B6801C999855006917FC /* main.m in Sources */,
 				8660B6E21C9F0104006917FC /* FunStory+CoreDataProperties.m in Sources */,
 				8660B6A41C999EE9006917FC /* StoryModel.xcdatamodeld in Sources */,
-				8660B6CA1C99CE7E006917FC /* SectionFooterView.m in Sources */,
 				8660B69C1C99989B006917FC /* SectionModel.m in Sources */,
 				8660B6A71C99A090006917FC /* StorageManager.m in Sources */,
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,

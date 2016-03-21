@@ -58,7 +58,7 @@
 //}
 
 #pragma mark - 批量返回更新的数据
-- (BOOL)accordingDateToLoopNewData
+- (void)accordingDateToLoopNewData
 {
     [self getLastestJson];
     // 如果一下子取超过50，可能会把第一个值返回多次。
@@ -69,7 +69,6 @@
         [self getJsonWithString:str];
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISHLOADING object:nil];
-    return YES;
 }
 
 #pragma mark - 批量返回更老的数据

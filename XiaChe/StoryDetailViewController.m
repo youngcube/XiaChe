@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     self = [super init];
     if (self){
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(afterFun)];
+//        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(afterFun)];
 //        self.navigationItem.title = self.detail.detailId;
     }
     return self;
@@ -43,16 +43,27 @@ typedef NS_ENUM(NSInteger, Steps){
     self.thisStoryTime = 0; //传入时间
     self.view.backgroundColor = [UIColor whiteColor];
 //    self.navigationController.navigationBarHidden = YES;
-    [self loadDetailData];
-    [self loadWebView];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadWebView) name:NSManagedObjectContextDidSaveNotification object:nil];
+    [self decideIfShoudGetDataFromNet];
     
+    
+}
+
+- (void)decideIfShoudGetDataFromNet
+{
+    if ([self fetchWebString].detailId == NULL){
+        [self loadDetailData];
+//        [self loadWebView];
+    }else{
+        [self loadWebView];
+    }
 }
 
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
-    NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,[self fetchWebString].detailId];
+    
+    NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
+    NSLog(@"detail URL = %@",url);
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
@@ -64,16 +75,15 @@ typedef NS_ENUM(NSInteger, Steps){
         st.body = detail.body;
         st.css = [detail.css lastObject];
         st.detailId = detail.detailId;
-        
-        
-        
         [[StorageManager sharedInstance].managedObjectContext save:nil];
-        
+        [self loadWebView];
         self.navigationItem.title = self.bigDetail.detailId;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
 }
+
+
 
 #pragma mark - 加载WebView
 
@@ -82,6 +92,10 @@ typedef NS_ENUM(NSInteger, Steps){
     self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
 //    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
+//    FunDetail *detail = [NSEntityDescription insertNewObjectForEntityForName:@"FunDetail" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+//    detail.body = self.passFun.detailId;
+    
+    
     [self.webView loadHTMLString:htmlString baseURL:nil];
     [self.view addSubview:self.webView];
     
@@ -98,7 +112,7 @@ typedef NS_ENUM(NSInteger, Steps){
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"detailId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
     NSPredicate *pre = [NSPredicate predicateWithFormat:@"detailId == %@",self.passFun.storyId];
-    NSLog(@"%@",self.self.passFun.storyId);
+    
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunDetail *detail = [array firstObject];

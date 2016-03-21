@@ -11,6 +11,6 @@
 @interface SearchForNewFun : NSObject
 + (instancetype)sharedInstance;
 - (NSString *)fetchLastestDayFromStorage:(BOOL)lastest;
-- (BOOL)accordingDateToLoopNewData;
+- (void)accordingDateToLoopNewData;
 - (void)accordingDateToLoopOldData;
 @end

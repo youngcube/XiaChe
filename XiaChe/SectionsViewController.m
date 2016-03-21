@@ -11,12 +11,11 @@
 #import "Consts.h"
 #import <AFNetworking/AFNetworking.h>
 #import "StoryDetailViewController.h"
-
+#import <MJRefresh/MJRefresh.h>
 #import "FunStory.h"
-#import "SectionFooterView.h"
 #import "SearchForNewFun.h"
 
-
+typedef void (^RefreshBlock)();
 
 @interface SectionsViewController ()
 @property (nonatomic, strong) SectionModel *model;
@@ -41,26 +40,8 @@
     [super viewDidLoad];
     self.formatter = [[NSDateFormatter alloc] init];
     [self.formatter setDateFormat:@"YYYYMMdd"];
-    [StorageManager sharedInstance];
-    
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pushToLastestStory) name:NOTIFICATION_FINISHLOADING object:nil];
-//    [self gcd];
-    
+    [self setupFooter];
     [self decideIfShouldGetNewJson];
-//    [self pushToLastestStory];
-    NSLog(@"view did load finished!");
-}
-
-- (void)gcd
-{
-    dispatch_group_t group = dispatch_group_create();
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_group_async(group, queue, ^{
-        [self decideIfShouldGetNewJson];
-    });
-    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-        [self pushToLastestStory];
-    });
 }
 
 - (void)decideIfShouldGetNewJson
@@ -70,17 +51,11 @@
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
-        
-//        FunStory *fun = [[self.fetchedResultsController fetchedObjects] firstObject];
-//        if (model.date == fun.storyDate){
         if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
             NSLog(@"不要刷新");
-            
         }else{
             NSLog(@"刷新");
-            if ([[SearchForNewFun sharedInstance] accordingDateToLoopNewData]){
-                [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:nil];
-            };
+            [[SearchForNewFun sharedInstance] accordingDateToLoopNewData];
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
@@ -95,8 +70,6 @@
     self.model = [SectionModel yy_modelWithDictionary:dict];
     for (Story *story in self.model.stories){
         if ([story.title hasPrefix:@"瞎扯"]) {
-            
-            
             StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
             NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,story.storyId];
             detail.url = url;
@@ -108,31 +81,12 @@
 #pragma mark - UI
 - (void)setupFooter
 {
-    SectionFooterView *foot = [SectionFooterView footer];
-    foot.frame = CGRectMake(0, 0, self.view.frame.size.width, 30);
-    self.tableView.tableFooterView = foot;
-    foot.hidden = YES;
-}
-
-#pragma mark - ScrollView Delegate
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-//    if (self.tableView.tableFooterView.isHidden == YES) return;
-//    CGFloat originY = scrollView.contentOffset.y;
-//    CGFloat lastCell = scrollView.contentSize.height + scrollView.contentInset.bottom - scrollView.frame.size.height - self.tableView.tableFooterView.frame.size.height;
-//    if (originY>=lastCell){
-//        self.tableView.tableFooterView.hidden = NO;
-//        getCount++;
-//        NSUInteger newint = EACH_TIME_FETCH_NUM * getCount;
-//        for (int i = 0 ; i < 50 ; i ++){
-//            NSUInteger newbig = i + newint;
-//            double newSign = 86400 * (double)newbig;
-//            NSDate *date = [NSDate dateWithTimeIntervalSinceNow:-newSign];
-//            NSString *bigstr = [self.formatter stringFromDate:date];
-//            [self getJsonWithString:bigstr];
-//            NSLog(@"new data%@",bigstr);
-//        }
-//    }
+    MJRefreshAutoNormalFooter *autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
+        [self.tableView.mj_footer endRefreshing];
+    }];
+//    [autoFooter setTitle:@"正在努力加载" forState:MJRefreshStateRefreshing];
+    self.tableView.mj_footer = autoFooter;
 }
 
 #pragma mark - TableView DataSource
@@ -164,13 +118,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
-//    FunStory *fun = [self.fetchedResultsController objectAtIndexPath:indexPath];
-//    detail.passFun = fun;
     FunStory *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
-//    NSString *storyId = object.storyId;
-//    NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,storyId];
-//    detail.url = url;
-//    detail.detailCleanId = storyId;
     detail.passFun = object;
     NSLog(@"%@",indexPath);
     [self.navigationController pushViewController:detail animated:YES];
