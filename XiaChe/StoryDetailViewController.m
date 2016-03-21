@@ -11,12 +11,19 @@
 #import "FunStory.h"
 #import "FunDetail.h"
 #import <AFNetworking/AFNetworking.h>
+#import "Consts.h"
 
 @interface StoryDetailViewController()
 //@property (nonatomic ,strong) StoryDetail *detail;
 @property (nonatomic ,strong) FunDetail *bigDetail;
-
+@property (nonatomic, strong) UIWebView *webView;
 @end
+
+
+typedef NS_ENUM(NSInteger, Steps){
+    kNext = 1,
+    kBefore = -1
+};
 
 @implementation StoryDetailViewController
 
@@ -24,7 +31,7 @@
 {
     self = [super init];
     if (self){
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(nextFun)];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(afterFun)];
 //        self.navigationItem.title = self.detail.detailId;
     }
     return self;
@@ -45,8 +52,9 @@
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
+    NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,[self fetchWebString].detailId];
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:self.url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+    [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
@@ -71,11 +79,15 @@
 
 -(void)loadWebView
 {
-    UIWebView *webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
 //    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
-    [webView loadHTMLString:htmlString baseURL:nil];
-    [self.view addSubview:webView];
+    [self.webView loadHTMLString:htmlString baseURL:nil];
+    [self.view addSubview:self.webView];
+    
+    NSString *newString = [self dateStringForInt:kNext];
+    NSString *before = [self dateStringForInt:kBefore];
+    NSLog(@"next = %@ , before = %@", newString , before);
 }
 
 - (FunDetail *)fetchWebString
@@ -85,24 +97,52 @@
     [fetchRequest setEntity:entity];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"detailId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
-    NSPredicate *pre = [NSPredicate predicateWithFormat:@"detailId == %@",self.detailCleanId];
-    NSLog(@"%@",self.detailCleanId);
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"detailId == %@",self.passFun.storyId];
+    NSLog(@"%@",self.self.passFun.storyId);
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunDetail *detail = [array firstObject];
-    
     return detail;
 }
 
+- (FunStory *)fetchDate
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+    [fetchRequest setEntity:entity];
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
+    [fetchRequest setSortDescriptors:@[sort]];
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyId == %@",self.detailCleanId];
+    NSLog(@"%@",self.detailCleanId);
+    [fetchRequest setPredicate:pre];
+    NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+    FunStory *funDate = [array firstObject];
+    return funDate;
+}
+
+
+
 #pragma mark - 加载下一篇
-- (void)nextFun
+- (NSString *)dateStringForInt:(Steps)step
 {
 //    SectionsViewController *vc = [[SectionsViewController alloc] init];
 //    NSIndexPath *index = [vc.fetchedResultsController indexPathForObject:self.bigFun];
     //传入时间 -1*86300
+    FunStory *sto = [self fetchDate];
+    NSString *todayString = sto.storyDate;
+    NSLog(@"today is %@",todayString);
     
+    NSDateFormatter *format = [[NSDateFormatter alloc] init];
+    [format setDateFormat:@"YYYYMMdd"];
+    NSDate *todayDate = [format dateFromString:todayString];
+    NSDate *nextRange = [NSDate dateWithTimeInterval:+86400*step sinceDate:todayDate];
     
+    NSString *newDateRangeString = [format stringFromDate:nextRange];
+    
+    NSLog(@"old String = %@",newDateRangeString);
+    return newDateRangeString;
 }
+
 
 - (NSString *)fetchLastestDayFromStorage
 {
@@ -113,8 +153,7 @@
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
     NSArray *late = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *fun = [late firstObject];
-    //    NSLog(@"%@",fun.storyDate);
-//    self.thisStoryTime++;
+    
     return fun.storyDate;
 }
 

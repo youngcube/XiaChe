@@ -47,7 +47,7 @@
 //    [self gcd];
     
     [self decideIfShouldGetNewJson];
-    [self pushToLastestStory];
+//    [self pushToLastestStory];
     NSLog(@"view did load finished!");
 }
 
@@ -167,10 +167,11 @@
 //    FunStory *fun = [self.fetchedResultsController objectAtIndexPath:indexPath];
 //    detail.passFun = fun;
     FunStory *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    NSString *storyId = object.storyId;
-    NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,storyId];
-    detail.url = url;
-    detail.detailCleanId = storyId;
+//    NSString *storyId = object.storyId;
+//    NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,storyId];
+//    detail.url = url;
+//    detail.detailCleanId = storyId;
+    detail.passFun = object;
     NSLog(@"%@",indexPath);
     [self.navigationController pushViewController:detail animated:YES];
 }
