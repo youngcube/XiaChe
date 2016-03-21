@@ -15,8 +15,6 @@
 #import "FunStory.h"
 #import "SearchForNewFun.h"
 
-typedef void (^RefreshBlock)();
-
 @interface SectionsViewController ()
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
