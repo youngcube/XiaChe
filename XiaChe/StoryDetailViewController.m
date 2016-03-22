@@ -11,12 +11,12 @@
 #import "FunStory.h"
 #import "FunDetail.h"
 #import <AFNetworking/AFNetworking.h>
+#import <Masonry.h>
 #import "Consts.h"
 
-@interface StoryDetailViewController()
-//@property (nonatomic ,strong) StoryDetail *detail;
-@property (nonatomic ,strong) FunDetail *bigDetail;
+@interface StoryDetailViewController()<UIWebViewDelegate,UIScrollViewDelegate>
 @property (nonatomic, strong) UIWebView *webView;
+@property (nonatomic, weak) UIScrollView *scrollView;
 @end
 
 
@@ -41,12 +41,56 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     [super viewDidLoad];
     
-    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
-    [self.view addSubview:self.webView];
+    [self setupScrollView];
     
     self.view.backgroundColor = [UIColor whiteColor];
-    self.navigationController.navigationBarHidden = YES;
-    [self decideIfShoudGetDataFromNet];
+//    [self decideIfShoudGetDataFromNet];
+    
+}
+
+- (void)setupScrollView
+{
+    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:self.view.frame];
+    scrollView.delegate = self;
+    scrollView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height * 3);
+    scrollView.pagingEnabled = YES;
+    scrollView.showsVerticalScrollIndicator = NO;
+    [self.view addSubview:scrollView];
+    self.scrollView = scrollView;
+    
+//    UIView *view1 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+//    view1.backgroundColor = [UIColor redColor];
+//    [self.scrollView addSubview:view1];
+//    
+//    UIView *view2 = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.height, 0, self.view.frame.size.width, self.view.frame.size.height)];
+//    view1.backgroundColor = [UIColor blueColor];
+//    [self.scrollView addSubview:view2];
+//    
+//    UIView *view3 = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.height*2, 0, self.view.frame.size.width, self.view.frame.size.height)];
+//    view1.backgroundColor = [UIColor orangeColor];
+//    [self.scrollView addSubview:view3];
+    
+//    self.webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+//    self.webView.delegate = self;
+//    self.webView.scrollView.delegate = self;
+//    [self.scrollView addSubview:self.webView];
+    
+    UIWebView *webView1 = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    [self.scrollView addSubview:webView1];
+    NSString *htmlString1 = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
+    [webView1 loadHTMLString:htmlString1 baseURL:nil];
+    
+    UIWebView *webView2 = [[UIWebView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, self.view.frame.size.height)];
+    NSString *htmlString2 = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
+    [webView2 loadHTMLString:htmlString2 baseURL:nil];
+    [self.scrollView addSubview:webView2];
+    
+    UIWebView *webView3 = [[UIWebView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height*2, self.view.frame.size.width, self.view.frame.size.height)];
+    NSString *htmlString3 = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
+    [webView3 loadHTMLString:htmlString3 baseURL:nil];
+    [self.scrollView addSubview:webView3];
+    
+//    [self loadWebView];
     
     
 }
@@ -55,7 +99,6 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     if ([self fetchWebString].detailId == NULL){
         [self loadDetailData];
-//        [self loadWebView];
     }else{
         [self loadWebView];
     }
@@ -64,9 +107,6 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
-    
-    
-    
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
     NSLog(@"detail URL = %@",url);
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
@@ -81,25 +121,21 @@ typedef NS_ENUM(NSInteger, Steps){
         st.detailId = detail.detailId;
         [[StorageManager sharedInstance].managedObjectContext save:nil];
         [self loadWebView];
-        self.navigationItem.title = self.bigDetail.detailId;
+        
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
 }
 
-
-
 #pragma mark - 加载WebView
-
 -(void)loadWebView
 {
-    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
-    [self.view addSubview:self.webView];
+//    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+//    [self.view addSubview:self.webView];
 //    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
 
-    
     [self.webView loadHTMLString:htmlString baseURL:nil];
 
     NSString *newString = [self dateStringForInt:kNext];
@@ -137,13 +173,9 @@ typedef NS_ENUM(NSInteger, Steps){
     return funDate;
 }
 
-
-
 #pragma mark - 加载下一篇
 - (NSString *)dateStringForInt:(Steps)step
 {
-//    SectionsViewController *vc = [[SectionsViewController alloc] init];
-//    NSIndexPath *index = [vc.fetchedResultsController indexPathForObject:self.bigFun];
     //传入时间 -1*86300
     FunStory *sto = [self fetchDate];
     NSString *todayString = sto.storyDate;
@@ -159,7 +191,6 @@ typedef NS_ENUM(NSInteger, Steps){
     return newDateRangeString;
 }
 
-
 - (NSString *)fetchLastestDayFromStorage
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -170,6 +201,12 @@ typedef NS_ENUM(NSInteger, Steps){
     NSArray *late = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *fun = [late firstObject];
     return fun.storyDate;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    CGPoint off = scrollView.contentOffset;
+    NSLog(@"%@",NSStringFromCGPoint(off));
 }
 
 @end
