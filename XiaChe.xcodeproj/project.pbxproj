@@ -22,6 +22,8 @@
 		8660B6E31C9F0104006917FC /* FunStory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E11C9F0103006917FC /* FunStory.m */; };
 		8660B6E81C9F0137006917FC /* FunDetail+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */; };
 		8660B6E91C9F0137006917FC /* FunDetail.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E71C9F0137006917FC /* FunDetail.m */; };
+		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
+		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
 		E2F4C05251C05686DFE83893 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E49BE52C9BF52D623685A7 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +59,10 @@
 		8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FunDetail+CoreDataProperties.m"; sourceTree = "<group>"; };
 		8660B6E61C9F0137006917FC /* FunDetail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FunDetail.h; sourceTree = "<group>"; };
 		8660B6E71C9F0137006917FC /* FunDetail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunDetail.m; sourceTree = "<group>"; };
+		BF6D12A61CA141EA00758CCF /* CustomNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationController.h; sourceTree = "<group>"; };
+		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
+		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
+		BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationBar.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +108,7 @@
 		8660B67D1C999855006917FC /* XiaChe */ = {
 			isa = PBXGroup;
 			children = (
+				BF6D12A41CA141BA00758CCF /* CustomViewController */,
 				8660B69F1C999A13006917FC /* Others */,
 				8660B6D71C9E9D59006917FC /* ViewController */,
 				8660B6D61C9D4308006917FC /* View */,
@@ -178,6 +185,25 @@
 				8660B69B1C99989B006917FC /* StoryDetailViewController.m */,
 			);
 			name = ViewController;
+			sourceTree = "<group>";
+		};
+		BF6D12A41CA141BA00758CCF /* CustomViewController */ = {
+			isa = PBXGroup;
+			children = (
+				BF6D12A91CA141F600758CCF /* View */,
+				BF6D12A61CA141EA00758CCF /* CustomNavigationController.h */,
+				BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */,
+			);
+			name = CustomViewController;
+			sourceTree = "<group>";
+		};
+		BF6D12A91CA141F600758CCF /* View */ = {
+			isa = PBXGroup;
+			children = (
+				BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */,
+				BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */,
+			);
+			name = View;
 			sourceTree = "<group>";
 		};
 		EC762E8FA8B7ED454061C336 /* Pods */ = {
@@ -315,10 +341,12 @@
 				8660B6E31C9F0104006917FC /* FunStory.m in Sources */,
 				8660B6801C999855006917FC /* main.m in Sources */,
 				8660B6E21C9F0104006917FC /* FunStory+CoreDataProperties.m in Sources */,
+				BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */,
 				8660B6A41C999EE9006917FC /* StoryModel.xcdatamodeld in Sources */,
 				8660B69C1C99989B006917FC /* SectionModel.m in Sources */,
 				8660B6A71C99A090006917FC /* StorageManager.m in Sources */,
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,
+				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,
 				8660B6E91C9F0137006917FC /* FunDetail.m in Sources */,
 			);

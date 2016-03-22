@@ -37,9 +37,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.formatter = [[NSDateFormatter alloc] init];
-    [self.formatter setDateFormat:@"YYYYMMdd"];
+    [self.formatter setDateFormat:@"yyyyMMdd"];
     [self setupFooter];
     [self decideIfShouldGetNewJson];
+
+    NSArray *string = [self.fetchedResultsController sections];
+    NSLog(@"%@",[[string lastObject] class]);
+
 }
 
 - (void)decideIfShouldGetNewJson
@@ -88,6 +92,11 @@
 }
 
 #pragma mark - TableView DataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return [[self.fetchedResultsController sections] count];
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][section];
@@ -105,12 +114,39 @@
     return cell;
 }
 
-#pragma mark - TableView Delegate
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    NSArray *sections = [[self fetchedResultsController] sections];
+    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
+    sectionInfo = [sections objectAtIndex:section];
+    return [sectionInfo name];
+}
+
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     FunStory *fun = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    cell.textLabel.text = fun.title;
-    cell.detailTextLabel.text = fun.storyDate;
+    cell.textLabel.text = fun.storyDate;
+    cell.detailTextLabel.text = fun.title;
+}
+
+#pragma mark - TableView Delegate
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    UILabel *view = [UILabel new];
+    NSArray *sections = [[self fetchedResultsController] sections];
+    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
+    sectionInfo = [sections objectAtIndex:section];
+    view.text = [sectionInfo name];
+    view.textColor = [UIColor whiteColor];
+    view.textAlignment = NSTextAlignmentCenter;
+    view.backgroundColor = [UIColor blueColor];
+    view.alpha = 0.5f;
+    return view;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 40;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -143,6 +179,26 @@
     }
 }
 
+- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
+    
+    switch(type) {
+            
+        case NSFetchedResultsChangeInsert:
+            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeDelete:
+            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+        
+        case NSFetchedResultsChangeMove:
+            break;
+            
+        case NSFetchedResultsChangeUpdate:
+            break;
+    }
+}
+
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
 {
     [[self tableView] beginUpdates];
@@ -168,7 +224,7 @@
         
         NSFetchedResultsController *fetchCtrl = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
                                                                                     managedObjectContext:manager.managedObjectContext
-                                                                                      sectionNameKeyPath:nil cacheName:@"funCell"];
+                                                                                      sectionNameKeyPath:@"simpleMonth" cacheName:@"cellId"];
         fetchCtrl.delegate = self;
         self.fetchedResultsController = fetchCtrl;
         NSError *error;
@@ -179,19 +235,5 @@
     }
     return _fetchedResultsController;
 }
-
-//- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id )sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
-//    
-//    switch(type) {
-//            
-//        case NSFetchedResultsChangeInsert:
-//            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-//            break;
-//            
-//        case NSFetchedResultsChangeDelete:
-//            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-//            break;
-//    }
-//}
 
 @end

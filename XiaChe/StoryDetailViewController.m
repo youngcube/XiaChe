@@ -40,9 +40,12 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.thisStoryTime = 0; //传入时间
+    
+    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+    [self.view addSubview:self.webView];
+    
     self.view.backgroundColor = [UIColor whiteColor];
-//    self.navigationController.navigationBarHidden = YES;
+    self.navigationController.navigationBarHidden = YES;
     [self decideIfShoudGetDataFromNet];
     
     
@@ -62,6 +65,8 @@ typedef NS_ENUM(NSInteger, Steps){
 -(void)loadDetailData
 {
     
+    
+    
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
     NSLog(@"detail URL = %@",url);
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
@@ -70,7 +75,6 @@ typedef NS_ENUM(NSInteger, Steps){
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         StoryDetail *detail = [StoryDetail yy_modelWithDictionary:responseObject];
-        
         FunDetail *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunDetail" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
         st.body = detail.body;
         st.css = [detail.css lastObject];
@@ -78,6 +82,7 @@ typedef NS_ENUM(NSInteger, Steps){
         [[StorageManager sharedInstance].managedObjectContext save:nil];
         [self loadWebView];
         self.navigationItem.title = self.bigDetail.detailId;
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
@@ -90,15 +95,13 @@ typedef NS_ENUM(NSInteger, Steps){
 -(void)loadWebView
 {
     self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+    [self.view addSubview:self.webView];
 //    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
-//    FunDetail *detail = [NSEntityDescription insertNewObjectForEntityForName:@"FunDetail" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-//    detail.body = self.passFun.detailId;
-    
+
     
     [self.webView loadHTMLString:htmlString baseURL:nil];
-    [self.view addSubview:self.webView];
-    
+
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);
@@ -147,12 +150,11 @@ typedef NS_ENUM(NSInteger, Steps){
     NSLog(@"today is %@",todayString);
     
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
-    [format setDateFormat:@"YYYYMMdd"];
+    [format setDateFormat:@"yyyyMMdd"];
     NSDate *todayDate = [format dateFromString:todayString];
     NSDate *nextRange = [NSDate dateWithTimeInterval:+86400*step sinceDate:todayDate];
     
     NSString *newDateRangeString = [format stringFromDate:nextRange];
-    
     NSLog(@"old String = %@",newDateRangeString);
     return newDateRangeString;
 }
@@ -167,7 +169,6 @@ typedef NS_ENUM(NSInteger, Steps){
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
     NSArray *late = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *fun = [late firstObject];
-    
     return fun.storyDate;
 }
 

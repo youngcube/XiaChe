@@ -15,7 +15,7 @@
 
 @interface SearchForNewFun ()
 @property (nonatomic, strong) SectionModel *model;
-@property (nonatomic, strong) NSArray *funStoryArray;
+//@property (nonatomic, strong) NSArray *funStoryArray;
 @property (nonatomic, strong) NSDateFormatter *formatter;
 @end
 
@@ -36,8 +36,7 @@
     self = [super init];
     if (self){
         self.formatter = [[NSDateFormatter alloc] init];
-        [self.formatter setDateFormat:@"YYYYMMdd"];
-        
+        [self.formatter setDateFormat:@"yyyyMMdd"];
     }
     return self;
 }
