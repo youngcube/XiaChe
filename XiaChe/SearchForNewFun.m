@@ -67,7 +67,6 @@
         
         [self getJsonWithString:str];
     }
-    [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISHLOADING object:nil];
 }
 
 #pragma mark - 批量返回更老的数据
@@ -77,7 +76,6 @@
     for (int i = 0 ; i < EACH_TIME_FETCH_NUM ; i ++){
         NSDate *oldDate = [self.formatter dateFromString:oldString];
         NSDate *oldDateRange = [NSDate dateWithTimeInterval:-86400*i sinceDate:oldDate];
-        
         NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
         [self getJsonWithString:oldDateRangeString];
     }
@@ -139,7 +137,7 @@
         }
         [[StorageManager sharedInstance].managedObjectContext save:nil];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
+//        NSLog(@"failed! %@",error);
     }];
 }
 

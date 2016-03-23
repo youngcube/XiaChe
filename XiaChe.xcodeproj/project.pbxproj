@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		861DC1B31CA2C829000602A8 /* DetailToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 861DC1B21CA2C829000602A8 /* DetailToolbar.m */; };
 		8660B6801C999855006917FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B67F1C999855006917FC /* main.m */; };
 		8660B6831C999855006917FC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6821C999855006917FC /* AppDelegate.m */; };
 		8660B68B1C999855006917FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8660B68A1C999855006917FC /* Assets.xcassets */; };
@@ -31,6 +32,8 @@
 		05C763C8077018BB0496F602 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		61292C93D30E7820BF32A7C1 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		65E49BE52C9BF52D623685A7 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		861DC1B11CA2C829000602A8 /* DetailToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailToolbar.h; sourceTree = "<group>"; };
+		861DC1B21CA2C829000602A8 /* DetailToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailToolbar.m; sourceTree = "<group>"; };
 		8660B67B1C999855006917FC /* XiaChe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XiaChe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8660B67F1C999855006917FC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8660B6811C999855006917FC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -172,6 +175,8 @@
 		8660B6D61C9D4308006917FC /* View */ = {
 			isa = PBXGroup;
 			children = (
+				861DC1B11CA2C829000602A8 /* DetailToolbar.h */,
+				861DC1B21CA2C829000602A8 /* DetailToolbar.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -348,6 +353,7 @@
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,
+				861DC1B31CA2C829000602A8 /* DetailToolbar.m in Sources */,
 				8660B6E91C9F0137006917FC /* FunDetail.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

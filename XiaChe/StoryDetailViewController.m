@@ -10,6 +10,7 @@
 #import "SectionsViewController.h"
 #import "FunStory.h"
 #import "FunDetail.h"
+#import "SearchForNewFun.h"
 #import <AFNetworking/AFNetworking.h>
 #import <Masonry.h>
 #import <MJRefresh.h>
@@ -21,6 +22,7 @@
 }
 @property (nonatomic, strong) UIWebView *webView;
 @property (nonatomic, weak) UIScrollView *scrollView;
+@property (nonatomic, copy) NSString *dateString;
 @end
 
 
@@ -44,17 +46,27 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    [self setupScrollView];
-    
     self.view.backgroundColor = [UIColor whiteColor];
-//    [self decideIfShoudGetDataFromNet];
-//    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 320, self.view.bounds.size.width, 40)];
-//    toolBar.backgroundColor = [UIColor redColor];
-//    [self.webView addSubview:toolBar];
+    [self setupToolbar];
+    [self setupWebView];
 }
 
-- (void)setupScrollView
+- (void)setupToolbar
+{
+    [self.navigationController setToolbarHidden:NO animated:YES];
+    UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+    fixWidth.width = 10;
+    UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward target:self action:@selector(switchToNewDetail:)];
+    nextBtn.tag = 1001;
+    
+    UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(switchToNewDetail:)];
+    beforeBtn.tag = 1002;
+    
+    [self setToolbarItems:@[flex,nextBtn,fixWidth,beforeBtn] animated:YES];
+}
+
+- (void)setupWebView
 {
 //    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:self.view.frame];
 //    scrollView.delegate = self;
@@ -65,12 +77,22 @@ typedef NS_ENUM(NSInteger, Steps){
     self.webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
     self.webView.delegate = self;
     self.webView.scrollView.delegate = self;
+    self.webView.backgroundColor = RGBCOLOR(249, 249, 249);
+    self.webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
+    
+//    UIView *newView = [[UIView alloc] initWithFrame:CGRectMake(10, 10, 100, 100)];
+//    newView.backgroundColor = [UIColor redColor];
+//    [self.webView.scrollView addSubview:newView];
+    
+    
+    
+//    self.webView.scrollView.backgroundColor = [UIColor redColor];
     [self.view addSubview:self.webView];
     
     [self decideIfShoudGetDataFromNet];
 //    scrollView.contentSize = self.webView.bounds.size;
     
-    NSLog(@"加载前的scrollview contentSize %@",NSStringFromCGSize(self.webView.scrollView.contentSize));
+//    NSLog(@"加载前的scrollview contentSize %@",NSStringFromCGSize(self.webView.scrollView.contentSize));
 }
 
 - (void)decideIfShoudGetDataFromNet
@@ -78,7 +100,7 @@ typedef NS_ENUM(NSInteger, Steps){
     if ([self fetchWebString].detailId == NULL){
         [self loadDetailData];
     }else{
-        [self loadWebView];
+        [self loadWebView:[self fetchWebString]];
     }
 }
 
@@ -102,24 +124,37 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if (scrollView.contentOffset.y >= webHeight + 50){
-        NSLog(@"下拉加载更多");
-        [self loadWebView];
-    }
-    if (scrollView.contentOffset.y <= -(64+50)){
-        NSLog(@"shang拉加载更多");
-        [self loadWebView];
-    }
+//    if (scrollView.contentOffset.y >= webHeight + 90){
+//        NSLog(@"shang拉加载更多");
+//        [UIView animateWithDuration:1.0 animations:^{
+//            self.webView.scrollView.contentInset = UIEdgeInsetsMake(-self.webView.scrollView.contentSize.height-20+100, 0, 0, 0);
+//        } completion:^(BOOL finished) {
+//            [self.webView.scrollView setFrame:CGRectMake(0, self.webView.scrollView.contentSize.height, self.view.bounds.size.width, 0)];
+//            
+//        }];
+//        
+//        
+//        
+//    }
+//    if (scrollView.contentOffset.y <= -(64+90)){
+//        NSLog(@"xia拉加载更多");
+//        [UIView animateWithDuration:1.0 animations:^{
+//            self.webView.scrollView.contentInset = UIEdgeInsetsMake(-64, 0, 0, 0);
+//        } completion:^(BOOL finished) {
+//            [self.webView.scrollView setFrame:CGRectMake(0, self.webView.scrollView.contentSize.height, self.view.bounds.size.width, 0)];
+//            
+//        }];
+//    }
 }
 
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
-    NSLog(@"detail URL = %@",url);
+//    NSLog(@"detail URL = %@",url);
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
+//        NSLog(@"Progress ----------- %lld",downloadProgress.totalUnitCount);
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         StoryDetail *detail = [StoryDetail yy_modelWithDictionary:responseObject];
@@ -128,23 +163,23 @@ typedef NS_ENUM(NSInteger, Steps){
         st.css = [detail.css lastObject];
         st.detailId = detail.detailId;
         [[StorageManager sharedInstance].managedObjectContext save:nil];
-        [self loadWebView];
+        [self loadWebView:[self fetchWebString]];
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
+//        NSLog(@"failed! %@",error);
     }];
 }
 
 #pragma mark - 加载WebView
--(void)loadWebView
+-(void)loadWebView:(FunDetail *)funDetail
 {
 //    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
 //    [self.view addSubview:self.webView];
 //    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
-    NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
-
+    NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", funDetail.css, funDetail.body];
     [self.webView loadHTMLString:htmlString baseURL:nil];
-
+    self.title = funDetail.storyId.title;
+//    NSLog(@"%@",funDetail.storyId.title);
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);
@@ -165,6 +200,7 @@ typedef NS_ENUM(NSInteger, Steps){
     return detail;
 }
 
+#pragma mark - 获取当前storyId所处的FunStory Model
 - (FunStory *)fetchDate
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -172,21 +208,21 @@ typedef NS_ENUM(NSInteger, Steps){
     [fetchRequest setEntity:entity];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
-    NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyId == %@",self.detailCleanId];
-    NSLog(@"%@",self.detailCleanId);
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyId == %@",self.passFun.storyId];
+//    NSLog(@"%@",self.detailCleanId);
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *funDate = [array firstObject];
     return funDate;
 }
 
-#pragma mark - 加载下一篇
+#pragma mark - 计算当前时间的前一天和后一天
 - (NSString *)dateStringForInt:(Steps)step
 {
     //传入时间 -1*86300
     FunStory *sto = [self fetchDate];
     NSString *todayString = sto.storyDate;
-    NSLog(@"today is %@",todayString);
+//    NSLog(@"today is %@",todayString);
     
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
     [format setDateFormat:@"yyyyMMdd"];
@@ -194,10 +230,11 @@ typedef NS_ENUM(NSInteger, Steps){
     NSDate *nextRange = [NSDate dateWithTimeInterval:+86400*step sinceDate:todayDate];
     
     NSString *newDateRangeString = [format stringFromDate:nextRange];
-    NSLog(@"old String = %@",newDateRangeString);
+//    NSLog(@"old String = %@",newDateRangeString);
     return newDateRangeString;
 }
 
+#pragma mark - 直接从CoreData读取最新的文章
 - (NSString *)fetchLastestDayFromStorage
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -210,6 +247,42 @@ typedef NS_ENUM(NSInteger, Steps){
     return fun.storyDate;
 }
 
-
+- (void)switchToNewDetail:(UIBarButtonItem *)sender
+{
+    if (sender.tag == 1001){
+        self.dateString = [self dateStringForInt:kNext];
+    }else if(sender.tag == 1002){
+        self.dateString = [self dateStringForInt:kBefore];
+    }
+    
+    
+    //知乎日报可能会没有瞎扯，跳过
+    if ([self.dateString isEqualToString:@"19700101"]){
+        
+    }
+    
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+    [fetchRequest setEntity:entity];
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
+    [fetchRequest setSortDescriptors:@[sort]];
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
+    NSLog(@"今天的日期是！ %@",self.dateString);
+    [fetchRequest setPredicate:pre];
+    NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+    FunStory *funDate = [array firstObject];
+    
+    if (funDate == NULL){
+        [[SearchForNewFun sharedInstance] getJsonWithString:self.dateString];
+        self.passFun = funDate;
+    }else{
+        self.passFun = funDate;
+    }
+    
+    
+    
+    [self decideIfShoudGetDataFromNet];
+}
 
 @end

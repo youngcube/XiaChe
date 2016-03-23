@@ -13,4 +13,5 @@
 - (NSString *)fetchLastestDayFromStorage:(BOOL)lastest;
 - (void)accordingDateToLoopNewData;
 - (void)accordingDateToLoopOldData;
+- (void)getJsonWithString:(NSString *)dateString;
 @end
