@@ -110,9 +110,10 @@
                 st.storyDate = self.model.date;
                 st.title = story.title;
                 st.storyId = story.storyId;
+                [[StorageManager sharedInstance].managedObjectContext save:nil];
             }
         }
-        [[StorageManager sharedInstance].managedObjectContext save:nil];
+//        [[StorageManager sharedInstance].managedObjectContext save:nil];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
@@ -133,9 +134,10 @@
                 st.storyDate = self.model.date;
                 st.title = story.title;
                 st.storyId = story.storyId;
+                [[StorageManager sharedInstance].managedObjectContext save:nil];
             }
         }
-        [[StorageManager sharedInstance].managedObjectContext save:nil];
+//        [[StorageManager sharedInstance].managedObjectContext save:nil];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 //        NSLog(@"failed! %@",error);
     }];

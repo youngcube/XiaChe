@@ -144,7 +144,7 @@
 #pragma mark - TableView Delegate
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    UIButton *view = [[UIButton alloc] init];
+    UIButton *view = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
     NSArray *sections = [[self fetchedResultsController] sections];
     id <NSFetchedResultsSectionInfo> sectionInfo = nil;
     sectionInfo = [sections objectAtIndex:section];
