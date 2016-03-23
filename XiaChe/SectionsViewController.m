@@ -19,7 +19,6 @@
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @property (nonatomic, strong) NSDateFormatter *formatter;
-
 @end
 
 @implementation SectionsViewController
@@ -83,6 +82,13 @@
 #pragma mark - UI
 - (void)setupFooter
 {
+    
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        [self decideIfShouldGetNewJson];
+        [self.tableView.mj_header endRefreshing];
+    }];
+    self.tableView.mj_header = header;
+
     MJRefreshAutoNormalFooter *autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
         [self.tableView.mj_footer endRefreshing];
@@ -132,16 +138,21 @@
 #pragma mark - TableView Delegate
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    UILabel *view = [UILabel new];
+    UIButton *view = [[UIButton alloc] init];
     NSArray *sections = [[self fetchedResultsController] sections];
     id <NSFetchedResultsSectionInfo> sectionInfo = nil;
     sectionInfo = [sections objectAtIndex:section];
-    view.text = [sectionInfo name];
-    view.textColor = [UIColor whiteColor];
-    view.textAlignment = NSTextAlignmentCenter;
+    view.titleLabel.text = [sectionInfo name];
+    view.titleLabel.textColor = [UIColor whiteColor];
+    view.titleLabel.textAlignment = NSTextAlignmentCenter;
     view.backgroundColor = [UIColor blueColor];
     view.alpha = 0.5f;
+    [view addTarget:self action:@selector(presed:) forControlEvents:UIControlEventTouchUpInside];
     return view;
+}
+
+- (void)presed:(UIButton *)btn{
+    NSLog(@"点击了！");
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section

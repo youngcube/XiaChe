@@ -12,9 +12,13 @@
 #import "FunDetail.h"
 #import <AFNetworking/AFNetworking.h>
 #import <Masonry.h>
+#import <MJRefresh.h>
 #import "Consts.h"
 
 @interface StoryDetailViewController()<UIWebViewDelegate,UIScrollViewDelegate>
+{
+    CGFloat webHeight;
+}
 @property (nonatomic, strong) UIWebView *webView;
 @property (nonatomic, weak) UIScrollView *scrollView;
 @end
@@ -45,54 +49,28 @@ typedef NS_ENUM(NSInteger, Steps){
     
     self.view.backgroundColor = [UIColor whiteColor];
 //    [self decideIfShoudGetDataFromNet];
-    
+//    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 320, self.view.bounds.size.width, 40)];
+//    toolBar.backgroundColor = [UIColor redColor];
+//    [self.webView addSubview:toolBar];
 }
 
 - (void)setupScrollView
 {
-    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:self.view.frame];
-    scrollView.delegate = self;
-    scrollView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height * 3);
-    scrollView.pagingEnabled = YES;
-    scrollView.showsVerticalScrollIndicator = NO;
-    [self.view addSubview:scrollView];
-    self.scrollView = scrollView;
-    
-//    UIView *view1 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-//    view1.backgroundColor = [UIColor redColor];
-//    [self.scrollView addSubview:view1];
+//    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:self.view.frame];
+//    scrollView.delegate = self;
 //    
-//    UIView *view2 = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.height, 0, self.view.frame.size.width, self.view.frame.size.height)];
-//    view1.backgroundColor = [UIColor blueColor];
-//    [self.scrollView addSubview:view2];
-//    
-//    UIView *view3 = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.height*2, 0, self.view.frame.size.width, self.view.frame.size.height)];
-//    view1.backgroundColor = [UIColor orangeColor];
-//    [self.scrollView addSubview:view3];
+//    [self.view addSubview:scrollView];
+//    self.scrollView = scrollView;
     
-//    self.webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-//    self.webView.delegate = self;
-//    self.webView.scrollView.delegate = self;
-//    [self.scrollView addSubview:self.webView];
+    self.webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    self.webView.delegate = self;
+    self.webView.scrollView.delegate = self;
+    [self.view addSubview:self.webView];
     
-    UIWebView *webView1 = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-    [self.scrollView addSubview:webView1];
-    NSString *htmlString1 = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
-    [webView1 loadHTMLString:htmlString1 baseURL:nil];
+    [self decideIfShoudGetDataFromNet];
+//    scrollView.contentSize = self.webView.bounds.size;
     
-    UIWebView *webView2 = [[UIWebView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, self.view.frame.size.height)];
-    NSString *htmlString2 = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
-    [webView2 loadHTMLString:htmlString2 baseURL:nil];
-    [self.scrollView addSubview:webView2];
-    
-    UIWebView *webView3 = [[UIWebView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height*2, self.view.frame.size.width, self.view.frame.size.height)];
-    NSString *htmlString3 = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", [self fetchWebString].css, [self fetchWebString].body];
-    [webView3 loadHTMLString:htmlString3 baseURL:nil];
-    [self.scrollView addSubview:webView3];
-    
-//    [self loadWebView];
-    
-    
+    NSLog(@"加载前的scrollview contentSize %@",NSStringFromCGSize(self.webView.scrollView.contentSize));
 }
 
 - (void)decideIfShoudGetDataFromNet
@@ -100,6 +78,36 @@ typedef NS_ENUM(NSInteger, Steps){
     if ([self fetchWebString].detailId == NULL){
         [self loadDetailData];
     }else{
+        [self loadWebView];
+    }
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    
+    webHeight = self.webView.scrollView.contentSize.height - self.view.bounds.size.height;
+//    NSLog(@"加载完毕后的webHeight %f",webHeight);
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+//    NSLog(@"contentOffset.y = %f",scrollView.contentOffset.y);
+    if (scrollView.contentOffset.y >= webHeight + 50){
+//        NSLog(@"下拉加载更多");
+    }
+    if (scrollView.contentOffset.y <= -(64+50)){
+//        NSLog(@"上拉加载更多");
+    }
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    if (scrollView.contentOffset.y >= webHeight + 50){
+        NSLog(@"下拉加载更多");
+        [self loadWebView];
+    }
+    if (scrollView.contentOffset.y <= -(64+50)){
+        NSLog(@"shang拉加载更多");
         [self loadWebView];
     }
 }
@@ -121,7 +129,6 @@ typedef NS_ENUM(NSInteger, Steps){
         st.detailId = detail.detailId;
         [[StorageManager sharedInstance].managedObjectContext save:nil];
         [self loadWebView];
-        
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
@@ -203,10 +210,6 @@ typedef NS_ENUM(NSInteger, Steps){
     return fun.storyDate;
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    CGPoint off = scrollView.contentOffset;
-    NSLog(@"%@",NSStringFromCGPoint(off));
-}
+
 
 @end
