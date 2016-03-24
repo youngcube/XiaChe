@@ -10,7 +10,8 @@
 #import "StorageManager.h"
 #import "FunStory.h"
 #import "Consts.h"
-#import <AFNetworking/AFNetworking.h>
+//#import <AFNetworking/AFNetworking.h>
+#import "HTTPSession.h"
 #import "SectionModel.h"
 
 @interface SearchForNewFun ()
@@ -131,10 +132,12 @@
         for (Story *story in self.model.stories){
             if ([story.title hasPrefix:@"瞎扯"]) {
                 FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                NSLog(@"self.model.date == %@",self.model.date);
                 st.storyDate = self.model.date;
                 st.title = story.title;
                 st.storyId = story.storyId;
                 [[StorageManager sharedInstance].managedObjectContext save:nil];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_SWITCH_FUN object:nil];
             }
         }
 //        [[StorageManager sharedInstance].managedObjectContext save:nil];

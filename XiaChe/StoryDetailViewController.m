@@ -49,6 +49,15 @@ typedef NS_ENUM(NSInteger, Steps){
     self.view.backgroundColor = [UIColor whiteColor];
     [self setupToolbar];
     [self setupWebView];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hasFetchRequest) name:NOTIFICATION_SWITCH_FUN object:nil];
+    
+    
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)setupToolbar
@@ -148,7 +157,7 @@ typedef NS_ENUM(NSInteger, Steps){
 }
 
 #pragma mark - 将JSON装载到DetailItem中
--(void)loadDetailData
+- (void)loadDetailData
 {
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
 //    NSLog(@"detail URL = %@",url);
@@ -256,10 +265,7 @@ typedef NS_ENUM(NSInteger, Steps){
     }
     
     
-    //知乎日报可能会没有瞎扯，跳过
-    if ([self.dateString isEqualToString:@"19700101"]){
-        
-    }
+    
     
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -268,20 +274,47 @@ typedef NS_ENUM(NSInteger, Steps){
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
     NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
-    NSLog(@"今天的日期是！ %@",self.dateString);
+    
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *funDate = [array firstObject];
     
     if (funDate == NULL){
+        NSLog(@"准备fetch的日期是！ %@",self.dateString);
         [[SearchForNewFun sharedInstance] getJsonWithString:self.dateString];
-        self.passFun = funDate;
+        
+    
+        
+        
+//        [[SearchForNewFun sharedInstance] getJsonWithString:self.dateString];
+//        NSArray *newArray = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+//        FunStory *newDate = [newArray firstObject];
+//        self.passFun = newDate;
     }else{
         self.passFun = funDate;
+        [self decideIfShoudGetDataFromNet];
     }
     
     
     
+    
+}
+
+- (void)hasFetchRequest
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+    [fetchRequest setEntity:entity];
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
+    [fetchRequest setSortDescriptors:@[sort]];
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
+    NSLog(@"今天的日期是！ %@",self.dateString);
+    [fetchRequest setPredicate:pre];
+    
+    
+    NSArray *newArray = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+    FunStory *newDate = [newArray firstObject];
+    self.passFun = newDate;
     [self decideIfShoudGetDataFromNet];
 }
 

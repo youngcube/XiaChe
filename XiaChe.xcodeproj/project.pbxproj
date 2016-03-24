@@ -25,6 +25,7 @@
 		8660B6E91C9F0137006917FC /* FunDetail.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E71C9F0137006917FC /* FunDetail.m */; };
 		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
 		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
+		BFDDE1D71CA3DF8D0053BF82 /* HTTPSession.m in Sources */ = {isa = PBXBuildFile; fileRef = BFDDE1D61CA3DF8D0053BF82 /* HTTPSession.m */; };
 		E2F4C05251C05686DFE83893 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E49BE52C9BF52D623685A7 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +67,9 @@
 		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
 		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
 		BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationBar.m; sourceTree = "<group>"; };
+		BFDDE1D51CA3DF8D0053BF82 /* HTTPSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPSession.h; sourceTree = "<group>"; };
+		BFDDE1D61CA3DF8D0053BF82 /* HTTPSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPSession.m; sourceTree = "<group>"; };
+		BFDDE1D91CA3E01A0053BF82 /* Singleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Singleton.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +136,7 @@
 		8660B69F1C999A13006917FC /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				BFDDE1D91CA3E01A0053BF82 /* Singleton.h */,
 				8660B6951C99989B006917FC /* Consts.h */,
 				8660B6811C999855006917FC /* AppDelegate.h */,
 				8660B6821C999855006917FC /* AppDelegate.m */,
@@ -150,6 +155,8 @@
 				8660B6971C99989B006917FC /* SectionModel.m */,
 				8660B6D31C9C6CC9006917FC /* SearchForNewFun.h */,
 				8660B6D41C9C6CC9006917FC /* SearchForNewFun.m */,
+				BFDDE1D51CA3DF8D0053BF82 /* HTTPSession.h */,
+				BFDDE1D61CA3DF8D0053BF82 /* HTTPSession.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -352,6 +359,7 @@
 				8660B6A71C99A090006917FC /* StorageManager.m in Sources */,
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
+				BFDDE1D71CA3DF8D0053BF82 /* HTTPSession.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,
 				861DC1B31CA2C829000602A8 /* DetailToolbar.m in Sources */,
 				8660B6E91C9F0137006917FC /* FunDetail.m in Sources */,
