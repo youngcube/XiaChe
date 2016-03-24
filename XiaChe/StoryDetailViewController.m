@@ -294,11 +294,8 @@ typedef NS_ENUM(NSInteger, Steps){
         self.passFun = funDate;
         [self decideIfShoudGetDataFromNet];
     }
-    
-    
-    
-    
 }
+
 
 - (void)hasFetchRequest
 {

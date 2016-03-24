@@ -43,6 +43,13 @@
     NSArray *string = [self.fetchedResultsController sections];
     NSLog(@"%@",[[string lastObject] class]);
 
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mjEndRefresh) name:NOTIFICATION_FINISH_LOADING object:nil];
+}
+
+- (void)mjEndRefresh
+{
+    [self.tableView.mj_header endRefreshing];
+    [self.tableView.mj_footer endRefreshing];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -60,6 +67,7 @@
         SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
         if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
             NSLog(@"不要刷新");
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISH_LOADING object:nil];
         }else{
             NSLog(@"刷新");
             [[SearchForNewFun sharedInstance] accordingDateToLoopNewData];
@@ -91,13 +99,13 @@
     
     MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         [self decideIfShouldGetNewJson];
-        [self.tableView.mj_header endRefreshing];
+//        [self.tableView.mj_header endRefreshing];
     }];
     self.tableView.mj_header = header;
 
     MJRefreshAutoNormalFooter *autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
-        [self.tableView.mj_footer endRefreshing];
+//        [self.tableView.mj_footer endRefreshing];
     }];
 //    [autoFooter setTitle:@"正在努力加载" forState:MJRefreshStateRefreshing];
     self.tableView.mj_footer = autoFooter;

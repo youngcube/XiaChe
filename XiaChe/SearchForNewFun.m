@@ -14,10 +14,16 @@
 #import "HTTPSession.h"
 #import "SectionModel.h"
 
-@interface SearchForNewFun ()
+@interface SearchForNewFun ()<NSURLSessionTaskDelegate>
+{
+    NSString *storyDate;
+    NSString *storyId;
+    NSString *title;
+}
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSArray *funStoryArray;
 @property (nonatomic, strong) NSDateFormatter *formatter;
+@property (nonatomic, copy) NSString *thisDate;
 @end
 
 @implementation SearchForNewFun
@@ -38,6 +44,7 @@
     if (self){
         self.formatter = [[NSDateFormatter alloc] init];
         [self.formatter setDateFormat:@"yyyyMMdd"];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveData) name:NOTIFICATION_FINISH_DOWNLOAD object:nil];
     }
     return self;
 }
@@ -78,8 +85,14 @@
         NSDate *oldDate = [self.formatter dateFromString:oldString];
         NSDate *oldDateRange = [NSDate dateWithTimeInterval:-86400*i sinceDate:oldDate];
         NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
-        [self getJsonWithString:oldDateRangeString];
+        [self newDataThisString:oldDateRangeString];
+//        [self getJsonWithString:oldDateRangeString];
     }
+}
+
+- (NSString *)thisDate
+{
+    return [self fetchLastestDayFromStorage:YES];
 }
 
 #pragma mark - 获取CoreData内存储的 最新:NO / 最老:YES 日期
@@ -125,25 +138,68 @@
 {
     NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    
+    
+    
+    
     [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         self.model = [SectionModel yy_modelWithJSON:responseObject];
         for (Story *story in self.model.stories){
             if ([story.title hasPrefix:@"瞎扯"]) {
-                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-                NSLog(@"self.model.date == %@",self.model.date);
-                st.storyDate = self.model.date;
-                st.title = story.title;
-                st.storyId = story.storyId;
-                [[StorageManager sharedInstance].managedObjectContext save:nil];
-                [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_SWITCH_FUN object:nil];
+                
+                
+                storyDate = self.model.date;
+                title = story.title;
+                storyId = story.storyId;
+                [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISH_DOWNLOAD object:nil];
             }
         }
-//        [[StorageManager sharedInstance].managedObjectContext save:nil];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 //        NSLog(@"failed! %@",error);
     }];
+    
+    
+    
+}
+
+- (void)saveData
+{
+    if ([[self fetchLastestDayFromStorage:YES] isEqualToString:storyDate]){
+        return;
+    }
+    
+    
+    
+    FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+    NSLog(@"self.model.date == %@",self.model.date);
+    st.storyDate = storyDate;
+    st.title = title;
+    st.storyId = storyId;
+    [[StorageManager sharedInstance].managedObjectContext save:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_SWITCH_FUN object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISH_LOADING object:nil];
+}
+
+- (void)newDataThisString:(NSString *)dateString
+{
+    NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
+    NSURLSessionConfiguration *configure = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configure delegate:self delegateQueue:NSOperationQueuePriorityNormal];
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:str]];
+    
+    [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSLog(@"getNewData -- %@",data);
+    }];
+    
+//    NSURLSessionDataTask *task = [NSURLSessionDataTask ]
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+    NSLog(@"recive delegate");
 }
 
 @end
