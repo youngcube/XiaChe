@@ -124,17 +124,21 @@
 - (void)getJsonWithString:(NSString *)dateString
 {
     NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
+    
+    
+    
+    
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     
     [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         self.model = [SectionModel yy_modelWithJSON:responseObject];
-        
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
         [fetchRequest setEntity:entity];
         NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.model.date];
+        NSLog(@"self.model.date = %@",self.model.date);
         [fetchRequest setPredicate:pre];
         NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
         NSLog(@"fetch array count = %lu",(unsigned long)array.count);
@@ -153,6 +157,8 @@
             }
             [[StorageManager sharedInstance].managedObjectContext save:nil];
         }
+
+        
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
