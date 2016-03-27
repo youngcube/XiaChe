@@ -23,6 +23,7 @@
 		8660B6E31C9F0104006917FC /* FunStory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E11C9F0103006917FC /* FunStory.m */; };
 		8660B6E81C9F0137006917FC /* FunDetail+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */; };
 		8660B6E91C9F0137006917FC /* FunDetail.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E71C9F0137006917FC /* FunDetail.m */; };
+		86E930101CA81F32006D039A /* StoryDetailWKWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9300F1CA81F32006D039A /* StoryDetailWKWebViewController.m */; };
 		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
 		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
 		E2F4C05251C05686DFE83893 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E49BE52C9BF52D623685A7 /* libPods.a */; };
@@ -62,6 +63,8 @@
 		8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FunDetail+CoreDataProperties.m"; sourceTree = "<group>"; };
 		8660B6E61C9F0137006917FC /* FunDetail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FunDetail.h; sourceTree = "<group>"; };
 		8660B6E71C9F0137006917FC /* FunDetail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunDetail.m; sourceTree = "<group>"; };
+		86E9300E1CA81F32006D039A /* StoryDetailWKWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoryDetailWKWebViewController.h; sourceTree = "<group>"; };
+		86E9300F1CA81F32006D039A /* StoryDetailWKWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StoryDetailWKWebViewController.m; sourceTree = "<group>"; };
 		BF6D12A61CA141EA00758CCF /* CustomNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationController.h; sourceTree = "<group>"; };
 		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
 		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
@@ -188,6 +191,8 @@
 				8660B6991C99989B006917FC /* SectionsViewController.m */,
 				8660B69A1C99989B006917FC /* StoryDetailViewController.h */,
 				8660B69B1C99989B006917FC /* StoryDetailViewController.m */,
+				86E9300E1CA81F32006D039A /* StoryDetailWKWebViewController.h */,
+				86E9300F1CA81F32006D039A /* StoryDetailWKWebViewController.m */,
 			);
 			name = ViewController;
 			sourceTree = "<group>";
@@ -352,6 +357,7 @@
 				8660B6A71C99A090006917FC /* StorageManager.m in Sources */,
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
+				86E930101CA81F32006D039A /* StoryDetailWKWebViewController.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,
 				861DC1B31CA2C829000602A8 /* DetailToolbar.m in Sources */,
 				8660B6E91C9F0137006917FC /* FunDetail.m in Sources */,

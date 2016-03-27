@@ -1,51 +1,36 @@
 //
-//  StoryDetailViewController.m
-//  XIaCheDaily
+//  StoryDetailWKWebViewController.m
+//  XiaChe
 //
-//  Created by cube on 3/16/16.
+//  Created by cube on 3/27/16.
 //  Copyright © 2016 cube. All rights reserved.
 //
 
-#import "StoryDetailViewController.h"
+#import "StoryDetailWKWebViewController.h"
+#import <WebKit/WebKit.h>
 #import "SectionsViewController.h"
 #import "FunStory.h"
 #import "FunDetail.h"
 #import "SearchForNewFun.h"
 #import <AFNetworking/AFNetworking.h>
-#import <Masonry.h>
 #import <MJRefresh.h>
 #import "Consts.h"
 #import <MBProgressHUD.h>
 #import "UIImageView+WebCache.h"
-
-@interface StoryDetailViewController()<UIWebViewDelegate,UIScrollViewDelegate>
-{
-    CGFloat webHeight;
-}
+@interface StoryDetailWKWebViewController ()
 @property (nonatomic, weak) UIWebView *webView;
 @property (nonatomic, weak) UIImageView *topImage;
 //@property (nonatomic, weak) UIScrollView *scrollView;
 @property (nonatomic, copy) NSString *dateString;
 @property (nonatomic) BOOL getNextFun;
-//@property (nonatomic, strong) MBProgressHUD *hud;
 @end
+
+@implementation StoryDetailWKWebViewController
 
 typedef NS_ENUM(NSInteger, Steps){
     kNext = 1,
     kBefore = -1
 };
-
-@implementation StoryDetailViewController
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self){
-//        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(afterFun)];
-//        self.navigationItem.title = self.detail.detailId;
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
@@ -112,7 +97,7 @@ typedef NS_ENUM(NSInteger, Steps){
     
     
     [self decideIfShoudGetDataFromNet];
-
+    
 }
 
 - (void)decideIfShoudGetDataFromNet
@@ -124,32 +109,14 @@ typedef NS_ENUM(NSInteger, Steps){
     }
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView
-{
-    
-    webHeight = self.webView.scrollView.contentSize.height - self.view.bounds.size.height;
-//    NSLog(@"加载完毕后的webHeight %f",webHeight);
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-//    NSLog(@"contentOffset.y = %f",scrollView.contentOffset.y);
-    if (scrollView.contentOffset.y >= webHeight + 50){
-//        NSLog(@"下拉加载更多");
-    }
-    if (scrollView.contentOffset.y <= -(64+50)){
-//        NSLog(@"上拉加载更多");
-    }
-}
-
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
-//    NSLog(@"detail URL = %@",url);
+    //    NSLog(@"detail URL = %@",url);
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-//        NSLog(@"Progress ----------- %lld",downloadProgress.totalUnitCount);
+        //        NSLog(@"Progress ----------- %lld",downloadProgress.totalUnitCount);
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         StoryDetail *detail = [StoryDetail yy_modelWithDictionary:responseObject];
@@ -163,25 +130,25 @@ typedef NS_ENUM(NSInteger, Steps){
         [self loadWebView:[self fetchWebString]];
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//        NSLog(@"failed! %@",error);
+        //        NSLog(@"failed! %@",error);
     }];
 }
 
 #pragma mark - 加载WebView
 -(void)loadWebView:(FunDetail *)funDetail
 {
-//    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
-//    [self.view addSubview:self.webView];
-//    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
+    //    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+    //    [self.view addSubview:self.webView];
+    //    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", funDetail.css, funDetail.body];
     [self.webView loadHTMLString:htmlString baseURL:nil];
     self.navigationItem.title = funDetail.storyId.title;
     [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
-//    NSLog(@"%@",funDetail.storyId.title);
+    //    NSLog(@"%@",funDetail.storyId.title);
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    
 }
 
 - (FunDetail *)fetchWebString
@@ -208,7 +175,7 @@ typedef NS_ENUM(NSInteger, Steps){
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
     NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyId == %@",self.passFun.storyId];
-//    NSLog(@"%@",self.detailCleanId);
+    //    NSLog(@"%@",self.detailCleanId);
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *funDate = [array firstObject];
@@ -221,7 +188,7 @@ typedef NS_ENUM(NSInteger, Steps){
     //传入时间 -1*86300
     FunStory *sto = [self fetchDate];
     NSString *todayString = sto.storyDate;
-//    NSLog(@"today is %@",todayString);
+    //    NSLog(@"today is %@",todayString);
     
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
     [format setDateFormat:@"yyyyMMdd"];
@@ -229,7 +196,7 @@ typedef NS_ENUM(NSInteger, Steps){
     NSDate *nextRange = [NSDate dateWithTimeInterval:+86400*step sinceDate:todayDate];
     
     NSString *newDateRangeString = [format stringFromDate:nextRange];
-//    NSLog(@"old String = %@",newDateRangeString);
+    //    NSLog(@"old String = %@",newDateRangeString);
     return newDateRangeString;
 }
 
@@ -249,9 +216,9 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)switchToNewDetail:(UIBarButtonItem *)sender
 {
     
-//    self.hud = [MBProgressHUD HUDForView:self.view];
-//    self.hud.labelText = @"加载！";
-//    [self.hud show:YES];
+    //    self.hud = [MBProgressHUD HUDForView:self.view];
+    //    self.hud.labelText = @"加载！";
+    //    [self.hud show:YES];
     
     [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     if (sender.tag == 1001){
@@ -310,7 +277,9 @@ typedef NS_ENUM(NSInteger, Steps){
         [self decideIfShoudGetDataFromNet];
         self.getNextFun = NO;
     }
-//    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    //    [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
+
+
 
 @end

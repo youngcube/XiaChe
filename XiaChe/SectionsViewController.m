@@ -145,7 +145,7 @@ typedef NS_ENUM(NSInteger, isToday){
         self.ifIsLoopNewData = NO;
         [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
     }];
-//    self.tableView.mj_footer = self.autoFooter;
+    self.tableView.mj_footer = self.autoFooter;
 }
 
 #pragma mark - TableView DataSource
