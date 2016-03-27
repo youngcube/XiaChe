@@ -12,6 +12,8 @@
 @property (nonatomic, copy) NSString *body;
 @property (nonatomic, copy) NSArray *css;
 @property (nonatomic, copy) NSString *detailId;
+@property (nonatomic, copy) NSString *image;
+@property (nonatomic, copy) NSString *image_source;
 @end
 
 @interface Story : NSObject

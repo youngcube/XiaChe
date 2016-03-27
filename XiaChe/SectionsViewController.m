@@ -60,6 +60,12 @@ typedef NS_ENUM(NSInteger, isToday){
     [self.navigationController setToolbarHidden:YES animated:YES];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+}
+
 #pragma mark - Logic to Fetch Data
 - (void)decideIfShouldGetNewJson
 {
@@ -181,24 +187,20 @@ typedef NS_ENUM(NSInteger, isToday){
 }
 
 #pragma mark - TableView Delegate
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-    UIButton *view = [[UIButton alloc] init];
-    NSArray *sections = [[self fetchedResultsController] sections];
-    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
-    sectionInfo = [sections objectAtIndex:section];
-    view.titleLabel.text = [sectionInfo name];
-    view.titleLabel.textColor = [UIColor whiteColor];
-    view.titleLabel.textAlignment = NSTextAlignmentCenter;
-    view.backgroundColor = [UIColor blueColor];
-    view.alpha = 0.5f;
-    [view addTarget:self action:@selector(presed:) forControlEvents:UIControlEventTouchUpInside];
-    return view;
-}
-
-- (void)presed:(UIButton *)btn{
-    NSLog(@"点击了！");
-}
+//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+//{
+//    UIButton *view = [[UIButton alloc] init];
+//    NSArray *sections = [[self fetchedResultsController] sections];
+//    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
+//    sectionInfo = [sections objectAtIndex:section];
+//    view.titleLabel.text = [sectionInfo name];
+//    view.titleLabel.textColor = [UIColor whiteColor];
+//    view.titleLabel.textAlignment = NSTextAlignmentCenter;
+//    view.backgroundColor = [UIColor blueColor];
+//    view.alpha = 0.5f;
+//    [view addTarget:self action:@selector(presed:) forControlEvents:UIControlEventTouchUpInside];
+//    return view;
+//}
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {

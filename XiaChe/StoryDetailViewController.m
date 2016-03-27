@@ -16,15 +16,19 @@
 #import <MJRefresh.h>
 #import "Consts.h"
 #import <WebKit/WebKit.h>
+#import <MBProgressHUD.h>
+#import "UIImageView+WebCache.h"
 
 @interface StoryDetailViewController()<UIWebViewDelegate,UIScrollViewDelegate>
 {
     CGFloat webHeight;
 }
-@property (nonatomic, strong) UIWebView *webView;
-@property (nonatomic, weak) UIScrollView *scrollView;
+@property (nonatomic, weak) UIWebView *webView;
+@property (nonatomic, weak) UIImageView *topImage;
+//@property (nonatomic, weak) UIScrollView *scrollView;
 @property (nonatomic, copy) NSString *dateString;
 @property (nonatomic) BOOL getNextFun;
+//@property (nonatomic, strong) MBProgressHUD *hud;
 @end
 
 typedef NS_ENUM(NSInteger, Steps){
@@ -54,6 +58,13 @@ typedef NS_ENUM(NSInteger, Steps){
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    
+}
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -62,6 +73,10 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)setupToolbar
 {
     [self.navigationController setToolbarHidden:NO animated:YES];
+    
+    
+    UIBarButtonItem *pop = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(popToLastVc)];
+    
     UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
     fixWidth.width = 200;
@@ -71,36 +86,34 @@ typedef NS_ENUM(NSInteger, Steps){
     UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(switchToNewDetail:)];
     beforeBtn.tag = 1002;
     
-    [self setToolbarItems:@[flex,nextBtn,fixWidth,beforeBtn] animated:YES];
+    [self setToolbarItems:@[pop,flex,nextBtn,fixWidth,beforeBtn] animated:YES];
+}
+
+- (void)popToLastVc
+{
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)setupWebView
 {
-//    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:self.view.frame];
-//    scrollView.delegate = self;
-//    
-//    [self.view addSubview:scrollView];
-//    self.scrollView = scrollView;
     
-    self.webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-    self.webView.delegate = self;
-    self.webView.scrollView.delegate = self;
-    self.webView.backgroundColor = RGBCOLOR(249, 249, 249);
-    self.webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
+    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    webView.delegate = self;
+    webView.scrollView.delegate = self;
+    webView.backgroundColor = RGBCOLOR(249, 249, 249);
+    webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
+    [self.view addSubview:webView];
+    self.webView = webView;
     
-//    UIView *newView = [[UIView alloc] initWithFrame:CGRectMake(10, 10, 100, 100)];
-//    newView.backgroundColor = [UIColor redColor];
-//    [self.webView.scrollView addSubview:newView];
+    UIImageView *topImage = [[UIImageView alloc] init];
+    topImage.frame = CGRectMake(0, 0, self.view.bounds.size.width, 300);
+    topImage.backgroundColor = [UIColor redColor];
+    [webView.scrollView addSubview:topImage];
+    self.topImage = topImage;
     
-    
-    
-//    self.webView.scrollView.backgroundColor = [UIColor redColor];
-    [self.view addSubview:self.webView];
     
     [self decideIfShoudGetDataFromNet];
-//    scrollView.contentSize = self.webView.bounds.size;
-    
-//    NSLog(@"加载前的scrollview contentSize %@",NSStringFromCGSize(self.webView.scrollView.contentSize));
+
 }
 
 - (void)decideIfShoudGetDataFromNet
@@ -130,31 +143,6 @@ typedef NS_ENUM(NSInteger, Steps){
     }
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
-{
-//    if (scrollView.contentOffset.y >= webHeight + 90){
-//        NSLog(@"shang拉加载更多");
-//        [UIView animateWithDuration:1.0 animations:^{
-//            self.webView.scrollView.contentInset = UIEdgeInsetsMake(-self.webView.scrollView.contentSize.height-20+100, 0, 0, 0);
-//        } completion:^(BOOL finished) {
-//            [self.webView.scrollView setFrame:CGRectMake(0, self.webView.scrollView.contentSize.height, self.view.bounds.size.width, 0)];
-//            
-//        }];
-//        
-//        
-//        
-//    }
-//    if (scrollView.contentOffset.y <= -(64+90)){
-//        NSLog(@"xia拉加载更多");
-//        [UIView animateWithDuration:1.0 animations:^{
-//            self.webView.scrollView.contentInset = UIEdgeInsetsMake(-64, 0, 0, 0);
-//        } completion:^(BOOL finished) {
-//            [self.webView.scrollView setFrame:CGRectMake(0, self.webView.scrollView.contentSize.height, self.view.bounds.size.width, 0)];
-//            
-//        }];
-//    }
-}
-
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
@@ -170,6 +158,8 @@ typedef NS_ENUM(NSInteger, Steps){
         st.body = detail.body;
         st.css = [detail.css lastObject];
         st.detailId = detail.detailId;
+        st.image = detail.image;
+        st.image_source = detail.image_source;
         [[StorageManager sharedInstance].managedObjectContext save:nil];
         [self loadWebView:[self fetchWebString]];
         
@@ -186,11 +176,13 @@ typedef NS_ENUM(NSInteger, Steps){
 //    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", funDetail.css, funDetail.body];
     [self.webView loadHTMLString:htmlString baseURL:nil];
-    self.title = funDetail.storyId.title;
+    self.navigationItem.title = funDetail.storyId.title;
+    [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
 //    NSLog(@"%@",funDetail.storyId.title);
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
 
 - (FunDetail *)fetchWebString
@@ -257,6 +249,12 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)switchToNewDetail:(UIBarButtonItem *)sender
 {
+    
+//    self.hud = [MBProgressHUD HUDForView:self.view];
+//    self.hud.labelText = @"加载！";
+//    [self.hud show:YES];
+    
+    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     if (sender.tag == 1001){
         self.dateString = [self dateStringForInt:kNext];
     }else if(sender.tag == 1002){
@@ -313,6 +311,7 @@ typedef NS_ENUM(NSInteger, Steps){
         [self decideIfShoudGetDataFromNet];
         self.getNextFun = NO;
     }
+//    [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
 
 @end
