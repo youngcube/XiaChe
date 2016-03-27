@@ -17,6 +17,7 @@
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSArray *funStoryArray;
 @property (nonatomic, strong) NSDateFormatter *formatter;
+//@property (nonatomic) NSUInteger loopTime;
 @end
 
 @implementation SearchForNewFun
@@ -61,24 +62,25 @@
 {
     [self getLastestJson];
     // 如果一下子取超过50，可能会把第一个值返回多次。
-    for (int i = 0 ; i < EACH_TIME_FETCH_NUM - 1 ; i ++){
-        NSDate *date = [NSDate dateWithTimeIntervalSinceNow:-86400*i];
-        NSString *str = [self.formatter stringFromDate:date];
-        
-        [self getJsonWithString:str];
-    }
+//    for (int i = 0 ; i < EACH_TIME_FETCH_NUM - 1 ; i ++){
+//        NSDate *date = [NSDate dateWithTimeIntervalSinceNow:-86400*i];
+//        NSString *str = [self.formatter stringFromDate:date];
+//        
+//        [self getJsonWithString:str];
+//    }
 }
 
 #pragma mark - 批量返回更老的数据
 - (void)accordingDateToLoopOldData
 {
+    
+//    
     NSString *oldString = [self fetchLastestDayFromStorage:YES];
-    for (int i = 0 ; i < EACH_TIME_FETCH_NUM ; i ++){
-        NSDate *oldDate = [self.formatter dateFromString:oldString];
-        NSDate *oldDateRange = [NSDate dateWithTimeInterval:-86400*i sinceDate:oldDate];
-        NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
-        [self getJsonWithString:oldDateRangeString];
-    }
+//    NSDate *oldDate = [self.formatter dateFromString:oldString];
+//    NSDate *oldDateRange = [NSDate dateWithTimeInterval:-86400 sinceDate:oldDate];
+//    NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
+    [self getJsonWithString:oldString];
+
 }
 
 #pragma mark - 获取CoreData内存储的 最新:NO / 最老:YES 日期
@@ -123,22 +125,60 @@
 {
     NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    
     [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         self.model = [SectionModel yy_modelWithJSON:responseObject];
-        for (Story *story in self.model.stories){
-            if ([story.title hasPrefix:@"瞎扯"]) {
-                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-                st.storyDate = self.model.date;
-                st.title = story.title;
-                st.storyId = story.storyId;
+        
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+        [fetchRequest setEntity:entity];
+        NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.model.date];
+        [fetchRequest setPredicate:pre];
+        NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+        NSLog(@"fetch array count = %lu",(unsigned long)array.count);
+        FunStory *funDate = [array firstObject];
+        
+        if (funDate.storyDate){
+            return;
+        }else{
+            for (Story *story in self.model.stories){
+                if ([story.title hasPrefix:@"瞎扯"]) {
+                    FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                    st.storyDate = self.model.date;
+                    st.title = story.title;
+                    st.storyId = story.storyId;
+                }
             }
+            [[StorageManager sharedInstance].managedObjectContext save:nil];
         }
-        [[StorageManager sharedInstance].managedObjectContext save:nil];
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//        NSLog(@"failed! %@",error);
+        NSLog(@"failed! %@",error);
     }];
+    
+}
+
+- (BOOL)decideIfLastestIsToday
+{
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    __block BOOL isToday;
+    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
+        if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
+            isToday = YES;
+            
+        }else{
+            NSLog(@"刷新");
+            
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [self decideIfLastestIsToday];
+    }];
+    return isToday;
 }
 
 @end

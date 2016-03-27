@@ -19,15 +19,27 @@
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @property (nonatomic, strong) NSDateFormatter *formatter;
+@property (nonatomic) NSUInteger loopTime;
+@property (nonatomic) BOOL ifIsLoopNewData; // 86400是否要* -1
+@property (nonatomic, strong) MJRefreshNormalHeader *autoHeader;
+@property (nonatomic, strong) MJRefreshAutoNormalFooter *autoFooter;
 @end
 
 @implementation SectionsViewController
+
+typedef NS_ENUM(NSInteger, isToday){
+    kNext = 0,
+    kBefore = 1
+};
 
 - (instancetype)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
     if (self){
         self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:[SearchForNewFun sharedInstance] action:@selector(accordingDateToLoopOldData)];
+        
+        
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:[StorageManager sharedInstance] action:@selector(removeAllData)];
     }
     return self;
 }
@@ -35,14 +47,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
     self.formatter = [[NSDateFormatter alloc] init];
     [self.formatter setDateFormat:@"yyyyMMdd"];
     [self setupFooter];
-    [self decideIfShouldGetNewJson];
-
-    NSArray *string = [self.fetchedResultsController sections];
-    NSLog(@"%@",[[string lastObject] class]);
-
+//    [self decideIfShouldGetNewJson];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -51,8 +60,11 @@
     [self.navigationController setToolbarHidden:YES animated:YES];
 }
 
+#pragma mark - Logic to Fetch Data
 - (void)decideIfShouldGetNewJson
 {
+//    [self.tableView.mj_header beginRefreshing];
+    self.tableView.mj_footer.hidden = YES;
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
@@ -60,14 +72,42 @@
         SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
         if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
             NSLog(@"不要刷新");
+            self.tableView.mj_footer.hidden = NO;
+            [self.tableView.mj_header endRefreshing];
         }else{
             NSLog(@"刷新");
+            self.loopTime = EACH_TIME_FETCH_NUM;
+            self.ifIsLoopNewData = YES;
             [[SearchForNewFun sharedInstance] accordingDateToLoopNewData];
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
-        
     }];
+}
+
+- (void)dataDidSave
+{
+    NSLog(@"loop time = %lu",(unsigned long)self.loopTime);
+    if (self.loopTime == 0) {
+        self.tableView.mj_footer.hidden = NO;
+        [self.tableView.mj_header endRefreshing];
+        [self.tableView.mj_footer endRefreshing];
+        return;
+    }else{
+        NSString *oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
+        NSDate *oldDate = [self.formatter dateFromString:oldString];
+        NSDate *oldDateRange;
+        if (self.ifIsLoopNewData == YES){
+            oldDateRange = [NSDate dateWithTimeInterval:0 sinceDate:oldDate];
+        }else{
+            oldDateRange = [NSDate dateWithTimeInterval:0 sinceDate:oldDate];
+        }
+        NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
+        [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
+        NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %d",(unsigned long)(EACH_TIME_FETCH_NUM - self.loopTime),EACH_TIME_FETCH_NUM];
+        [self.autoFooter setTitle:loadString forState:MJRefreshStateRefreshing];
+        self.loopTime--;
+    }
 }
 
 - (void)pushToLastestStory
@@ -88,19 +128,18 @@
 #pragma mark - UI
 - (void)setupFooter
 {
-    
-    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+    self.autoHeader = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         [self decideIfShouldGetNewJson];
-        [self.tableView.mj_header endRefreshing];
     }];
-    self.tableView.mj_header = header;
+    self.tableView.mj_header = self.autoHeader;
+    [self.tableView.mj_header beginRefreshing];
 
-    MJRefreshAutoNormalFooter *autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+    self.autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        self.loopTime = EACH_TIME_FETCH_NUM;
+        self.ifIsLoopNewData = NO;
         [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
-        [self.tableView.mj_footer endRefreshing];
     }];
-//    [autoFooter setTitle:@"正在努力加载" forState:MJRefreshStateRefreshing];
-    self.tableView.mj_footer = autoFooter;
+    self.tableView.mj_footer = self.autoFooter;
 }
 
 #pragma mark - TableView DataSource

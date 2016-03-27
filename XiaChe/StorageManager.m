@@ -11,6 +11,7 @@
 @interface StorageManager()
 @property (nonatomic, strong) NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (nonatomic, strong) NSPersistentStore *persistentStore;
 @end
 
 @implementation StorageManager
@@ -57,6 +58,36 @@
     return _managedObjectContext;
 }
 
+- (NSPersistentStore *)persistentStore
+{
+    if (!_persistentStore){
+        NSURL *fileURL = [[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] URLByAppendingPathComponent:@"storyModel.sqlite"];
+        _persistentStore = [[NSPersistentStore alloc] initWithPersistentStoreCoordinator:self.persistentStoreCoordinator configurationName:nil URL:fileURL options:nil];
+    }
+    return _persistentStore;
+}
 
+- (void)removeAllData
+{
+//    [self.persistentStoreCoordinator removePersistentStore:self.persistentStore error:nil];
+//    [[NSFileManager defaultManager] removeItemAtPath:self.persistentStore.URL.path error:nil];
+    
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:self.managedObjectContext];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *items = [_managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    
+    
+    for (NSManagedObject *managedObject in items) {
+        [_managedObjectContext deleteObject:managedObject];
+        
+    }
+    if (![_managedObjectContext save:&error]) {
+        
+    }
+}
 
 @end

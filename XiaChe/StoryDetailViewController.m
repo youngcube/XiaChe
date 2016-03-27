@@ -15,6 +15,7 @@
 #import <Masonry.h>
 #import <MJRefresh.h>
 #import "Consts.h"
+#import <WebKit/WebKit.h>
 
 @interface StoryDetailViewController()<UIWebViewDelegate,UIScrollViewDelegate>
 {
@@ -56,7 +57,7 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.navigationController setToolbarHidden:NO animated:YES];
     UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-    fixWidth.width = 10;
+    fixWidth.width = 200;
     UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward target:self action:@selector(switchToNewDetail:)];
     nextBtn.tag = 1001;
     
