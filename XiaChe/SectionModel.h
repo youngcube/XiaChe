@@ -20,6 +20,7 @@
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *storyId;
 @property (nonatomic, copy) NSString *storyDate;
+@property (nonatomic, strong) NSArray *images;
 @end
 
 @interface SectionModel : NSObject

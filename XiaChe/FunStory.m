@@ -19,7 +19,7 @@
     [normalFormat setDateFormat:@"yyyyMMdd"];
     
     NSDateFormatter *simpleFormat = [[NSDateFormatter alloc] init];
-    [simpleFormat setDateFormat:@"yyyy年 MM月"];
+    [simpleFormat setDateFormat:@"yyyy年 M月"];
     
     NSDate *thisDate = [normalFormat dateFromString:self.storyDate];
     return [simpleFormat stringFromDate:thisDate];

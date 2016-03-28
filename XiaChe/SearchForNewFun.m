@@ -112,6 +112,7 @@
                 st.storyDate = self.model.date;
                 st.title = story.title;
                 st.storyId = story.storyId;
+                st.image = [story.images firstObject];
             }
         }
         [[StorageManager sharedInstance].managedObjectContext save:nil];
@@ -139,31 +140,32 @@
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
         [fetchRequest setEntity:entity];
         NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.model.date];
-        NSLog(@"self.model.date = %@",self.model.date);
+        
         [fetchRequest setPredicate:pre];
         NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-        NSLog(@"fetch array count = %lu",(unsigned long)array.count);
+        
         FunStory *funDate = [array firstObject];
         
         if (funDate.storyDate){
             return;
         }else{
-            BOOL ifHasXiaChe = YES;
+//            BOOL ifHasXiaChe = YES;
             for (Story *story in self.model.stories){
                 if ([story.title hasPrefix:@"瞎扯"]) {
                     FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
                     st.storyDate = self.model.date;
                     st.title = story.title;
                     st.storyId = story.storyId;
-                    ifHasXiaChe = YES;
-                }else{
-                    ifHasXiaChe = NO;
-                }
+                    st.image = [story.images firstObject];
+//                    ifHasXiaChe = YES;
+//                }else{
+//                    ifHasXiaChe = NO;
+//                }
             }
-            if (ifHasXiaChe == NO){
-                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-                st.storyDate = self.model.date;
-                st.title = @"本日没有瞎扯专栏";
+//            if (ifHasXiaChe == NO){
+//                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+//                st.storyDate = self.model.date;
+//                st.title = @"本日没有瞎扯专栏";
             }
             [[StorageManager sharedInstance].managedObjectContext save:nil];
         }

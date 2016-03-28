@@ -61,7 +61,6 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    
 }
 
 - (void)dealloc
@@ -72,10 +71,7 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)setupToolbar
 {
     [self.navigationController setToolbarHidden:NO animated:YES];
-    
-    
     UIBarButtonItem *pop = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(popToLastVc)];
-    
     UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
     fixWidth.width = 200;
@@ -103,12 +99,23 @@ typedef NS_ENUM(NSInteger, Steps){
     webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
     [self.view addSubview:webView];
     self.webView = webView;
+    self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
     UIImageView *topImage = [[UIImageView alloc] init];
-    topImage.frame = CGRectMake(0, 0, self.view.bounds.size.width, 300);
+    topImage.frame = CGRectMake(0, 0, self.view.bounds.size.width, 200);
+    topImage.contentMode = UIViewContentModeCenter;
     topImage.backgroundColor = [UIColor redColor];
     [webView.scrollView addSubview:topImage];
     self.topImage = topImage;
+    
+//    [self.webView mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.size.equalTo(self.view);
+//    }];
+//    
+//    [self.topImage mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.right.top.equalTo(self.webView.scrollView);
+//        make.height.equalTo(@200);
+//    }];
     
     
     [self decideIfShoudGetDataFromNet];
@@ -126,20 +133,8 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    
     webHeight = self.webView.scrollView.contentSize.height - self.view.bounds.size.height;
-//    NSLog(@"加载完毕后的webHeight %f",webHeight);
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-//    NSLog(@"contentOffset.y = %f",scrollView.contentOffset.y);
-    if (scrollView.contentOffset.y >= webHeight + 50){
-//        NSLog(@"下拉加载更多");
-    }
-    if (scrollView.contentOffset.y <= -(64+50)){
-//        NSLog(@"上拉加载更多");
-    }
+    
 }
 
 #pragma mark - 将JSON装载到DetailItem中
@@ -177,7 +172,6 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.webView loadHTMLString:htmlString baseURL:nil];
     self.navigationItem.title = funDetail.storyId.title;
     [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
-//    NSLog(@"%@",funDetail.storyId.title);
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);

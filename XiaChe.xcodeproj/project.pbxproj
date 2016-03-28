@@ -26,6 +26,8 @@
 		86E930101CA81F32006D039A /* StoryDetailWKWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9300F1CA81F32006D039A /* StoryDetailWKWebViewController.m */; };
 		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
 		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
+		BF80EE7D1CA8DDB800FAE74C /* UIColor+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */; };
+		BF80EE801CA9055600FAE74C /* SectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BF80EE7F1CA9055600FAE74C /* SectionCell.m */; };
 		E2F4C05251C05686DFE83893 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E49BE52C9BF52D623685A7 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +71,10 @@
 		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
 		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
 		BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationBar.m; sourceTree = "<group>"; };
+		BF80EE7B1CA8DDB800FAE74C /* UIColor+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Extension.h"; sourceTree = "<group>"; };
+		BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Extension.m"; sourceTree = "<group>"; };
+		BF80EE7E1CA9055600FAE74C /* SectionCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SectionCell.h; sourceTree = "<group>"; };
+		BF80EE7F1CA9055600FAE74C /* SectionCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SectionCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +120,7 @@
 		8660B67D1C999855006917FC /* XiaChe */ = {
 			isa = PBXGroup;
 			children = (
+				BF80EE7A1CA8DD9900FAE74C /* Extension */,
 				BF6D12A41CA141BA00758CCF /* CustomViewController */,
 				8660B69F1C999A13006917FC /* Others */,
 				8660B6D71C9E9D59006917FC /* ViewController */,
@@ -180,6 +187,8 @@
 			children = (
 				861DC1B11CA2C829000602A8 /* DetailToolbar.h */,
 				861DC1B21CA2C829000602A8 /* DetailToolbar.m */,
+				BF80EE7E1CA9055600FAE74C /* SectionCell.h */,
+				BF80EE7F1CA9055600FAE74C /* SectionCell.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -214,6 +223,15 @@
 				BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */,
 			);
 			name = View;
+			sourceTree = "<group>";
+		};
+		BF80EE7A1CA8DD9900FAE74C /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				BF80EE7B1CA8DDB800FAE74C /* UIColor+Extension.h */,
+				BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */,
+			);
+			name = Extension;
 			sourceTree = "<group>";
 		};
 		EC762E8FA8B7ED454061C336 /* Pods */ = {
@@ -348,10 +366,12 @@
 				8660B6E81C9F0137006917FC /* FunDetail+CoreDataProperties.m in Sources */,
 				8660B69E1C99989B006917FC /* StoryDetailViewController.m in Sources */,
 				8660B6831C999855006917FC /* AppDelegate.m in Sources */,
+				BF80EE801CA9055600FAE74C /* SectionCell.m in Sources */,
 				8660B6E31C9F0104006917FC /* FunStory.m in Sources */,
 				8660B6801C999855006917FC /* main.m in Sources */,
 				8660B6E21C9F0104006917FC /* FunStory+CoreDataProperties.m in Sources */,
 				BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */,
+				BF80EE7D1CA8DDB800FAE74C /* UIColor+Extension.m in Sources */,
 				8660B6A41C999EE9006917FC /* StoryModel.xcdatamodeld in Sources */,
 				8660B69C1C99989B006917FC /* SectionModel.m in Sources */,
 				8660B6A71C99A090006917FC /* StorageManager.m in Sources */,

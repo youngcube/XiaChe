@@ -14,8 +14,13 @@
 #import <MJRefresh/MJRefresh.h>
 #import "FunStory.h"
 #import "SearchForNewFun.h"
+#import "UIColor+Extension.h"
+#import "SectionCell.h"
 
 @interface SectionsViewController ()
+{
+    CGFloat _startPos;
+}
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @property (nonatomic, strong) NSDateFormatter *formatter;
@@ -23,6 +28,11 @@
 @property (nonatomic) BOOL ifIsLoopNewData; // 86400是否要* -1
 @property (nonatomic, strong) MJRefreshNormalHeader *autoHeader;
 @property (nonatomic, strong) MJRefreshAutoNormalFooter *autoFooter;
+
+@property (nonatomic, strong) UIView *alphaView;
+@property (nonatomic, strong) UIButton *naviHeaderView;
+
+
 @end
 
 @implementation SectionsViewController
@@ -44,14 +54,14 @@ typedef NS_ENUM(NSInteger, isToday){
     return self;
 }
 
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
     self.formatter = [[NSDateFormatter alloc] init];
     [self.formatter setDateFormat:@"yyyyMMdd"];
     [self setupFooter];
-//    [self decideIfShouldGetNewJson];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -65,6 +75,43 @@ typedef NS_ENUM(NSInteger, isToday){
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
 }
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    NSArray *sections = [[self fetchedResultsController] sections];
+    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
+    sectionInfo = [sections objectAtIndex:section];
+    [self.naviHeaderView setTitle:[sectionInfo name] forState:UIControlStateNormal];
+    return self.naviHeaderView;
+}
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingHeaderView:(nonnull UIView *)view forSection:(NSInteger)section
+{
+//    NSArray *sections = [[self fetchedResultsController] sections];
+//    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
+//    
+//    if (section == 0){
+//        
+//    }else{
+//        sectionInfo = [sections objectAtIndex:section];
+////        [self.naviHeaderView setTitle:[sectionInfo name] forState:UIControlStateNormal];
+//        self.navigationItem.title = [sectionInfo name];
+//    }
+//    
+//    
+//    
+//    NSLog(@"didEndSection = %ld \n name = %@",(long)section,[sectionInfo name]);
+}
+
+- (UIButton *)naviHeaderView
+{
+    if (!_naviHeaderView){
+        _naviHeaderView = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
+        _naviHeaderView.backgroundColor = [UIColor redColor];
+    }
+    return _naviHeaderView;
+}
+
 
 #pragma mark - Logic to Fetch Data
 - (void)decideIfShouldGetNewJson
@@ -80,12 +127,15 @@ typedef NS_ENUM(NSInteger, isToday){
             NSLog(@"不要刷新");
             self.tableView.mj_footer.hidden = NO;
             [self.tableView.mj_header endRefreshing];
+            
         }else{
             NSLog(@"刷新");
             self.loopTime = EACH_TIME_FETCH_NUM;
             self.ifIsLoopNewData = YES;
             [[SearchForNewFun sharedInstance] accordingDateToLoopNewData];
+            
         }
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
@@ -93,7 +143,6 @@ typedef NS_ENUM(NSInteger, isToday){
 
 - (void)dataDidSave
 {
-    NSLog(@"loop time = %lu",(unsigned long)self.loopTime);
     if (self.loopTime == 0) {
         self.tableView.mj_footer.hidden = NO;
         [self.tableView.mj_header endRefreshing];
@@ -129,6 +178,10 @@ typedef NS_ENUM(NSInteger, isToday){
             [self.navigationController pushViewController:detail animated:NO];
         }
     }
+    
+    
+    
+    
 }
 
 #pragma mark - UI
@@ -162,11 +215,7 @@ typedef NS_ENUM(NSInteger, isToday){
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *cellId = @"cellId";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
-    if (!cell){
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellId];
-    }
+    SectionCell *cell = [SectionCell createCellAtTableView:tableView];
     [self configureCell:cell atIndexPath:indexPath];
     return cell;
 }
@@ -179,28 +228,19 @@ typedef NS_ENUM(NSInteger, isToday){
     return [sectionInfo name];
 }
 
-- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+- (void)configureCell:(SectionCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     FunStory *fun = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    cell.textLabel.text = fun.storyDate;
-    cell.detailTextLabel.text = fun.title;
+    cell.title = fun.title;
+    cell.date = fun.storyDate;
+    cell.imageURL = fun.image;
 }
 
 #pragma mark - TableView Delegate
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-//{
-//    UIButton *view = [[UIButton alloc] init];
-//    NSArray *sections = [[self fetchedResultsController] sections];
-//    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
-//    sectionInfo = [sections objectAtIndex:section];
-//    view.titleLabel.text = [sectionInfo name];
-//    view.titleLabel.textColor = [UIColor whiteColor];
-//    view.titleLabel.textAlignment = NSTextAlignmentCenter;
-//    view.backgroundColor = [UIColor blueColor];
-//    view.alpha = 0.5f;
-//    [view addTarget:self action:@selector(presed:) forControlEvents:UIControlEventTouchUpInside];
-//    return view;
-//}
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 90;
+}
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
@@ -212,7 +252,6 @@ typedef NS_ENUM(NSInteger, isToday){
     StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
     FunStory *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
     detail.passFun = object;
-    NSLog(@"%@",indexPath);
     [self.navigationController pushViewController:detail animated:YES];
 }
 

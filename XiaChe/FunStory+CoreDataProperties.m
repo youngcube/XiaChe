@@ -2,7 +2,7 @@
 //  FunStory+CoreDataProperties.m
 //  XiaChe
 //
-//  Created by cube on 3/27/16.
+//  Created by eusoft on 3/28/16.
 //  Copyright © 2016 cube. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -17,6 +17,7 @@
 @dynamic storyId;
 @dynamic title;
 @dynamic unread;
+@dynamic image;
 @dynamic detailId;
 
 @end
