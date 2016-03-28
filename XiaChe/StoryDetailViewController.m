@@ -24,6 +24,7 @@
 }
 @property (nonatomic, weak) UIWebView *webView;
 @property (nonatomic, weak) UIImageView *topImage;
+@property (nonatomic, weak) UIView *headerView;
 //@property (nonatomic, weak) UIScrollView *scrollView;
 @property (nonatomic, copy) NSString *dateString;
 @property (nonatomic) BOOL getNextFun;
@@ -53,8 +54,8 @@ typedef NS_ENUM(NSInteger, Steps){
     self.view.backgroundColor = [UIColor whiteColor];
     [self setupToolbar];
     [self setupWebView];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -91,8 +92,8 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)setupWebView
 {
-    
-    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+//    self.automaticallyAdjustsScrollViewInsets = NO;
+    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height)];
     webView.delegate = self;
     webView.scrollView.delegate = self;
     webView.backgroundColor = RGBCOLOR(249, 249, 249);
@@ -101,12 +102,19 @@ typedef NS_ENUM(NSInteger, Steps){
     self.webView = webView;
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, -40, self.view.frame.size.width, 260)];
+    headerView.clipsToBounds = YES;
+    [self.view addSubview:headerView];
+    self.headerView = headerView;
+    
     UIImageView *topImage = [[UIImageView alloc] init];
-    topImage.frame = CGRectMake(0, 0, self.view.bounds.size.width, 200);
-    topImage.contentMode = UIViewContentModeCenter;
-    topImage.backgroundColor = [UIColor redColor];
-    [webView.scrollView addSubview:topImage];
+    topImage.frame = CGRectMake(0, 0, self.view.bounds.size.width, 300);
+    topImage.contentMode = UIViewContentModeScaleAspectFill;;
+    topImage.backgroundColor = [UIColor clearColor];
+    [headerView addSubview:topImage];
     self.topImage = topImage;
+    
+    
     
 //    [self.webView mas_makeConstraints:^(MASConstraintMaker *make) {
 //        make.size.equalTo(self.view);
@@ -121,6 +129,32 @@ typedef NS_ENUM(NSInteger, Steps){
     [self decideIfShoudGetDataFromNet];
 
 }
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    CGFloat offSetY = scrollView.contentOffset.y;
+    if (offSetY>=self.headerView.frame.size.height-40){
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+    }else{
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    }
+    if (-offSetY<=80&&-offSetY>=0) {
+        self.headerView.frame = CGRectMake(0, -40-offSetY/2, self.view.frame.size.width, 260-offSetY/2);
+//        [_imaSourceLab setTop:240-offSetY/2];
+//        [_titleLab setBottom:_imaSourceLab.bottom-20];
+        if (-offSetY>40&&!_webView.scrollView.isDragging){
+//            [self.viewmodel getPreviousStoryContent];
+        }
+    }else if (-offSetY>80) {
+        _webView.scrollView.contentOffset = CGPointMake(0, -80);
+    }else if (offSetY <=300 ){
+        self.headerView.frame = CGRectMake(0, -40-offSetY, self.view.frame.size.width, 260);
+    }
+    if (offSetY + self.view.frame.size.height > scrollView.contentSize.height + 160&&!_webView.scrollView.isDragging) {
+//        [self.viewmodel getNextStoryContent];
+    }
+}
+
 
 - (void)decideIfShoudGetDataFromNet
 {

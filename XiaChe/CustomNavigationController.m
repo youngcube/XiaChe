@@ -19,6 +19,7 @@
     [[UINavigationBar appearance] setBarTintColor:[UIColor customNavColor]];
     [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];
     [[UINavigationBar appearance] setTitleTextAttributes:titleAttr];
+    
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated

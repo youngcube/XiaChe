@@ -14,9 +14,13 @@
 #import "SectionModel.h"
 
 @interface SearchForNewFun ()
+{
+    
+}
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSArray *funStoryArray;
 @property (nonatomic, strong) NSDateFormatter *formatter;
+@property (nonatomic) BOOL ifHasXiaChe;
 //@property (nonatomic) NSUInteger loopTime;
 @end
 
@@ -149,7 +153,6 @@
         if (funDate.storyDate){
             return;
         }else{
-//            BOOL ifHasXiaChe = YES;
             for (Story *story in self.model.stories){
                 if ([story.title hasPrefix:@"瞎扯"]) {
                     FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
@@ -157,21 +160,17 @@
                     st.title = story.title;
                     st.storyId = story.storyId;
                     st.image = [story.images firstObject];
-//                    ifHasXiaChe = YES;
-//                }else{
-//                    ifHasXiaChe = NO;
-//                }
+                    _ifHasXiaChe = YES;
+                }
             }
-//            if (ifHasXiaChe == NO){
-//                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-//                st.storyDate = self.model.date;
-//                st.title = @"本日没有瞎扯专栏";
+            if (!_ifHasXiaChe){
+                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                st.storyDate = self.model.date;
+                st.title = @"本日没有瞎扯专栏";
             }
             [[StorageManager sharedInstance].managedObjectContext save:nil];
         }
-
-        
-        
+        _ifHasXiaChe = NO;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];

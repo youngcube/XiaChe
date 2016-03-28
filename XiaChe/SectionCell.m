@@ -90,7 +90,7 @@
     NSDateFormatter *origin = [[NSDateFormatter alloc] init];
     origin.dateFormat = @"yyyyMMdd";
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
-    format.dateFormat = @"M 月 dd 日";
+    format.dateFormat = @"M 月 d 日";
     NSDate *newDate = [origin dateFromString:date];
     NSString *newDateString = [format stringFromDate:newDate];
     self.dateLabel.text = newDateString;

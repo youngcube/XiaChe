@@ -17,6 +17,8 @@
 #import "UIColor+Extension.h"
 #import "SectionCell.h"
 
+#define HEIGHT_OF_SECTION_HEADER 50.5f
+
 @interface SectionsViewController ()
 {
     CGFloat _startPos;
@@ -29,10 +31,11 @@
 @property (nonatomic, strong) MJRefreshNormalHeader *autoHeader;
 @property (nonatomic, strong) MJRefreshAutoNormalFooter *autoFooter;
 
-@property (nonatomic, strong) UIView *alphaView;
-@property (nonatomic, strong) UIButton *naviHeaderView;
-
-
+//@property (nonatomic, strong) UIView *alphaView;
+//@property (nonatomic, strong) UIButton *naviHeaderView;
+//@property (nonatomic, strong) UIView *sectionHeaderView;
+//@property (nonatomic, strong) UILabel *headerLabel;
+@property (nonatomic, strong) UIButton *navTitle;
 @end
 
 @implementation SectionsViewController
@@ -60,7 +63,24 @@ typedef NS_ENUM(NSInteger, isToday){
     self.formatter = [[NSDateFormatter alloc] init];
     [self.formatter setDateFormat:@"yyyyMMdd"];
     [self setupFooter];
-    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    
+    
+    UIButton *titleNew = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
+    [titleNew setTitle:@"本月最新" forState:UIControlStateNormal];
+    [titleNew setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    self.navigationItem.titleView = titleNew;
+    self.navTitle = titleNew;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    CGFloat offset = scrollView.contentOffset.y;
+    if (offset > 100){
+        self.navTitle.hidden = YES;
+    }else{
+        self.navTitle.hidden = NO;
+    }
+    
     
 }
 
@@ -68,6 +88,7 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     [super viewDidAppear:animated];
     [self.navigationController setToolbarHidden:YES animated:YES];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -76,41 +97,43 @@ typedef NS_ENUM(NSInteger, isToday){
     [self.navigationController setNavigationBarHidden:NO animated:YES];
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 40;
+}
+
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    NSArray *sections = [[self fetchedResultsController] sections];
-    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
-    sectionInfo = [sections objectAtIndex:section];
-    [self.naviHeaderView setTitle:[sectionInfo name] forState:UIControlStateNormal];
-    return self.naviHeaderView;
+    
+    
+    CGRect headerFrame = CGRectMake(0, 0, tableView.frame.size.width, HEIGHT_OF_SECTION_HEADER);
+    UIView *sectionHeaderView = [[UIView alloc] initWithFrame:headerFrame];
+    sectionHeaderView.backgroundColor = [UIColor customNavColor];
+    
+    NSString *headerString = [[[self.fetchedResultsController sections] objectAtIndex:section] name];
+    UILabel *headerLabel = [[UILabel alloc] init];
+    
+    
+    headerLabel.text = headerString;
+    [headerLabel sizeToFit];
+    [sectionHeaderView addSubview:headerLabel];
+    
+    
+    headerLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSLayoutConstraint *centerX = [NSLayoutConstraint constraintWithItem:headerLabel attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:sectionHeaderView attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0.0f];
+    [sectionHeaderView addConstraint:centerX];
+    
+    NSLayoutConstraint *centerY = [NSLayoutConstraint constraintWithItem:headerLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:sectionHeaderView attribute:NSLayoutAttributeCenterY multiplier:1.0f constant:0.0f];
+    [sectionHeaderView addConstraint:centerY];
+    return sectionHeaderView;
 }
 
-- (void)tableView:(UITableView *)tableView didEndDisplayingHeaderView:(nonnull UIView *)view forSection:(NSInteger)section
-{
-//    NSArray *sections = [[self fetchedResultsController] sections];
-//    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
-//    
-//    if (section == 0){
-//        
-//    }else{
-//        sectionInfo = [sections objectAtIndex:section];
-////        [self.naviHeaderView setTitle:[sectionInfo name] forState:UIControlStateNormal];
-//        self.navigationItem.title = [sectionInfo name];
-//    }
-//    
-//    
-//    
-//    NSLog(@"didEndSection = %ld \n name = %@",(long)section,[sectionInfo name]);
-}
 
-- (UIButton *)naviHeaderView
-{
-    if (!_naviHeaderView){
-        _naviHeaderView = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
-        _naviHeaderView.backgroundColor = [UIColor redColor];
-    }
-    return _naviHeaderView;
-}
+
+
+
+
 
 
 #pragma mark - Logic to Fetch Data
@@ -123,7 +146,8 @@ typedef NS_ENUM(NSInteger, isToday){
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
-        if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
+        
+        if ([model.date isEqualToString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]]){
             NSLog(@"不要刷新");
             self.tableView.mj_footer.hidden = NO;
             [self.tableView.mj_header endRefreshing];
@@ -220,13 +244,13 @@ typedef NS_ENUM(NSInteger, isToday){
     return cell;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{
-    NSArray *sections = [[self fetchedResultsController] sections];
-    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
-    sectionInfo = [sections objectAtIndex:section];
-    return [sectionInfo name];
-}
+//- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+//{
+//    NSArray *sections = [[self fetchedResultsController] sections];
+//    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
+//    sectionInfo = [sections objectAtIndex:section];
+//    return [sectionInfo name];
+//}
 
 - (void)configureCell:(SectionCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
@@ -242,10 +266,7 @@ typedef NS_ENUM(NSInteger, isToday){
     return 90;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-    return 40;
-}
+
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

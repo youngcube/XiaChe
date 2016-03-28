@@ -24,6 +24,7 @@
     CustomNavigationController *navi = [[CustomNavigationController alloc] initWithRootViewController:sections];
     self.window.rootViewController = navi;
     [self.window makeKeyAndVisible];
+    
     return YES;
 }
 
