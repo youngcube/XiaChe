@@ -126,7 +126,8 @@
     NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
     
     
-    
+    // 知乎日报可能没有瞎扯，需要跳过的逻辑
+    // http://news.at.zhihu.com/api/4/news/before/20140120
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     
@@ -147,13 +148,22 @@
         if (funDate.storyDate){
             return;
         }else{
+            BOOL ifHasXiaChe = YES;
             for (Story *story in self.model.stories){
                 if ([story.title hasPrefix:@"瞎扯"]) {
                     FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
                     st.storyDate = self.model.date;
                     st.title = story.title;
                     st.storyId = story.storyId;
+                    ifHasXiaChe = YES;
+                }else{
+                    ifHasXiaChe = NO;
                 }
+            }
+            if (ifHasXiaChe == NO){
+                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                st.storyDate = self.model.date;
+                st.title = @"本日没有瞎扯专栏";
             }
             [[StorageManager sharedInstance].managedObjectContext save:nil];
         }

@@ -6,7 +6,7 @@
 //  Copyright © 2016 cube. All rights reserved.
 //
 
-#define EACH_TIME_FETCH_NUM 20
+#define EACH_TIME_FETCH_NUM 1000
 #define RGBCOLOR(r,g,b) [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:1]
 
 static NSString* const LatestNewsString = @"http://news-at.zhihu.com/api/4/news/latest";
