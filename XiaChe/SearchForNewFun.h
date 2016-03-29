@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "HTTPSession.h"
 @interface SearchForNewFun : NSObject
 + (instancetype)sharedInstance;
 - (NSString *)fetchLastestDayFromStorage:(BOOL)lastest;

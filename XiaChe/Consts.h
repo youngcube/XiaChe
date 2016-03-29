@@ -12,4 +12,6 @@
 static NSString* const LatestNewsString = @"http://news-at.zhihu.com/api/4/news/latest";
 static NSString* const BeforeNewsString = @"http://news.at.zhihu.com/api/4/news/before/";
 static NSString* const DetailNewsString = @"http://news-at.zhihu.com/api/4/news/";
-
+static NSString* const NOTIFICATION_SWITCH_FUN = @"notification_switch_fun";
+static NSString* const NOTIFICATION_FINISH_LOADING = @"notification_finish_loading";
+static NSString* const NOTIFICATION_FINISH_DOWNLOAD = @"notification_finish_download";
