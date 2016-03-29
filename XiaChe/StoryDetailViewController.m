@@ -17,6 +17,7 @@
 #import "Consts.h"
 #import <MBProgressHUD.h>
 #import "UIImageView+WebCache.h"
+#import "UIColor+Extension.h"
 
 @interface StoryDetailViewController()<UIWebViewDelegate,UIScrollViewDelegate>
 {
@@ -25,7 +26,8 @@
 @property (nonatomic, weak) UIWebView *webView;
 @property (nonatomic, weak) UIImageView *topImage;
 @property (nonatomic, weak) UIView *headerView;
-//@property (nonatomic, weak) UIScrollView *scrollView;
+@property (nonatomic, weak) UILabel *headerTitleLabel;
+@property (nonatomic, weak) UILabel *headerSourceLabel;
 @property (nonatomic, copy) NSString *dateString;
 @property (nonatomic) BOOL getNextFun;
 //@property (nonatomic, strong) MBProgressHUD *hud;
@@ -114,20 +116,33 @@ typedef NS_ENUM(NSInteger, Steps){
     [headerView addSubview:topImage];
     self.topImage = topImage;
     
+    UILabel *headerTitleLabel = [[UILabel alloc] init];
+    headerTitleLabel.numberOfLines = 0;
+    headerTitleLabel.font = [UIFont boldSystemFontOfSize:20];
+    headerTitleLabel.textColor = [UIColor blackColor];
+    headerTitleLabel.textAlignment = NSTextAlignmentLeft;
+    [headerView addSubview:headerTitleLabel];
+    self.headerTitleLabel = headerTitleLabel;
     
+    UILabel *headerSourceLabel = [[UILabel alloc] init];
+    headerSourceLabel.font = [UIFont systemFontOfSize:9];
+    headerSourceLabel.textColor = [UIColor cellSeparateLine];
+    headerSourceLabel.textAlignment = NSTextAlignmentRight;
+    [headerView addSubview:headerSourceLabel];
+    self.headerSourceLabel = headerSourceLabel;
     
-//    [self.webView mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.size.equalTo(self.view);
-//    }];
-//    
-//    [self.topImage mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.left.right.top.equalTo(self.webView.scrollView);
-//        make.height.equalTo(@200);
-//    }];
+    [headerTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.headerView.mas_left).offset(20);
+        make.right.equalTo(self.headerView.mas_right).offset(-20);
+        make.bottom.equalTo(self.headerView.mas_bottom).offset(-32);
+    }];
     
+    [headerSourceLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(self.headerView.mas_right).offset(-20);
+        make.bottom.equalTo(self.headerView.mas_bottom).offset(-10);
+    }];
     
     [self decideIfShoudGetDataFromNet];
-
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -206,6 +221,12 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.webView loadHTMLString:htmlString baseURL:nil];
     self.navigationItem.title = funDetail.storyId.title;
     [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
+    
+//    self.headerTitleLabel.text = self.passFun.title;
+    self.headerTitleLabel.text = self.passFun.storyDate;
+    self.headerSourceLabel.text = funDetail.image_source;
+    
+    
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);

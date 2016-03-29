@@ -16,6 +16,7 @@
 #import "SearchForNewFun.h"
 #import "UIColor+Extension.h"
 #import "SectionCell.h"
+#import "SectionMenu.h"
 
 #define HEIGHT_OF_SECTION_HEADER 50.5f
 
@@ -49,12 +50,20 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     self = [super initWithStyle:style];
     if (self){
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:[SearchForNewFun sharedInstance] action:@selector(accordingDateToLoopOldData)];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(showThisMenu)];
+        
         
         
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:[StorageManager sharedInstance] action:@selector(removeAllData)];
     }
     return self;
+}
+
+- (void)showThisMenu
+{
+    SectionMenu *menu = [SectionMenu menu];
+    menu.contentView = [UIView new];
+    
 }
 
 - (void)viewDidLoad {
@@ -72,16 +81,22 @@ typedef NS_ENUM(NSInteger, isToday){
     self.navTitle = titleNew;
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    _startPos = scrollView.contentOffset.y;
+}
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     CGFloat offset = scrollView.contentOffset.y;
-    if (offset > 100){
-        self.navTitle.hidden = YES;
+    
+    //往下滑动 offsetY 会越来越大
+    CGFloat dis = _startPos - offset;
+    if (dis > 0){
+        NSLog(@"start - offset > 0");
     }else{
-        self.navTitle.hidden = NO;
+        NSLog(@"start - offset < 0");
     }
-    
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -189,24 +204,20 @@ typedef NS_ENUM(NSInteger, isToday){
     }
 }
 
-- (void)pushToLastestStory
-{
-    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:LatestNewsString] options:NSDataReadingUncached error:nil];
-    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
-    self.model = [SectionModel yy_modelWithDictionary:dict];
-    for (Story *story in self.model.stories){
-        if ([story.title hasPrefix:@"瞎扯"]) {
-            StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
-            NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,story.storyId];
-            detail.url = url;
-            [self.navigationController pushViewController:detail animated:NO];
-        }
-    }
-    
-    
-    
-    
-}
+//- (void)pushToLastestStory
+//{
+//    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:LatestNewsString] options:NSDataReadingUncached error:nil];
+//    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+//    self.model = [SectionModel yy_modelWithDictionary:dict];
+//    for (Story *story in self.model.stories){
+//        if ([story.title hasPrefix:@"瞎扯"]) {
+//            StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
+//            NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,story.storyId];
+//            detail.url = url;
+//            [self.navigationController pushViewController:detail animated:NO];
+//        }
+//    }
+//}
 
 #pragma mark - UI
 - (void)setupFooter
