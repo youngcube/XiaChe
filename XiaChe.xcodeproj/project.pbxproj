@@ -24,6 +24,7 @@
 		8660B6E81C9F0137006917FC /* FunDetail+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */; };
 		8660B6E91C9F0137006917FC /* FunDetail.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E71C9F0137006917FC /* FunDetail.m */; };
 		86E930101CA81F32006D039A /* StoryDetailWKWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9300F1CA81F32006D039A /* StoryDetailWKWebViewController.m */; };
+		86E930121CAA91E0006D039A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E930111CAA91E0006D039A /* WebKit.framework */; };
 		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
 		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
 		BF80EE7D1CA8DDB800FAE74C /* UIColor+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */; };
@@ -69,6 +70,7 @@
 		8660B6E71C9F0137006917FC /* FunDetail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunDetail.m; sourceTree = "<group>"; };
 		86E9300E1CA81F32006D039A /* StoryDetailWKWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoryDetailWKWebViewController.h; sourceTree = "<group>"; };
 		86E9300F1CA81F32006D039A /* StoryDetailWKWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StoryDetailWKWebViewController.m; sourceTree = "<group>"; };
+		86E930111CAA91E0006D039A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		BF6D12A61CA141EA00758CCF /* CustomNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationController.h; sourceTree = "<group>"; };
 		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
 		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86E930121CAA91E0006D039A /* WebKit.framework in Frameworks */,
 				8660B6A91C99A0EB006917FC /* CoreData.framework in Frameworks */,
 				E2F4C05251C05686DFE83893 /* libPods.a in Frameworks */,
 			);
@@ -99,6 +102,7 @@
 		78015A2568861C1167699215 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				86E930111CAA91E0006D039A /* WebKit.framework */,
 				8660B6A81C99A0EB006917FC /* CoreData.framework */,
 				65E49BE52C9BF52D623685A7 /* libPods.a */,
 			);

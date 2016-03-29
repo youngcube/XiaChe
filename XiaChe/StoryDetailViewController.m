@@ -18,12 +18,13 @@
 #import <MBProgressHUD.h>
 #import "UIImageView+WebCache.h"
 #import "UIColor+Extension.h"
+#import <WebKit/WebKit.h>
 
-@interface StoryDetailViewController()<UIWebViewDelegate,UIScrollViewDelegate>
+@interface StoryDetailViewController()<WKNavigationDelegate,UIScrollViewDelegate>
 {
     CGFloat webHeight;
 }
-@property (nonatomic, weak) UIWebView *webView;
+@property (nonatomic, weak) WKWebView *webView;
 @property (nonatomic, weak) UIImageView *topImage;
 @property (nonatomic, weak) UIView *headerView;
 @property (nonatomic, weak) UILabel *headerTitleLabel;
@@ -69,6 +70,9 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self.webView setNavigationDelegate:nil];
+    [self.webView.scrollView setDelegate:nil];
+    [self.webView stopLoading];
 }
 
 - (void)setupToolbar
@@ -95,8 +99,10 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)setupWebView
 {
 //    self.automaticallyAdjustsScrollViewInsets = NO;
-    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height)];
-    webView.delegate = self;
+    CGRect webFrame = CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height);
+    WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+    WKWebView *webView = [[WKWebView alloc] initWithFrame:webFrame configuration:config];
+    webView.navigationDelegate = self;
     webView.scrollView.delegate = self;
     webView.backgroundColor = RGBCOLOR(249, 249, 249);
     webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
@@ -180,12 +186,6 @@ typedef NS_ENUM(NSInteger, Steps){
     }
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView
-{
-    webHeight = self.webView.scrollView.contentSize.height - self.view.bounds.size.height;
-    
-}
-
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
@@ -217,7 +217,7 @@ typedef NS_ENUM(NSInteger, Steps){
 //    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
 //    [self.view addSubview:self.webView];
 //    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
-    NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /></head><body>%@</body></html>", funDetail.css, funDetail.body];
+    NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
     [self.webView loadHTMLString:htmlString baseURL:nil];
     self.navigationItem.title = funDetail.storyId.title;
     [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
