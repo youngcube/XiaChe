@@ -23,6 +23,7 @@
 @interface StoryDetailViewController()<WKNavigationDelegate,UIScrollViewDelegate>
 {
     CGFloat webHeight;
+    
 }
 @property (nonatomic, weak) WKWebView *webView;
 @property (nonatomic, weak) UIImageView *topImage;
@@ -31,7 +32,9 @@
 @property (nonatomic, weak) UILabel *headerSourceLabel;
 @property (nonatomic, copy) NSString *dateString;
 @property (nonatomic) BOOL getNextFun;
-//@property (nonatomic, strong) MBProgressHUD *hud;
+@property (nonatomic) BOOL coverHud;
+@property (nonatomic) double webViewProgress;
+@property (nonatomic, weak) MBProgressHUD *hud;
 @end
 
 typedef NS_ENUM(NSInteger, Steps){
@@ -57,8 +60,10 @@ typedef NS_ENUM(NSInteger, Steps){
     self.view.backgroundColor = [UIColor whiteColor];
     [self setupToolbar];
     [self setupWebView];
+    [self decideIfShoudGetDataFromNet];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    self.coverHud = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -73,6 +78,12 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.webView setNavigationDelegate:nil];
     [self.webView.scrollView setDelegate:nil];
     [self.webView stopLoading];
+}
+
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
+{
+    self.hud.progress = webView.estimatedProgress;
+    [self.hud hide:YES];
 }
 
 - (void)setupToolbar
@@ -96,6 +107,13 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
+{
+    self.hud.progress = self.webView.estimatedProgress;
+#warning wait for 2s and info user to be patient
+    
+}
+
 - (void)setupWebView
 {
 //    self.automaticallyAdjustsScrollViewInsets = NO;
@@ -108,6 +126,10 @@ typedef NS_ENUM(NSInteger, Steps){
     webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
     [self.view addSubview:webView];
     self.webView = webView;
+    
+    // KVO 进度
+    [webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
+    
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
     UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, -40, self.view.frame.size.width, 260)];
@@ -147,31 +169,29 @@ typedef NS_ENUM(NSInteger, Steps){
         make.right.equalTo(self.headerView.mas_right).offset(-20);
         make.bottom.equalTo(self.headerView.mas_bottom).offset(-10);
     }];
-    
-    [self decideIfShoudGetDataFromNet];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
     CGFloat offSetY = scrollView.contentOffset.y;
-    if (offSetY>=self.headerView.frame.size.height-40){
+    if (offSetY>=self.headerView.frame.size.height - 40){
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
     }else{
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     }
-    if (-offSetY<=80&&-offSetY>=0) {
-        self.headerView.frame = CGRectMake(0, -40-offSetY/2, self.view.frame.size.width, 260-offSetY/2);
+    if (-offSetY <= 80 && -offSetY >= 0) {
+        self.headerView.frame = CGRectMake(0, -40 - offSetY / 2, self.view.frame.size.width, 260 - offSetY / 2);
 //        [_imaSourceLab setTop:240-offSetY/2];
 //        [_titleLab setBottom:_imaSourceLab.bottom-20];
-        if (-offSetY>40&&!_webView.scrollView.isDragging){
+        if (-offSetY > 40 && !_webView.scrollView.isDragging){
 //            [self.viewmodel getPreviousStoryContent];
         }
-    }else if (-offSetY>80) {
+    }else if (-offSetY > 80) {
         _webView.scrollView.contentOffset = CGPointMake(0, -80);
-    }else if (offSetY <=300 ){
-        self.headerView.frame = CGRectMake(0, -40-offSetY, self.view.frame.size.width, 260);
+    }else if (offSetY <= 300 ){
+        self.headerView.frame = CGRectMake(0, -40 - offSetY, self.view.frame.size.width, 260);
     }
-    if (offSetY + self.view.frame.size.height > scrollView.contentSize.height + 160&&!_webView.scrollView.isDragging) {
+    if (offSetY + self.view.frame.size.height > scrollView.contentSize.height + 160 && !_webView.scrollView.isDragging) {
 //        [self.viewmodel getNextStoryContent];
     }
 }
@@ -179,9 +199,11 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)decideIfShoudGetDataFromNet
 {
+    
     if ([self fetchWebString].detailId == NULL){
         [self loadDetailData];
     }else{
+        self.coverHud = NO;
         [self loadWebView:[self fetchWebString]];
     }
 }
@@ -189,6 +211,7 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
+    self.coverHud = YES;
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
 //    NSLog(@"detail URL = %@",url);
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
@@ -204,8 +227,10 @@ typedef NS_ENUM(NSInteger, Steps){
         st.image = detail.image;
         st.image_source = detail.image_source;
         [[StorageManager sharedInstance].managedObjectContext save:nil];
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self.hud hide:YES];
+//        });
         [self loadWebView:[self fetchWebString]];
-        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 //        NSLog(@"failed! %@",error);
     }];
@@ -230,7 +255,9 @@ typedef NS_ENUM(NSInteger, Steps){
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    if (self.coverHud == NO){
+        
+    }
 }
 
 - (FunDetail *)fetchWebString
@@ -295,14 +322,17 @@ typedef NS_ENUM(NSInteger, Steps){
     return fun.storyDate;
 }
 
+
+
 - (void)switchToNewDetail:(UIBarButtonItem *)sender
 {
+    self.hud = [MBProgressHUD showHUDAddedTo:[[UIApplication sharedApplication].windows lastObject] animated:YES];
+    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
     
-//    self.hud = [MBProgressHUD HUDForView:self.view];
-//    self.hud.labelText = @"加载！";
-//    [self.hud show:YES];
+//    self.hud.delegate = self;
     
-    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    
+    
     if (sender.tag == 1001){
         self.dateString = [self dateStringForInt:kNext];
     }else if(sender.tag == 1002){
@@ -315,7 +345,7 @@ typedef NS_ENUM(NSInteger, Steps){
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
     NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
-    NSLog(@"今天的日期是！ %@",self.dateString);
+//    NSLog(@"今天的日期是！ %@",self.dateString);
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *funDate = [array firstObject];
@@ -334,9 +364,8 @@ typedef NS_ENUM(NSInteger, Steps){
         
     }else{
         self.passFun = funDate;
+        [self decideIfShoudGetDataFromNet];
     }
-    
-    [self decideIfShoudGetDataFromNet];
 }
 
 - (void)dataDidSave
@@ -359,7 +388,6 @@ typedef NS_ENUM(NSInteger, Steps){
         [self decideIfShoudGetDataFromNet];
         self.getNextFun = NO;
     }
-//    [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
 
 @end

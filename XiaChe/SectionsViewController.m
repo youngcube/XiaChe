@@ -75,7 +75,7 @@ typedef NS_ENUM(NSInteger, isToday){
     
     
     UIButton *titleNew = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
-    [titleNew setTitle:@"本月最新" forState:UIControlStateNormal];
+    [titleNew setTitle:@"瞎扯 · 月报" forState:UIControlStateNormal];
     [titleNew setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     self.navigationItem.titleView = titleNew;
     self.navTitle = titleNew;
@@ -119,20 +119,16 @@ typedef NS_ENUM(NSInteger, isToday){
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    
-    
     CGRect headerFrame = CGRectMake(0, 0, tableView.frame.size.width, HEIGHT_OF_SECTION_HEADER);
     UIView *sectionHeaderView = [[UIView alloc] initWithFrame:headerFrame];
-    sectionHeaderView.backgroundColor = [UIColor customNavColor];
+    sectionHeaderView.backgroundColor = [UIColor grayColor];
     
     NSString *headerString = [[[self.fetchedResultsController sections] objectAtIndex:section] name];
     UILabel *headerLabel = [[UILabel alloc] init];
     
-    
     headerLabel.text = headerString;
     [headerLabel sizeToFit];
     [sectionHeaderView addSubview:headerLabel];
-    
     
     headerLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
@@ -143,13 +139,6 @@ typedef NS_ENUM(NSInteger, isToday){
     [sectionHeaderView addConstraint:centerY];
     return sectionHeaderView;
 }
-
-
-
-
-
-
-
 
 #pragma mark - Logic to Fetch Data
 - (void)decideIfShouldGetNewJson
@@ -225,6 +214,8 @@ typedef NS_ENUM(NSInteger, isToday){
     self.autoHeader = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         [self decideIfShouldGetNewJson];
     }];
+    self.autoHeader.lastUpdatedTimeLabel.hidden = YES;
+    
     self.tableView.mj_header = self.autoHeader;
     [self.tableView.mj_header beginRefreshing];
 
