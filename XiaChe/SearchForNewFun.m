@@ -62,23 +62,26 @@
 //}
 
 #pragma mark - 批量返回更新的数据
-- (void)accordingDateToLoopNewData
+- (void)accordingDateToLoopNewDataWithData:(BOOL)data
 {
-    [self getLastestJson];
-    // 如果一下子取超过50，可能会把第一个值返回多次。
-//    for (int i = 0 ; i < EACH_TIME_FETCH_NUM - 1 ; i ++){
-//        NSDate *date = [NSDate dateWithTimeIntervalSinceNow:-86400*i];
-//        NSString *str = [self.formatter stringFromDate:date];
-//        
-//        [self getJsonWithString:str];
-//    }
+    if (data){
+        NSString *oldString = [self fetchLastestDayFromStorage:NO];
+        NSDate *oldDate = [self.formatter dateFromString:oldString];
+        NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:oldDate];
+        NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
+        [self getJsonWithString:oldDateRangeString];
+    }else{
+        [self getLastestJson];
+    }
+    
+    
+//
 }
 
 #pragma mark - 批量返回更老的数据
 - (void)accordingDateToLoopOldData
 {
     
-//    
     NSString *oldString = [self fetchLastestDayFromStorage:YES];
 //    NSDate *oldDate = [self.formatter dateFromString:oldString];
 //    NSDate *oldDateRange = [NSDate dateWithTimeInterval:-86400 sinceDate:oldDate];

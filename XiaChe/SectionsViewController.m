@@ -157,29 +157,26 @@ typedef NS_ENUM(NSInteger, isToday){
             
         }else{
             NSLog(@"刷新");
-            NSDateFormatter *format = [[NSDateFormatter alloc] init];
-            [format setDateFormat:@"yyyyMMdd"];
-            NSDate *newDate = [format dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
-            NSDate *today = [format dateFromString:model.date];
+            NSDate *newDate = [self.formatter dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
+            NSDate *today = [self.formatter dateFromString:model.date];
             NSTimeInterval interval = [today timeIntervalSinceDate:newDate];
             NSLog(@" %@ %@ %f",newDate,today,interval);
             
+            //从后往前需要加的天数
             NSUInteger days = (interval / 86400) - 1;
             
             NSLog(@"%lu",(unsigned long)days);
             
-            
-            
-            self.loopTime = EACH_TIME_FETCH_NUM;
-            self.ifIsLoopNewData = YES;
-            [[SearchForNewFun sharedInstance] accordingDateToLoopNewData];
-            
-            
-            if(newDate == NULL){
+            if(newDate == NULL){ // 首次刷新，列表为空的情况
                 NSLog(@"这是第一次刷新");
+                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:NO];
+                self.ifIsLoopNewData = NO;
+                self.loopTime = EACH_TIME_FETCH_NUM;
+            }else{
+                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:YES];
+                self.ifIsLoopNewData = YES;
+                self.loopTime = days;
             }
-            
-            
             
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -195,15 +192,19 @@ typedef NS_ENUM(NSInteger, isToday){
         [self.tableView.mj_footer endRefreshing];
         return;
     }else{
-        NSString *oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
-        NSDate *oldDate = [self.formatter dateFromString:oldString];
-        NSDate *oldDateRange;
+        NSString *oldString;
         if (self.ifIsLoopNewData == YES){
-            oldDateRange = [NSDate dateWithTimeInterval:0 sinceDate:oldDate];
+            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO];
+            NSDate *newDate = [self.formatter dateFromString:oldString];
+            NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:newDate];
+            oldString = [self.formatter stringFromDate:oldDateRange];
         }else{
-            oldDateRange = [NSDate dateWithTimeInterval:0 sinceDate:oldDate];
+            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
         }
-        NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
+        NSDate *oldDate = [self.formatter dateFromString:oldString];
+        
+        
+        NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
         [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
         NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %d",(unsigned long)(EACH_TIME_FETCH_NUM - self.loopTime),EACH_TIME_FETCH_NUM];
         [self.autoFooter setTitle:loadString forState:MJRefreshStateRefreshing];
