@@ -73,7 +73,6 @@ typedef NS_ENUM(NSInteger, isToday){
     [self.formatter setDateFormat:@"yyyyMMdd"];
     [self setupFooter];
     
-    
     UIButton *titleNew = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
     [titleNew setTitle:@"瞎扯 · 月报" forState:UIControlStateNormal];
     [titleNew setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -93,9 +92,9 @@ typedef NS_ENUM(NSInteger, isToday){
     //往下滑动 offsetY 会越来越大
     CGFloat dis = _startPos - offset;
     if (dis > 0){
-        NSLog(@"start - offset > 0");
+        
     }else{
-        NSLog(@"start - offset < 0");
+        
     }
 }
 
@@ -158,12 +157,31 @@ typedef NS_ENUM(NSInteger, isToday){
             
         }else{
             NSLog(@"刷新");
+            NSDateFormatter *format = [[NSDateFormatter alloc] init];
+            [format setDateFormat:@"yyyyMMdd"];
+            NSDate *newDate = [format dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
+            NSDate *today = [format dateFromString:model.date];
+            NSTimeInterval interval = [today timeIntervalSinceDate:newDate];
+            NSLog(@" %@ %@ %f",newDate,today,interval);
+            
+            NSUInteger days = (interval / 86400) - 1;
+            
+            NSLog(@"%lu",(unsigned long)days);
+            
+            
+            
             self.loopTime = EACH_TIME_FETCH_NUM;
             self.ifIsLoopNewData = YES;
             [[SearchForNewFun sharedInstance] accordingDateToLoopNewData];
             
+            
+            if(newDate == NULL){
+                NSLog(@"这是第一次刷新");
+            }
+            
+            
+            
         }
-        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
@@ -267,8 +285,6 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     return 90;
 }
-
-
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

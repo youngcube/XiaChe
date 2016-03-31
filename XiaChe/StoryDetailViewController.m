@@ -32,7 +32,6 @@
 @property (nonatomic, weak) UILabel *headerSourceLabel;
 @property (nonatomic, copy) NSString *dateString;
 @property (nonatomic) BOOL getNextFun;
-@property (nonatomic) BOOL coverHud;
 @property (nonatomic) double webViewProgress;
 @property (nonatomic, weak) MBProgressHUD *hud;
 @end
@@ -63,7 +62,6 @@ typedef NS_ENUM(NSInteger, Steps){
     [self decideIfShoudGetDataFromNet];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    self.coverHud = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -78,6 +76,7 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.webView setNavigationDelegate:nil];
     [self.webView.scrollView setDelegate:nil];
     [self.webView stopLoading];
+    [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
@@ -159,6 +158,11 @@ typedef NS_ENUM(NSInteger, Steps){
     [headerView addSubview:headerSourceLabel];
     self.headerSourceLabel = headerSourceLabel;
     
+//    [webView mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.right.top.equalTo(self.view);
+//        make.bottom.equalTo(self.view).offset(-40);
+//    }];
+    
     [headerTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.headerView.mas_left).offset(20);
         make.right.equalTo(self.headerView.mas_right).offset(-20);
@@ -196,14 +200,11 @@ typedef NS_ENUM(NSInteger, Steps){
     }
 }
 
-
 - (void)decideIfShoudGetDataFromNet
 {
-    
     if ([self fetchWebString].detailId == NULL){
         [self loadDetailData];
     }else{
-        self.coverHud = NO;
         [self loadWebView:[self fetchWebString]];
     }
 }
@@ -211,7 +212,6 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 将JSON装载到DetailItem中
 -(void)loadDetailData
 {
-    self.coverHud = YES;
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
 //    NSLog(@"detail URL = %@",url);
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
@@ -227,9 +227,7 @@ typedef NS_ENUM(NSInteger, Steps){
         st.image = detail.image;
         st.image_source = detail.image_source;
         [[StorageManager sharedInstance].managedObjectContext save:nil];
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            [self.hud hide:YES];
-//        });
+
         [self loadWebView:[self fetchWebString]];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 //        NSLog(@"failed! %@",error);
@@ -239,25 +237,17 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 加载WebView
 -(void)loadWebView:(FunDetail *)funDetail
 {
-//    self.webView = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
-//    [self.view addSubview:self.webView];
-//    webView.scrollView.contentInset = UIEdgeInsetsMake(44, 0, 0, 0);
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
     [self.webView loadHTMLString:htmlString baseURL:nil];
     self.navigationItem.title = funDetail.storyId.title;
     [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
     
-//    self.headerTitleLabel.text = self.passFun.title;
     self.headerTitleLabel.text = self.passFun.storyDate;
     self.headerSourceLabel.text = funDetail.image_source;
-    
-    
+
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);
-    if (self.coverHud == NO){
-        
-    }
 }
 
 - (FunDetail *)fetchWebString
@@ -322,16 +312,10 @@ typedef NS_ENUM(NSInteger, Steps){
     return fun.storyDate;
 }
 
-
-
 - (void)switchToNewDetail:(UIBarButtonItem *)sender
 {
     self.hud = [MBProgressHUD showHUDAddedTo:[[UIApplication sharedApplication].windows lastObject] animated:YES];
     self.hud.mode = MBProgressHUDModeAnnularDeterminate;
-    
-//    self.hud.delegate = self;
-    
-    
     
     if (sender.tag == 1001){
         self.dateString = [self dateStringForInt:kNext];
@@ -345,7 +329,6 @@ typedef NS_ENUM(NSInteger, Steps){
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
     NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
-//    NSLog(@"今天的日期是！ %@",self.dateString);
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *funDate = [array firstObject];
@@ -356,10 +339,7 @@ typedef NS_ENUM(NSInteger, Steps){
         [formatter setDateFormat:@"yyyyMMdd"];
         NSDate *oldDate = [formatter dateFromString:self.dateString];
         NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400 sinceDate:oldDate];
-        
         NSString *oldDateRangeString = [formatter stringFromDate:oldDateRange];
-        
-        
         [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
         
     }else{
@@ -370,7 +350,6 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)dataDidSave
 {
-    
     if (self.getNextFun == NO) {
         return;
     }else{
