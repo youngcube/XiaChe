@@ -19,6 +19,7 @@
 #import "UIImageView+WebCache.h"
 #import "UIColor+Extension.h"
 #import <WebKit/WebKit.h>
+#import "DetailToolbar.h"
 
 @interface StoryDetailViewController()<WKNavigationDelegate,UIScrollViewDelegate>
 {
@@ -26,6 +27,7 @@
     
 }
 @property (nonatomic, weak) WKWebView *webView;
+@property (nonatomic, weak) DetailToolbar *toolBar;
 @property (nonatomic, weak) UIImageView *topImage;
 @property (nonatomic, weak) UIView *headerView;
 @property (nonatomic, weak) UILabel *headerTitleLabel;
@@ -57,11 +59,14 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    [self setupToolbar];
+    [self setupToolbar:YES];
     [self setupWebView];
     [self decideIfShoudGetDataFromNet];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    
+    
+    NSLog(@"web frame = %@",NSStringFromCGRect(self.webView.frame));
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -79,26 +84,118 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
+#pragma mark - webview delegate
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
     self.hud.progress = webView.estimatedProgress;
     [self.hud hide:YES];
+    if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
+        [self.navigationController setToolbarHidden:YES animated:YES];
+        [self setupToolbar:NO];
+        
+        self.headerView.hidden = YES;
+        self.webView.transform = CGAffineTransformMakeTranslation(0, -20);
+        
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+        
+    }else{
+        [self setupToolbar:YES];
+//        [self setupWebView];
+        self.headerView.hidden = NO;
+    }
 }
 
-- (void)setupToolbar
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
 {
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    NSLog(@"navigation = %@",webView.URL);
+    if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
+        self.headerView.hidden = YES;
+    }
+//    [self.navigationController setToolbarHidden:YES animated:YES];
+}
+
+#pragma mark - ScrollView Delegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (![self.headerView isHidden]){
+        
+        CGFloat offSetY = scrollView.contentOffset.y;
+        if (offSetY>=self.headerView.frame.size.height - 40){
+            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+        }else{
+            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+        }
+        if (-offSetY <= 80 && -offSetY >= 0) {
+            self.headerView.frame = CGRectMake(0, -40 - offSetY / 2, self.view.frame.size.width, 260 - offSetY / 2);
+            //        [_imaSourceLab setTop:240-offSetY/2];
+            //        [_titleLab setBottom:_imaSourceLab.bottom-20];
+            if (-offSetY > 40 && !_webView.scrollView.isDragging){
+                //            [self.viewmodel getPreviousStoryContent];
+            }
+        }else if (-offSetY > 80) {
+            _webView.scrollView.contentOffset = CGPointMake(0, -80);
+        }else if (offSetY <= 300 ){
+            self.headerView.frame = CGRectMake(0, -40 - offSetY, self.view.frame.size.width, 260);
+        }
+        if (offSetY + self.view.frame.size.height > scrollView.contentSize.height + 160 && !_webView.scrollView.isDragging) {
+            //        [self.viewmodel getNextStoryContent];
+        }
+        
+    }
+}
+
+#pragma mark 禁止缩放
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+    return nil;
+}
+
+#pragma mark - UI
+- (void)setupToolbar:(BOOL)firstTime
+{
+//    DetailToolbar *toolBar = [DetailToolbar tool];
+//    [toolBar.nextArticle addTarget:self action:@selector(switchToNewDetail:) forControlEvents:UIControlEventTouchUpInside];
+//    toolBar.nextArticle.tag = 1001;
+//    
+//    [toolBar.beforeArticle addTarget:self action:@selector(switchToNewDetail:) forControlEvents:UIControlEventTouchUpInside];
+//    toolBar.beforeArticle.tag = 1002;
+//    
+//    [toolBar.popToLastVc addTarget:self action:@selector(popToLastVc) forControlEvents:UIControlEventTouchUpInside];
+//    
+//    [self.view addSubview:toolBar];
+//    self.toolBar = toolBar;
+//    
+//    [toolBar mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.right.bottom.equalTo(self.view);
+//        make.height.equalTo(@37);
+//    }];
+    
+    
+    
     [self.navigationController setToolbarHidden:NO animated:YES];
-    UIBarButtonItem *pop = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(popToLastVc)];
-    UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-    fixWidth.width = 200;
-    UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward target:self action:@selector(switchToNewDetail:)];
-    nextBtn.tag = 1001;
     
-    UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(switchToNewDetail:)];
-    beforeBtn.tag = 1002;
-    
-    [self setToolbarItems:@[pop,flex,nextBtn,fixWidth,beforeBtn] animated:YES];
+    if (firstTime){
+        UIBarButtonItem *pop = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(popToLastVc)];
+        UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+        UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+        fixWidth.width = 200;
+        UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward target:self action:@selector(switchToNewDetail:)];
+        nextBtn.tag = 1001;
+        
+        UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(switchToNewDetail:)];
+        beforeBtn.tag = 1002;
+        
+        [self setToolbarItems:@[pop,nextBtn,beforeBtn] animated:YES];
+    }else{
+        UIBarButtonItem *goBack = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(goBack)];
+        
+        [self setToolbarItems:@[goBack] animated:YES];
+    }
+}
+
+- (void)goBack
+{
+    [self loadWebView:[self fetchWebString]];
 }
 
 - (void)popToLastVc
@@ -160,7 +257,7 @@ typedef NS_ENUM(NSInteger, Steps){
     
 //    [webView mas_makeConstraints:^(MASConstraintMaker *make) {
 //        make.left.right.top.equalTo(self.view);
-//        make.bottom.equalTo(self.view).offset(-40);
+//        make.bottom.equalTo(self.toolBar.mas_top);
 //    }];
     
     [headerTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -173,31 +270,6 @@ typedef NS_ENUM(NSInteger, Steps){
         make.right.equalTo(self.headerView.mas_right).offset(-20);
         make.bottom.equalTo(self.headerView.mas_bottom).offset(-10);
     }];
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
-    CGFloat offSetY = scrollView.contentOffset.y;
-    if (offSetY>=self.headerView.frame.size.height - 40){
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
-    }else{
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    }
-    if (-offSetY <= 80 && -offSetY >= 0) {
-        self.headerView.frame = CGRectMake(0, -40 - offSetY / 2, self.view.frame.size.width, 260 - offSetY / 2);
-//        [_imaSourceLab setTop:240-offSetY/2];
-//        [_titleLab setBottom:_imaSourceLab.bottom-20];
-        if (-offSetY > 40 && !_webView.scrollView.isDragging){
-//            [self.viewmodel getPreviousStoryContent];
-        }
-    }else if (-offSetY > 80) {
-        _webView.scrollView.contentOffset = CGPointMake(0, -80);
-    }else if (offSetY <= 300 ){
-        self.headerView.frame = CGRectMake(0, -40 - offSetY, self.view.frame.size.width, 260);
-    }
-    if (offSetY + self.view.frame.size.height > scrollView.contentSize.height + 160 && !_webView.scrollView.isDragging) {
-//        [self.viewmodel getNextStoryContent];
-    }
 }
 
 - (void)decideIfShoudGetDataFromNet
@@ -312,7 +384,7 @@ typedef NS_ENUM(NSInteger, Steps){
     return fun.storyDate;
 }
 
-- (void)switchToNewDetail:(UIBarButtonItem *)sender
+- (void)switchToNewDetail:(UIButton *)sender
 {
     self.hud = [MBProgressHUD showHUDAddedTo:[[UIApplication sharedApplication].windows lastObject] animated:YES];
     self.hud.mode = MBProgressHUDModeAnnularDeterminate;

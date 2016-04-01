@@ -74,7 +74,7 @@ typedef NS_ENUM(NSInteger, isToday){
     [self setupFooter];
     
     UIButton *titleNew = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
-    [titleNew setTitle:@"瞎扯 · 月报" forState:UIControlStateNormal];
+    [titleNew setTitle:@"·" forState:UIControlStateNormal];
     [titleNew setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     self.navigationItem.titleView = titleNew;
     self.navTitle = titleNew;
