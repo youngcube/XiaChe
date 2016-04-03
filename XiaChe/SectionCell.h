@@ -13,6 +13,7 @@
 @property (nonatomic, copy) NSString *imageURL;
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *date;
+@property (nonatomic, copy) NSNumber *unread;
 
 + (instancetype)createCellAtTableView:(UITableView *)tableView;
 @end

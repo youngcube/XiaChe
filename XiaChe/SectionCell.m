@@ -96,6 +96,18 @@
     self.dateLabel.text = newDateString;
 }
 
+- (void)setUnread:(NSNumber *)unread
+{
+    _unread = unread;
+    if ([unread boolValue]){
+        _titleLabel.textColor = [UIColor blackColor];
+        _dateLabel.textColor = [UIColor blackColor];
+    }else{
+        _titleLabel.textColor = [UIColor grayColor];
+        _dateLabel.textColor = [UIColor grayColor];
+    }
+}
+
 - (void)drawRect:(CGRect)rect
 {
     //cell的分割线

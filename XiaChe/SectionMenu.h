@@ -10,7 +10,8 @@
 
 @interface SectionMenu : UIView
 @property (nonatomic, strong) UIView *contentView;
-
+@property (nonatomic, strong) UIViewController *contentController;
 + (instancetype)menu;
+- (void)show;
 - (void)showFrom:(UIView *)from;
 @end

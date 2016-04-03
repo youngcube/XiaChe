@@ -33,6 +33,7 @@
     if (!_backgroundView){
         UIImageView *bg = [[UIImageView alloc] init];
         bg.image = [UIImage imageNamed:@"popover_background_right"];
+        bg.backgroundColor = [UIColor redColor];
         bg.userInteractionEnabled = YES;
         [self addSubview:bg];
         self.backgroundView = bg;
@@ -48,13 +49,24 @@
     [self.backgroundView addSubview:contentView];
 }
 
+- (void)setContentController:(UIViewController *)contentController
+{
+    _contentController = contentController;
+    contentController.view = self.contentView;
+}
+
 - (void)showFrom:(UIView *)from
 {
     UIWindow *mainWindow = [[UIApplication sharedApplication].windows lastObject];
     [mainWindow addSubview:self];
     self.frame = mainWindow.bounds;
-    
-    
+}
+
+- (void)show
+{
+    UIWindow *mainWindow = [[UIApplication sharedApplication].windows lastObject];
+    self.frame = mainWindow.bounds;
+    [mainWindow addSubview:self];
     
 }
 

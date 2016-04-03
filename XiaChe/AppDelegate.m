@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "SectionsViewController.h"
 #import "CustomNavigationController.h"
+#import "CustomTabBarController.h"
 
 @interface AppDelegate ()
 
@@ -20,9 +21,10 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = [UIColor whiteColor];
-    SectionsViewController *sections = [[SectionsViewController alloc] init];
-    CustomNavigationController *navi = [[CustomNavigationController alloc] initWithRootViewController:sections];
-    self.window.rootViewController = navi;
+//    SectionsViewController *sections = [[SectionsViewController alloc] init];
+//    CustomNavigationController *navi = [[CustomNavigationController alloc] initWithRootViewController:sections];
+    CustomTabBarController *tab = [[CustomTabBarController alloc] init];
+    self.window.rootViewController = tab;
     [self.window makeKeyAndVisible];
     
     return YES;

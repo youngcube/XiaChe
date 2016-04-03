@@ -46,20 +46,20 @@
     return self;
 }
 
-//#pragma mark - 计算从知乎日报开始至今的日子
-//- (void)calculateStartTimeToNow
-//{
-//    NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
-//    [dateFormatter setDateFormat:@"YYYYMMdd"];
-//    
-//    NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130520"];
-//    NSDate *nowDate = [NSDate date];
-//    
-//    NSTimeInterval time=[nowDate timeIntervalSinceDate:mostBeforeDate];
-//    int days=((int)time)/(3600*24);
-//    NSString *dateContent=[[NSString alloc] initWithFormat:@"%i天",days];
-//    NSLog(@"%@",dateContent);
-//}
+#pragma mark - 计算从知乎日报开始至今的日子
+- (void)calculateStartTimeToNow
+{
+    NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"YYYYMMdd"];
+    
+    NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130520"];
+    NSDate *nowDate = [NSDate date];
+    
+    NSTimeInterval time=[nowDate timeIntervalSinceDate:mostBeforeDate];
+    int days=((int)time)/(3600*24);
+    NSString *dateContent=[[NSString alloc] initWithFormat:@"%i天",days];
+    NSLog(@"%@",dateContent);
+}
 
 #pragma mark - 批量返回更新的数据
 - (void)accordingDateToLoopNewDataWithData:(BOOL)data
@@ -120,6 +120,7 @@
                 st.title = story.title;
                 st.storyId = story.storyId;
                 st.image = [story.images firstObject];
+                [st setUnread:[NSNumber numberWithBool:YES]];
             }
         }
         [[StorageManager sharedInstance].managedObjectContext save:nil];
@@ -163,6 +164,7 @@
                     st.title = story.title;
                     st.storyId = story.storyId;
                     st.image = [story.images firstObject];
+                    [st setUnread:[NSNumber numberWithBool:YES]];
                     _ifHasXiaChe = YES;
                 }
             }

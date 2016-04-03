@@ -20,11 +20,12 @@
 #import "UIColor+Extension.h"
 #import <WebKit/WebKit.h>
 #import "DetailToolbar.h"
+#import "WebViewController.h"
 
 @interface StoryDetailViewController()<WKNavigationDelegate,UIScrollViewDelegate>
 {
     CGFloat webHeight;
-    
+//    CGFloat _startScroll;
 }
 @property (nonatomic, weak) WKWebView *webView;
 @property (nonatomic, weak) DetailToolbar *toolBar;
@@ -36,6 +37,8 @@
 @property (nonatomic) BOOL getNextFun;
 @property (nonatomic) double webViewProgress;
 @property (nonatomic, weak) MBProgressHUD *hud;
+@property (nonatomic, weak) UIProgressView *progressView;
+//@property (nonatomic, weak) MDProgress *progressView;
 @end
 
 typedef NS_ENUM(NSInteger, Steps){
@@ -72,7 +75,14 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+//    NSLog(@"%f",_startScroll);
     [self.navigationController setNavigationBarHidden:YES animated:YES];
+//    [self.webView.scrollView setContentOffset:CGPointMake(0, _startScroll) animated:YES];
+}
+
+- (BOOL)hidesBottomBarWhenPushed
+{
+    return YES;
 }
 
 - (void)dealloc
@@ -84,17 +94,107 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
+- (void)setupProgress
+{
+//    MDProgress *progress = [[MDProgress alloc] init];
+//    progress.progressStyle = MDProgressStyleLinear;
+//    progress.progressType = MDProgressTypeDeterminate;
+    UIProgressView *progress = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    progress.trackTintColor = [UIColor grayColor];
+    progress.progressTintColor = [UIColor blueColor];
+    [self.view addSubview:progress];
+    self.progressView = progress;
+    [progress mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.mas_topLayoutGuide);
+        make.width.equalTo(self.view);
+        make.height.equalTo(@5);
+    }];
+}
+
+- (void)setupWebView
+{
+    NSString *jsPath = [[NSBundle mainBundle] pathForResource:@"imageSelect" ofType:@"js"];
+    NSString *jsString = [NSString stringWithContentsOfFile:jsPath encoding:NSUTF8StringEncoding error:nil];
+    WKUserScript *js = [[WKUserScript alloc] initWithSource:jsString injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES];
+    
+    //    self.automaticallyAdjustsScrollViewInsets = NO;
+    CGRect webFrame = CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height);
+    WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+    [config.userContentController addUserScript:js];
+    config.preferences.javaScriptEnabled = YES;
+    WKWebView *webView = [[WKWebView alloc] initWithFrame:webFrame configuration:config];
+    webView.navigationDelegate = self;
+    webView.scrollView.delegate = self;
+    webView.backgroundColor = RGBCOLOR(249, 249, 249);
+    webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
+    [self.view addSubview:webView];
+    self.webView = webView;
+    
+    // KVO 进度
+    [webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
+    
+    self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, -40, self.view.frame.size.width, 260)];
+    headerView.clipsToBounds = YES;
+    [self.view addSubview:headerView];
+    self.headerView = headerView;
+    
+    UIImageView *topImage = [[UIImageView alloc] init];
+    topImage.frame = CGRectMake(0, 0, self.view.bounds.size.width, 300);
+    topImage.contentMode = UIViewContentModeScaleAspectFill;;
+    topImage.backgroundColor = [UIColor clearColor];
+    [headerView addSubview:topImage];
+    self.topImage = topImage;
+    
+    UILabel *headerTitleLabel = [[UILabel alloc] init];
+    headerTitleLabel.numberOfLines = 0;
+    headerTitleLabel.font = [UIFont boldSystemFontOfSize:20];
+    headerTitleLabel.textColor = [UIColor blackColor];
+    headerTitleLabel.textAlignment = NSTextAlignmentLeft;
+    [headerView addSubview:headerTitleLabel];
+    self.headerTitleLabel = headerTitleLabel;
+    
+    UILabel *headerSourceLabel = [[UILabel alloc] init];
+    headerSourceLabel.font = [UIFont systemFontOfSize:9];
+    headerSourceLabel.textColor = [UIColor cellSeparateLine];
+    headerSourceLabel.textAlignment = NSTextAlignmentRight;
+    [headerView addSubview:headerSourceLabel];
+    self.headerSourceLabel = headerSourceLabel;
+    
+    //    [webView mas_makeConstraints:^(MASConstraintMaker *make) {
+    //        make.left.right.top.equalTo(self.view);
+    //        make.bottom.equalTo(self.toolBar.mas_top);
+    //    }];
+    
+    [headerTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.headerView.mas_left).offset(20);
+        make.right.equalTo(self.headerView.mas_right).offset(-20);
+        make.bottom.equalTo(self.headerView.mas_bottom).offset(-32);
+    }];
+    
+    [headerSourceLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(self.headerView.mas_right).offset(-20);
+        make.bottom.equalTo(self.headerView.mas_bottom).offset(-10);
+    }];
+}
+
 #pragma mark - webview delegate
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
+    NSLog(@"progress = %f",webView.estimatedProgress);
     self.hud.progress = webView.estimatedProgress;
     [self.hud hide:YES];
     if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
         [self.navigationController setToolbarHidden:YES animated:YES];
         [self setupToolbar:NO];
-        
+        self.progressView.progress = webView.estimatedProgress;
         self.headerView.hidden = YES;
-        self.webView.transform = CGAffineTransformMakeTranslation(0, -20);
+        [UIView animateWithDuration:0.5 animations:^{
+            self.webView.transform = CGAffineTransformMakeTranslation(0, -20);
+            [self.progressView removeFromSuperview];
+        }];
+        
         
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
         
@@ -103,6 +203,7 @@ typedef NS_ENUM(NSInteger, Steps){
 //        [self setupWebView];
         self.headerView.hidden = NO;
     }
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
@@ -110,15 +211,28 @@ typedef NS_ENUM(NSInteger, Steps){
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     NSLog(@"navigation = %@",webView.URL);
     if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
-        self.headerView.hidden = YES;
+        
+        
+        WebViewController *web = [[WebViewController alloc] init];
+        web.url = webView.URL;
+        [self.navigationController pushViewController:web animated:YES];
+        [webView stopLoading];
+//        self.headerView.hidden = YES;
+//        [self.navigationController setNavigationBarHidden:NO animated:YES];
+//        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(goBack)];
+//        [self setupProgress];
     }
-//    [self.navigationController setToolbarHidden:YES animated:YES];
+    
+    NSLog(@"web URL = %@",webView.URL);
+    
 }
+
+
 
 #pragma mark - ScrollView Delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (![self.headerView isHidden]){
-        
+//        _startScroll = scrollView.contentOffset.y;
         CGFloat offSetY = scrollView.contentOffset.y;
         if (offSetY>=self.headerView.frame.size.height - 40){
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
@@ -196,6 +310,10 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)goBack
 {
     [self loadWebView:[self fetchWebString]];
+    [UIView animateWithDuration:0.5 animations:^{
+        self.webView.transform = CGAffineTransformMakeTranslation(0, +20);
+    }];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
 }
 
 - (void)popToLastVc
@@ -206,71 +324,12 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
 {
     self.hud.progress = self.webView.estimatedProgress;
+    [self.progressView setProgress:self.webView.estimatedProgress animated:YES];
 #warning wait for 2s and info user to be patient
     
 }
 
-- (void)setupWebView
-{
-//    self.automaticallyAdjustsScrollViewInsets = NO;
-    CGRect webFrame = CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height);
-    WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
-    WKWebView *webView = [[WKWebView alloc] initWithFrame:webFrame configuration:config];
-    webView.navigationDelegate = self;
-    webView.scrollView.delegate = self;
-    webView.backgroundColor = RGBCOLOR(249, 249, 249);
-    webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
-    [self.view addSubview:webView];
-    self.webView = webView;
-    
-    // KVO 进度
-    [webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
-    
-    self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
-    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, -40, self.view.frame.size.width, 260)];
-    headerView.clipsToBounds = YES;
-    [self.view addSubview:headerView];
-    self.headerView = headerView;
-    
-    UIImageView *topImage = [[UIImageView alloc] init];
-    topImage.frame = CGRectMake(0, 0, self.view.bounds.size.width, 300);
-    topImage.contentMode = UIViewContentModeScaleAspectFill;;
-    topImage.backgroundColor = [UIColor clearColor];
-    [headerView addSubview:topImage];
-    self.topImage = topImage;
-    
-    UILabel *headerTitleLabel = [[UILabel alloc] init];
-    headerTitleLabel.numberOfLines = 0;
-    headerTitleLabel.font = [UIFont boldSystemFontOfSize:20];
-    headerTitleLabel.textColor = [UIColor blackColor];
-    headerTitleLabel.textAlignment = NSTextAlignmentLeft;
-    [headerView addSubview:headerTitleLabel];
-    self.headerTitleLabel = headerTitleLabel;
-    
-    UILabel *headerSourceLabel = [[UILabel alloc] init];
-    headerSourceLabel.font = [UIFont systemFontOfSize:9];
-    headerSourceLabel.textColor = [UIColor cellSeparateLine];
-    headerSourceLabel.textAlignment = NSTextAlignmentRight;
-    [headerView addSubview:headerSourceLabel];
-    self.headerSourceLabel = headerSourceLabel;
-    
-//    [webView mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.left.right.top.equalTo(self.view);
-//        make.bottom.equalTo(self.toolBar.mas_top);
-//    }];
-    
-    [headerTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.headerView.mas_left).offset(20);
-        make.right.equalTo(self.headerView.mas_right).offset(-20);
-        make.bottom.equalTo(self.headerView.mas_bottom).offset(-32);
-    }];
-    
-    [headerSourceLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.headerView.mas_right).offset(-20);
-        make.bottom.equalTo(self.headerView.mas_bottom).offset(-10);
-    }];
-}
+
 
 - (void)decideIfShoudGetDataFromNet
 {
@@ -309,6 +368,9 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 加载WebView
 -(void)loadWebView:(FunDetail *)funDetail
 {
+    [self.passFun setUnread:[NSNumber numberWithBool:NO]];
+    [[StorageManager sharedInstance].managedObjectContext save:nil];
+    
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
     [self.webView loadHTMLString:htmlString baseURL:nil];
     self.navigationItem.title = funDetail.storyId.title;
@@ -320,6 +382,10 @@ typedef NS_ENUM(NSInteger, Steps){
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);
+    
+    
+    
+    
 }
 
 - (FunDetail *)fetchWebString

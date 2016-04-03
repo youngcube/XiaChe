@@ -24,6 +24,9 @@
 		8660B6E81C9F0137006917FC /* FunDetail+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */; };
 		8660B6E91C9F0137006917FC /* FunDetail.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E71C9F0137006917FC /* FunDetail.m */; };
 		86E930121CAA91E0006D039A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E930111CAA91E0006D039A /* WebKit.framework */; };
+		86E930561CAFB0B5006D039A /* imageSelect.js in Resources */ = {isa = PBXBuildFile; fileRef = 86E930551CAFB0B5006D039A /* imageSelect.js */; };
+		86E930591CB074CE006D039A /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930581CB074CE006D039A /* WebViewController.m */; };
+		86E9305C1CB09236006D039A /* CustomTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9305B1CB09236006D039A /* CustomTabBarController.m */; };
 		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
 		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
 		BF80EE7D1CA8DDB800FAE74C /* UIColor+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */; };
@@ -68,6 +71,11 @@
 		8660B6E61C9F0137006917FC /* FunDetail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FunDetail.h; sourceTree = "<group>"; };
 		8660B6E71C9F0137006917FC /* FunDetail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunDetail.m; sourceTree = "<group>"; };
 		86E930111CAA91E0006D039A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		86E930551CAFB0B5006D039A /* imageSelect.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = imageSelect.js; sourceTree = "<group>"; };
+		86E930571CB074CE006D039A /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
+		86E930581CB074CE006D039A /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
+		86E9305A1CB09236006D039A /* CustomTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomTabBarController.h; sourceTree = "<group>"; };
+		86E9305B1CB09236006D039A /* CustomTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomTabBarController.m; sourceTree = "<group>"; };
 		BF6D12A61CA141EA00758CCF /* CustomNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationController.h; sourceTree = "<group>"; };
 		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
 		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
@@ -127,6 +135,7 @@
 		8660B67D1C999855006917FC /* XiaChe */ = {
 			isa = PBXGroup;
 			children = (
+				86E930551CAFB0B5006D039A /* imageSelect.js */,
 				BF80EE7A1CA8DD9900FAE74C /* Extension */,
 				BF6D12A41CA141BA00758CCF /* CustomViewController */,
 				8660B69F1C999A13006917FC /* Others */,
@@ -209,6 +218,8 @@
 				8660B6991C99989B006917FC /* SectionsViewController.m */,
 				8660B69A1C99989B006917FC /* StoryDetailViewController.h */,
 				8660B69B1C99989B006917FC /* StoryDetailViewController.m */,
+				86E930571CB074CE006D039A /* WebViewController.h */,
+				86E930581CB074CE006D039A /* WebViewController.m */,
 				BFE253B81CAA0966005735C2 /* SettingsViewController.h */,
 				BFE253B91CAA0966005735C2 /* SettingsViewController.m */,
 			);
@@ -221,6 +232,8 @@
 				BF6D12A91CA141F600758CCF /* View */,
 				BF6D12A61CA141EA00758CCF /* CustomNavigationController.h */,
 				BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */,
+				86E9305A1CB09236006D039A /* CustomTabBarController.h */,
+				86E9305B1CB09236006D039A /* CustomTabBarController.m */,
 			);
 			name = CustomViewController;
 			sourceTree = "<group>";
@@ -313,6 +326,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8660B68E1C999855006917FC /* LaunchScreen.storyboard in Resources */,
+				86E930561CAFB0B5006D039A /* imageSelect.js in Resources */,
 				8660B68B1C999855006917FC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -388,9 +402,11 @@
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,
 				BFE253BD1CAA11D5005735C2 /* SectionMenu.m in Sources */,
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
+				86E930591CB074CE006D039A /* WebViewController.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,
 				861DC1B31CA2C829000602A8 /* DetailToolbar.m in Sources */,
 				8660B6E91C9F0137006917FC /* FunDetail.m in Sources */,
+				86E9305C1CB09236006D039A /* CustomTabBarController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -496,10 +512,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = XiaChe/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cube.XiaChe;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -509,10 +526,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = XiaChe/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cube.XiaChe;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

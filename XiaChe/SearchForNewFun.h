@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "HTTPSession.h"
 @interface SearchForNewFun : NSObject
+
+@property (nonatomic) NSUInteger loopTime;
 + (instancetype)sharedInstance;
 - (NSString *)fetchLastestDayFromStorage:(BOOL)lastest;
 - (void)accordingDateToLoopNewDataWithData:(BOOL)data;
