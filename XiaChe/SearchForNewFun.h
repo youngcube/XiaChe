@@ -16,4 +16,6 @@
 - (void)accordingDateToLoopNewDataWithData:(BOOL)data;
 - (void)accordingDateToLoopOldData;
 - (void)getJsonWithString:(NSString *)dateString;
+- (NSUInteger)calculateStartTimeToNow;
+- (NSUInteger)calculateStartTimeToOldTime;
 @end

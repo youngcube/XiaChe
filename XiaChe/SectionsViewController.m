@@ -17,10 +17,10 @@
 #import "UIColor+Extension.h"
 #import "SectionCell.h"
 #import "SectionMenu.h"
-
+#import "AFDropdownNotification.h"
 #define HEIGHT_OF_SECTION_HEADER 50.5f
 
-@interface SectionsViewController ()
+@interface SectionsViewController ()<AFDropdownNotificationDelegate>
 {
     CGFloat _startPos;
     NSUInteger _currentSection;
@@ -29,7 +29,7 @@
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @property (nonatomic, strong) NSDateFormatter *formatter;
-@property (nonatomic) NSUInteger loopTime;
+//@property (nonatomic) NSUInteger loopTime;
 @property (nonatomic) BOOL ifIsLoopNewData; // 86400是否要* -1
 @property (nonatomic, strong) MJRefreshNormalHeader *autoHeader;
 @property (nonatomic, strong) MJRefreshAutoNormalFooter *autoFooter;
@@ -40,6 +40,9 @@
 //@property (nonatomic, strong) UILabel *headerLabel;
 @property (nonatomic, strong) UIButton *navTitle;
 @property (nonatomic, strong) NSMutableDictionary *sectionDict;
+@property (nonatomic, strong) AFDropdownNotification *notification;
+
+
 @end
 
 @implementation SectionsViewController
@@ -53,7 +56,7 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     self = [super initWithStyle:style];
     if (self){
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(expandAll)];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(showNotification)];
         
         
         
@@ -62,11 +65,18 @@ typedef NS_ENUM(NSInteger, isToday){
     return self;
 }
 
-- (void)showThisMenu
-{
-    SectionMenu *menu = [SectionMenu menu];
-    menu.contentView = [UIView new];
 
+
+
+
+
+- (void)downloadAll
+{
+    [SearchForNewFun sharedInstance].loopTime = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
+    self.ifIsLoopNewData = NO;
+    _expand = NO;
+    [self expandAll];
+    [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
 }
 
 - (void)nextSection
@@ -77,14 +87,6 @@ typedef NS_ENUM(NSInteger, isToday){
     for (int i = 0 ; i < self.tableView.numberOfSections; i ++){
         NSLog(@"%@",[[[self.fetchedResultsController sections] objectAtIndex:i] name]);
     }
-    
-//    for (id newStr in [self.fetchedResultsController sections]) {
-//        
-//        NSLog(@"%@",newStr);
-//    }
-    
-//   NSString *headerString = [[[self.fetchedResultsController sections] objectAtIndex:section] name];
-    
     NSIndexPath *index = [NSIndexPath indexPathForRow:NSNotFound inSection:_currentSection];
     [self.tableView scrollToRowAtIndexPath:index atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
@@ -105,7 +107,69 @@ typedef NS_ENUM(NSInteger, isToday){
     
     self.sectionDict = [NSMutableDictionary dictionary];
     _expand = YES;
+    
+    _notification = [[AFDropdownNotification alloc] init];
+    _notification.notificationDelegate = self;
+
 }
+
+
+
+- (void)showNotification
+{
+    
+    _notification.titleText = @"获取更多信息";
+    _notification.subtitleText = @"您想获取更多之前的「瞎扯」信息吗？";
+    _notification.image = [UIImage imageNamed:@"update"];
+    _notification.topButtonText = @"好的";
+    _notification.bottomButtonText = @"不要";
+    _notification.dismissOnTap = YES;
+    [_notification presentInView:self.view withGravityAnimation:YES];
+    
+    [_notification listenEventsWithBlock:^(AFDropdownNotificationEvent event) {
+        
+        switch (event) {
+            case AFDropdownNotificationEventTopButton:
+                // Top button
+                break;
+                
+            case AFDropdownNotificationEventBottomButton:
+                // Bottom button
+                break;
+                
+            case AFDropdownNotificationEventTap:
+                // Tap
+                break;
+                
+            default:
+                break;
+        }
+    }];
+    
+    NSLog(@"show notification");
+//    [self showDropDownViewFromDirection:LMDropdownViewDirectionTop];
+}
+
+-(void)dropdownNotificationTopButtonTapped {
+    
+    NSLog(@"Top button tapped");
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Top button tapped" message:@"Hooray! You tapped the top button" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    [alert show];
+    
+    [_notification dismissWithGravityAnimation:YES];
+}
+
+-(void)dropdownNotificationBottomButtonTapped {
+    
+    NSLog(@"Bottom button tapped");
+    
+//    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Bottom button tapped" message:@"Hooray! You tapped the bottom button" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//    [alert show];
+    [self downloadAll];
+    [_notification dismissWithGravityAnimation:YES];
+}
+
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
@@ -186,92 +250,6 @@ typedef NS_ENUM(NSInteger, isToday){
     [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
-#pragma mark - Logic to Fetch Data
-- (void)decideIfShouldGetNewJson
-{
-//    [self.tableView.mj_header beginRefreshing];
-    self.tableView.mj_footer.hidden = YES;
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
-        
-        if ([model.date isEqualToString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]]){
-            NSLog(@"不要刷新");
-            self.tableView.mj_footer.hidden = NO;
-            [self.tableView.mj_header endRefreshing];
-            
-        }else{
-            NSLog(@"刷新");
-            NSDate *newDate = [self.formatter dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
-            NSDate *today = [self.formatter dateFromString:model.date];
-            NSTimeInterval interval = [today timeIntervalSinceDate:newDate];
-            NSLog(@" %@ %@ %f",newDate,today,interval);
-            
-            //从后往前需要加的天数
-            NSUInteger days = (interval / 86400) - 1;
-            
-            NSLog(@"%lu",(unsigned long)days);
-            
-            if(newDate == NULL){ // 首次刷新，列表为空的情况
-                NSLog(@"这是第一次刷新");
-                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:NO];
-                self.ifIsLoopNewData = NO;
-                self.loopTime = EACH_TIME_FETCH_NUM;
-            }else{
-                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:YES];
-                self.ifIsLoopNewData = YES;
-                self.loopTime = days;
-            }
-            
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
-    }];
-}
-
-- (void)dataDidSave
-{
-    if (self.loopTime == 0) {
-        self.tableView.mj_footer.hidden = NO;
-        [self.tableView.mj_header endRefreshing];
-        [self.tableView.mj_footer endRefreshing];
-        return;
-    }else{
-        NSString *oldString;
-        if (self.ifIsLoopNewData == YES){
-            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO];
-            NSDate *newDate = [self.formatter dateFromString:oldString];
-            NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:newDate];
-            oldString = [self.formatter stringFromDate:oldDateRange];
-        }else{
-            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
-        }
-        NSDate *oldDate = [self.formatter dateFromString:oldString];
-        NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
-        [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
-        NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %d",(unsigned long)(EACH_TIME_FETCH_NUM - self.loopTime),EACH_TIME_FETCH_NUM];
-        [self.autoFooter setTitle:loadString forState:MJRefreshStateRefreshing];
-        self.loopTime--;
-    }
-}
-
-//- (void)pushToLastestStory
-//{
-//    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:LatestNewsString] options:NSDataReadingUncached error:nil];
-//    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
-//    self.model = [SectionModel yy_modelWithDictionary:dict];
-//    for (Story *story in self.model.stories){
-//        if ([story.title hasPrefix:@"瞎扯"]) {
-//            StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
-//            NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,story.storyId];
-//            detail.url = url;
-//            [self.navigationController pushViewController:detail animated:NO];
-//        }
-//    }
-//}
-
 #pragma mark - UI
 - (void)setupFooter
 {
@@ -284,15 +262,21 @@ typedef NS_ENUM(NSInteger, isToday){
     
     self.tableView.mj_header = self.autoHeader;
     [self.tableView.mj_header beginRefreshing];
-
+    
     self.autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-        self.loopTime = EACH_TIME_FETCH_NUM;
+        [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
         self.ifIsLoopNewData = NO;
         _expand = NO;
         [self expandAll];
         [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
     }];
+    
     self.tableView.mj_footer = self.autoFooter;
+    if ([[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES] isEqualToString:@"20130523"]){
+        self.tableView.mj_footer.hidden = YES;
+    }else{
+        self.tableView.mj_footer.hidden = NO;
+    }
 }
 
 - (void)expandAll
@@ -317,6 +301,94 @@ typedef NS_ENUM(NSInteger, isToday){
         _expand = YES;
     }
 }
+
+#pragma mark - Logic to Fetch Data
+- (void)decideIfShouldGetNewJson
+{
+//    [self.tableView.mj_header beginRefreshing];
+    self.tableView.mj_footer.hidden = YES;
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
+        
+        if ([model.date isEqualToString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]]){
+            NSLog(@"不要刷新");
+            self.tableView.mj_footer.hidden = NO;
+            [self.tableView.mj_header endRefreshing];
+        }else{
+            NSLog(@"刷新");
+            NSDate *newDate = [self.formatter dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
+            NSDate *today = [self.formatter dateFromString:model.date];
+            NSTimeInterval interval = [today timeIntervalSinceDate:newDate];
+            NSLog(@" %@ %@ %f",newDate,today,interval);
+            
+            //从后往前需要加的天数
+            NSUInteger days = (interval / 86400) - 1;
+            
+            NSLog(@"%lu",(unsigned long)days);
+            
+            if(newDate == NULL){ // 首次刷新，列表为空的情况
+                NSLog(@"这是第一次刷新");
+                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:NO];
+                self.ifIsLoopNewData = NO;
+                [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
+            }else{
+                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:YES];
+                self.ifIsLoopNewData = YES;
+                [SearchForNewFun sharedInstance].loopTime = days;
+            }
+            
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"failed! %@",error);
+    }];
+}
+
+- (void)dataDidSave
+{
+    if ([SearchForNewFun sharedInstance].loopTime == 0) {
+        self.tableView.mj_footer.hidden = NO;
+        [self.tableView.mj_header endRefreshing];
+        [self.tableView.mj_footer endRefreshing];
+        return;
+    }else{
+        NSString *oldString;
+        self.tableView.mj_footer.hidden = YES;
+        if (self.ifIsLoopNewData == YES){
+            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO];
+            NSDate *newDate = [self.formatter dateFromString:oldString];
+            NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:newDate];
+            oldString = [self.formatter stringFromDate:oldDateRange];
+        }else{
+            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
+        }
+        NSDate *oldDate = [self.formatter dateFromString:oldString];
+        NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
+        [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
+        NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %d",(unsigned long)(EACH_TIME_FETCH_NUM - [SearchForNewFun sharedInstance].loopTime),EACH_TIME_FETCH_NUM];
+        [self.autoFooter setTitle:loadString forState:MJRefreshStateRefreshing];
+        [SearchForNewFun sharedInstance].loopTime--;
+    }
+}
+
+//- (void)pushToLastestStory
+//{
+//    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:LatestNewsString] options:NSDataReadingUncached error:nil];
+//    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+//    self.model = [SectionModel yy_modelWithDictionary:dict];
+//    for (Story *story in self.model.stories){
+//        if ([story.title hasPrefix:@"瞎扯"]) {
+//            StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
+//            NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,story.storyId];
+//            detail.url = url;
+//            [self.navigationController pushViewController:detail animated:NO];
+//        }
+//    }
+//}
+
+
 
 #pragma mark - TableView DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView

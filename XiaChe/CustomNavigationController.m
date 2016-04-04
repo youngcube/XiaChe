@@ -13,8 +13,8 @@
 + (void)initialize
 {
     UIBarButtonItem *item = [UIBarButtonItem appearance];
-    NSDictionary *textAttr = @{NSForegroundColorAttributeName : [UIColor orangeColor]};
-    [item setTitleTextAttributes:textAttr forState:UIControlStateNormal];
+//    NSDictionary *textAttr = @{NSForegroundColorAttributeName : [UIColor orangeColor]};
+//    [item setTitleTextAttributes:textAttr forState:UIControlStateNormal];
     NSDictionary *titleAttr = @{NSForegroundColorAttributeName : [UIColor whiteColor]};
     [[UINavigationBar appearance] setBarTintColor:[UIColor customNavColor]];
     [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];

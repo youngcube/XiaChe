@@ -38,7 +38,10 @@
 @property (nonatomic) double webViewProgress;
 @property (nonatomic, weak) MBProgressHUD *hud;
 @property (nonatomic, weak) UIProgressView *progressView;
-//@property (nonatomic, weak) MDProgress *progressView;
+
+@property (nonatomic, weak) UIBarButtonItem *nextBtnItem;
+@property (nonatomic, weak) UIBarButtonItem *beforeBtnItem;
+@property (nonatomic, copy) NSString *thisDate;
 @end
 
 typedef NS_ENUM(NSInteger, Steps){
@@ -67,17 +70,14 @@ typedef NS_ENUM(NSInteger, Steps){
     [self decideIfShoudGetDataFromNet];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    
-    
-    NSLog(@"web frame = %@",NSStringFromCGRect(self.webView.frame));
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-//    NSLog(@"%f",_startScroll);
+
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-//    [self.webView.scrollView setContentOffset:CGPointMake(0, _startScroll) animated:YES];
+    [self.navigationController setToolbarHidden:NO animated:YES];
 }
 
 - (BOOL)hidesBottomBarWhenPushed
@@ -92,6 +92,7 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.webView.scrollView setDelegate:nil];
     [self.webView stopLoading];
     [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
+
 }
 
 - (void)setupProgress
@@ -127,12 +128,13 @@ typedef NS_ENUM(NSInteger, Steps){
     webView.scrollView.delegate = self;
     webView.backgroundColor = RGBCOLOR(249, 249, 249);
     webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
+    webView.scrollView.showsVerticalScrollIndicator = NO;
     [self.view addSubview:webView];
     self.webView = webView;
     
     // KVO 进度
     [webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
-    
+//    [self.passFun addObserver:self forKeyPath:@"storyDate" options:NSKeyValueObservingOptionNew context:NULL];
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
     UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, -40, self.view.frame.size.width, 260)];
@@ -150,7 +152,7 @@ typedef NS_ENUM(NSInteger, Steps){
     UILabel *headerTitleLabel = [[UILabel alloc] init];
     headerTitleLabel.numberOfLines = 0;
     headerTitleLabel.font = [UIFont boldSystemFontOfSize:20];
-    headerTitleLabel.textColor = [UIColor blackColor];
+    headerTitleLabel.textColor = [UIColor whiteColor];
     headerTitleLabel.textAlignment = NSTextAlignmentLeft;
     [headerView addSubview:headerTitleLabel];
     self.headerTitleLabel = headerTitleLabel;
@@ -185,24 +187,35 @@ typedef NS_ENUM(NSInteger, Steps){
     NSLog(@"progress = %f",webView.estimatedProgress);
     self.hud.progress = webView.estimatedProgress;
     [self.hud hide:YES];
-    if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
-        [self.navigationController setToolbarHidden:YES animated:YES];
-        [self setupToolbar:NO];
-        self.progressView.progress = webView.estimatedProgress;
-        self.headerView.hidden = YES;
-        [UIView animateWithDuration:0.5 animations:^{
-            self.webView.transform = CGAffineTransformMakeTranslation(0, -20);
-            [self.progressView removeFromSuperview];
-        }];
-        
-        
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
-        
+    
+    NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
+    
+    if ([self.passFun.storyDate isEqualToString:todayString]){
+        [self.nextBtnItem setEnabled:NO];
     }else{
+        [self.nextBtnItem setEnabled:YES];
+    }
+    
+    [self.beforeBtnItem setEnabled:YES];
+//    if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
+//        [self setupToolbar:NO];
+//        [self.navigationController setToolbarHidden:YES animated:YES];
+//        
+//        self.progressView.progress = webView.estimatedProgress;
+//        self.headerView.hidden = YES;
+//        [UIView animateWithDuration:0.5 animations:^{
+//            self.webView.transform = CGAffineTransformMakeTranslation(0, -20);
+//            [self.progressView removeFromSuperview];
+//        }];
+//        
+//        
+//        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+//        
+//    }else{
         [self setupToolbar:YES];
 //        [self setupWebView];
-        self.headerView.hidden = NO;
-    }
+//        self.headerView.hidden = NO;
+//    }
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 }
 
@@ -289,22 +302,49 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.navigationController setToolbarHidden:NO animated:YES];
     
     if (firstTime){
-        UIBarButtonItem *pop = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(popToLastVc)];
+        
+        UIBarButtonItem *pop = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"] style:UIBarButtonItemStylePlain target:self action:@selector(popToLastVc)];
         UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-        UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-        fixWidth.width = 200;
-        UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward target:self action:@selector(switchToNewDetail:)];
+        UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+        UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"upArrow"] style:UIBarButtonItemStylePlain target:self action:@selector(switchToNewDetail:)];
         nextBtn.tag = 1001;
+        self.nextBtnItem = nextBtn;
         
-        UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(switchToNewDetail:)];
+        
+        UIBarButtonItem *dateItem = [[UIBarButtonItem alloc] initWithTitle:self.thisDate style:UIBarButtonItemStylePlain target:self action:nil];
+        dateItem.enabled = NO;
+        
+        
+        UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"downArrow"] style:UIBarButtonItemStylePlain target:self action:@selector(switchToNewDetail:)];
         beforeBtn.tag = 1002;
+        self.beforeBtnItem = beforeBtn;
         
-        [self setToolbarItems:@[pop,nextBtn,beforeBtn] animated:YES];
+        NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
+        
+        if ([self.passFun.storyDate isEqualToString:todayString]){
+            [self.nextBtnItem setEnabled:NO];
+        }else{
+            [self.nextBtnItem setEnabled:YES];
+        }
+
+        [self setToolbarItems:@[pop,flex,beforeBtn,flex,dateItem,flex,nextBtn,flex,fixWidth] animated:YES];
     }else{
         UIBarButtonItem *goBack = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(goBack)];
         
         [self setToolbarItems:@[goBack] animated:YES];
     }
+}
+
+- (NSString *)thisDate
+{
+    NSDateFormatter *normalFormat = [[NSDateFormatter alloc] init];
+    [normalFormat setDateFormat:@"yyyyMMdd"];
+    
+    NSDateFormatter *simpleFormat = [[NSDateFormatter alloc] init];
+    [simpleFormat setDateFormat:@"M 月 d 日"];
+    
+    NSDate *thisDate = [normalFormat dateFromString:self.passFun.storyDate];
+    return [simpleFormat stringFromDate:thisDate];
 }
 
 - (void)goBack
@@ -323,9 +363,14 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
 {
-    self.hud.progress = self.webView.estimatedProgress;
+
     [self.progressView setProgress:self.webView.estimatedProgress animated:YES];
-#warning wait for 2s and info user to be patient
+    
+//    NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
+//    NSLog(@"today String = %@, passFun Date = %@",todayString,self.passFun.storyDate);
+//    if ([self.passFun.storyDate isEqualToString:todayString]){
+//        [self.nextBtnItem setEnabled:NO];
+//    }
     
 }
 
@@ -341,13 +386,12 @@ typedef NS_ENUM(NSInteger, Steps){
 }
 
 #pragma mark - 将JSON装载到DetailItem中
--(void)loadDetailData
+- (void)loadDetailData
 {
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
-//    NSLog(@"detail URL = %@",url);
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-//        NSLog(@"Progress ----------- %lld",downloadProgress.totalUnitCount);
+        
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         StoryDetail *detail = [StoryDetail yy_modelWithDictionary:responseObject];
@@ -360,6 +404,8 @@ typedef NS_ENUM(NSInteger, Steps){
         [[StorageManager sharedInstance].managedObjectContext save:nil];
 
         [self loadWebView:[self fetchWebString]];
+        
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 //        NSLog(@"failed! %@",error);
     }];
@@ -376,16 +422,12 @@ typedef NS_ENUM(NSInteger, Steps){
     self.navigationItem.title = funDetail.storyId.title;
     [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
     
-    self.headerTitleLabel.text = self.passFun.storyDate;
+    self.headerTitleLabel.text = self.passFun.title;
     self.headerSourceLabel.text = funDetail.image_source;
 
     NSString *newString = [self dateStringForInt:kNext];
     NSString *before = [self dateStringForInt:kBefore];
     NSLog(@"next = %@ , before = %@", newString , before);
-    
-    
-    
-    
 }
 
 - (FunDetail *)fetchWebString
@@ -452,13 +494,15 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)switchToNewDetail:(UIButton *)sender
 {
-    self.hud = [MBProgressHUD showHUDAddedTo:[[UIApplication sharedApplication].windows lastObject] animated:YES];
+    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     self.hud.mode = MBProgressHUDModeAnnularDeterminate;
     
     if (sender.tag == 1001){
         self.dateString = [self dateStringForInt:kNext];
+        [self.nextBtnItem setEnabled:NO];
     }else if(sender.tag == 1002){
         self.dateString = [self dateStringForInt:kBefore];
+        [self.beforeBtnItem setEnabled:NO];
     }
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];

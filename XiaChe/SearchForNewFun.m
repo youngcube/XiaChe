@@ -47,18 +47,43 @@
 }
 
 #pragma mark - 计算从知乎日报开始至今的日子
-- (void)calculateStartTimeToNow
+- (NSUInteger)calculateStartTimeToNow
 {
     NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"YYYYMMdd"];
     
-    NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130520"];
+    NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130523"];
+    
+    
+    
+    
     NSDate *nowDate = [NSDate date];
     
     NSTimeInterval time=[nowDate timeIntervalSinceDate:mostBeforeDate];
-    int days=((int)time)/(3600*24);
-    NSString *dateContent=[[NSString alloc] initWithFormat:@"%i天",days];
-    NSLog(@"%@",dateContent);
+    NSUInteger days=((int)time)/(3600*24);
+    
+    
+    
+    
+    return days;
+}
+
+- (NSUInteger)calculateStartTimeToOldTime
+{
+    NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"YYYYMMdd"];
+    
+    NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130523"];
+    
+    NSDate *oldDate = [dateFormatter dateFromString:[self fetchLastestDayFromStorage:YES]];
+    
+    
+    //    NSDate *nowDate = [NSDate date];
+    
+    NSTimeInterval time=[oldDate timeIntervalSinceDate:mostBeforeDate];
+    NSUInteger days=((int)time)/(3600*24);
+    
+    return days;
 }
 
 #pragma mark - 批量返回更新的数据
@@ -77,6 +102,11 @@
     
 //
 }
+
+//- (NSUInteger)loopTime
+//{
+//    return [self calculateStartTimeToOldTime];
+//}
 
 #pragma mark - 批量返回更老的数据
 - (void)accordingDateToLoopOldData
@@ -113,6 +143,16 @@
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         self.model = [SectionModel yy_modelWithJSON:responseObject];
+        NSString *todayString = self.model.date;
+        
+        NSString *fetchNewestDay = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
+        if (![todayString isEqualToString:fetchNewestDay]){
+            [[NSUserDefaults standardUserDefaults] setObject:todayString forKey:@"todayString"];
+        }
+        
+        
+        
+        
         for (Story *story in self.model.stories){
             if ([story.title hasPrefix:@"瞎扯"]) {
                 FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
@@ -132,6 +172,7 @@
 #pragma mark - 获取新数据
 - (void)getJsonWithString:(NSString *)dateString
 {
+    if ([dateString isEqualToString:@"20130523"]) return;
     NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
     
     

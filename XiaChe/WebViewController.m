@@ -14,7 +14,7 @@
 @interface WebViewController ()<WKNavigationDelegate,UIScrollViewDelegate>
 @property (nonatomic, weak) WKWebView *webView;
 @property (nonatomic, weak) UIProgressView *progressView;
-@property (nonatomic, weak) MBProgressHUD *hud;
+//@property (nonatomic, weak) MBProgressHUD *hud;
 @end
 
 @implementation WebViewController
@@ -22,12 +22,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 //    [self setupWebView];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [self.navigationController setToolbarHidden:YES animated:YES];
 }
 
 - (void)dealloc
@@ -36,6 +38,23 @@
     [self.webView.scrollView setDelegate:nil];
     [self.webView stopLoading];
     [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
+}
+
+- (void)setupProgress
+{
+    //    MDProgress *progress = [[MDProgress alloc] init];
+    //    progress.progressStyle = MDProgressStyleLinear;
+    //    progress.progressType = MDProgressTypeDeterminate;
+    UIProgressView *progress = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    progress.trackTintColor = [UIColor grayColor];
+    progress.progressTintColor = [UIColor blueColor];
+    [self.view addSubview:progress];
+    self.progressView = progress;
+    [progress mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.mas_topLayoutGuide);
+        make.width.equalTo(self.view);
+        make.height.equalTo(@3);
+    }];
 }
 
 - (void)setupWebView
@@ -58,8 +77,8 @@
     [webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
     
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    self.hud = [MBProgressHUD showHUDAddedTo:[[UIApplication sharedApplication].windows lastObject] animated:YES];
-    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
+    [self setupProgress];
+    
 }
 
 - (void)setUrl:(NSURL *)url
@@ -74,11 +93,13 @@
 #pragma mark - webview delegate
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-    self.hud.progress = webView.estimatedProgress;
-    [self.hud hide:YES];
+    
     if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
         self.progressView.progress = webView.estimatedProgress;
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+        [UIView animateWithDuration:0.5 animations:^{
+            [self.progressView removeFromSuperview];
+        }];
     }
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 }
@@ -92,7 +113,8 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
 {
-    self.hud.progress = self.webView.estimatedProgress;
+    
+    [self.progressView setProgress:self.webView.estimatedProgress animated:YES];
 }
 
 
