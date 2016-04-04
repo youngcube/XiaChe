@@ -167,7 +167,10 @@
     _autoAdjustTrackColor = YES;
     
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    
+    
     [formatter setNumberStyle:NSNumberFormatterPercentStyle];
+    [formatter setMaximumFractionDigits:1];
     _numberFormatter = formatter;
 
     self.popUpView = [[ASPopUpView alloc] initWithFrame:CGRectZero];
@@ -245,7 +248,7 @@
     // set size to the largest width and height returned from the dataSource
     CGFloat width = 0.0, height = 0.0;
     for (int i=0; i<=100; i++) {
-        NSString *string = [self.dataSource progressView:self stringForProgress:i/100.0];
+        NSString *string = [self.dataSource progressView:self stringForProgress:i/100.00];
         if (string) {
             CGSize size = [self.popUpView popUpSizeForString:string];
             if (size.width > width) width = size.width;

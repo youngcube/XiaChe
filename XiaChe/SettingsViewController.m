@@ -141,7 +141,7 @@ typedef NS_ENUM(NSInteger, SectionTwo){
             case kProgressList:
                 
                 
-                cell.progressView.progress = 1 - pro;
+                [cell.progressView setProgress:(1 - pro) animated:YES];
                 self.listProgress = cell.progressView;
                 
                 
@@ -161,9 +161,8 @@ typedef NS_ENUM(NSInteger, SectionTwo){
             case kProgressDetail:
                 
                 
-                cell.progressView.progress = 1 - pro;
-                self.listProgress = cell.progressView;
-                
+//                cell.progressView.progress = 1 - pro;
+//                self.listProgress = cell.progressView;
                 
                 break;
             default:

@@ -110,7 +110,15 @@ typedef NS_ENUM(NSInteger, isToday){
     
     _notification = [[AFDropdownNotification alloc] init];
     _notification.notificationDelegate = self;
+    
+    
+    NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"FunStory"];
+    NSArray *thisArray = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:request error:nil];
 
+    for (FunStory *st in thisArray){
+        NSLog(@"%@",st.storyId);
+    }
+    
 }
 
 

@@ -149,10 +149,6 @@
         if (![todayString isEqualToString:fetchNewestDay]){
             [[NSUserDefaults standardUserDefaults] setObject:todayString forKey:@"todayString"];
         }
-        
-        
-        
-        
         for (Story *story in self.model.stories){
             if ([story.title hasPrefix:@"瞎扯"]) {
                 FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
