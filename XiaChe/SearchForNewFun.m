@@ -14,14 +14,11 @@
 #import "SectionModel.h"
 
 @interface SearchForNewFun ()
-{
-    
-}
+
 @property (nonatomic, strong) SectionModel *model;
-//@property (nonatomic, strong) NSArray *funStoryArray;
 @property (nonatomic, strong) NSDateFormatter *formatter;
 @property (nonatomic) BOOL ifHasXiaChe;
-//@property (nonatomic) NSUInteger loopTime;
+
 @end
 
 @implementation SearchForNewFun
@@ -51,20 +48,10 @@
 {
     NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"YYYYMMdd"];
-    
     NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130523"];
-    
-    
-    
-    
     NSDate *nowDate = [NSDate date];
-    
     NSTimeInterval time=[nowDate timeIntervalSinceDate:mostBeforeDate];
     NSUInteger days=((int)time)/(3600*24);
-    
-    
-    
-    
     return days;
 }
 
@@ -72,17 +59,10 @@
 {
     NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"YYYYMMdd"];
-    
     NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130523"];
-    
     NSDate *oldDate = [dateFormatter dateFromString:[self fetchLastestDayFromStorage:YES]];
-    
-    
-    //    NSDate *nowDate = [NSDate date];
-    
     NSTimeInterval time=[oldDate timeIntervalSinceDate:mostBeforeDate];
     NSUInteger days=((int)time)/(3600*24);
-    
     return days;
 }
 
@@ -98,26 +78,13 @@
     }else{
         [self getLastestJson];
     }
-    
-    
-//
 }
-
-//- (NSUInteger)loopTime
-//{
-//    return [self calculateStartTimeToOldTime];
-//}
 
 #pragma mark - 批量返回更老的数据
 - (void)accordingDateToLoopOldData
 {
-    
     NSString *oldString = [self fetchLastestDayFromStorage:YES];
-//    NSDate *oldDate = [self.formatter dateFromString:oldString];
-//    NSDate *oldDateRange = [NSDate dateWithTimeInterval:-86400 sinceDate:oldDate];
-//    NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
     [self getJsonWithString:oldString];
-
 }
 
 #pragma mark - 获取CoreData内存储的 最新:NO / 最老:YES 日期
@@ -131,7 +98,6 @@
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
     NSArray *late = [manager.managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *fun = [late firstObject];
-//    NSLog(@"%@",fun.storyDate);
     return fun.storyDate;
 }
 
@@ -219,25 +185,25 @@
     
 }
 
-- (BOOL)decideIfLastestIsToday
-{
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    __block BOOL isToday;
-    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
-        if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
-            isToday = YES;
-            
-        }else{
-            NSLog(@"刷新");
-            
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        [self decideIfLastestIsToday];
-    }];
-    return isToday;
-}
+//- (BOOL)decideIfLastestIsToday
+//{
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    __block BOOL isToday;
+//    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+//        
+//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
+//        if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
+//            isToday = YES;
+//            
+//        }else{
+//            NSLog(@"刷新");
+//            
+//        }
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        [self decideIfLastestIsToday];
+//    }];
+//    return isToday;
+//}
 
 @end

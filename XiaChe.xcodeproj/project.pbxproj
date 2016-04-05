@@ -24,7 +24,6 @@
 		8660B6E81C9F0137006917FC /* FunDetail+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E51C9F0137006917FC /* FunDetail+CoreDataProperties.m */; };
 		8660B6E91C9F0137006917FC /* FunDetail.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6E71C9F0137006917FC /* FunDetail.m */; };
 		86E930121CAA91E0006D039A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E930111CAA91E0006D039A /* WebKit.framework */; };
-		86E930561CAFB0B5006D039A /* imageSelect.js in Resources */ = {isa = PBXBuildFile; fileRef = 86E930551CAFB0B5006D039A /* imageSelect.js */; };
 		86E930591CB074CE006D039A /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930581CB074CE006D039A /* WebViewController.m */; };
 		86E9305C1CB09236006D039A /* CustomTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9305B1CB09236006D039A /* CustomTabBarController.m */; };
 		86E9305F1CB24940006D039A /* SettingCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9305E1CB24940006D039A /* SettingCell.m */; };
@@ -75,7 +74,6 @@
 		8660B6E61C9F0137006917FC /* FunDetail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FunDetail.h; sourceTree = "<group>"; };
 		8660B6E71C9F0137006917FC /* FunDetail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FunDetail.m; sourceTree = "<group>"; };
 		86E930111CAA91E0006D039A /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		86E930551CAFB0B5006D039A /* imageSelect.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = imageSelect.js; sourceTree = "<group>"; };
 		86E930571CB074CE006D039A /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
 		86E930581CB074CE006D039A /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
 		86E9305A1CB09236006D039A /* CustomTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomTabBarController.h; sourceTree = "<group>"; };
@@ -148,7 +146,6 @@
 			isa = PBXGroup;
 			children = (
 				86E930601CB263BD006D039A /* OpenSource */,
-				86E930551CAFB0B5006D039A /* imageSelect.js */,
 				BF80EE7A1CA8DD9900FAE74C /* Extension */,
 				BF6D12A41CA141BA00758CCF /* CustomViewController */,
 				8660B69F1C999A13006917FC /* Others */,
@@ -371,7 +368,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8660B68E1C999855006917FC /* LaunchScreen.storyboard in Resources */,
-				86E930561CAFB0B5006D039A /* imageSelect.js in Resources */,
 				8660B68B1C999855006917FC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

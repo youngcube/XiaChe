@@ -12,7 +12,7 @@
 
 + (void)initialize
 {
-    UIBarButtonItem *item = [UIBarButtonItem appearance];
+//    UIBarButtonItem *item = [UIBarButtonItem appearance];
 //    NSDictionary *textAttr = @{NSForegroundColorAttributeName : [UIColor orangeColor]};
 //    [item setTitleTextAttributes:textAttr forState:UIControlStateNormal];
     NSDictionary *titleAttr = @{NSForegroundColorAttributeName : [UIColor whiteColor]};

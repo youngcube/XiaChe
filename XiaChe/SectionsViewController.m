@@ -65,11 +65,6 @@ typedef NS_ENUM(NSInteger, isToday){
     return self;
 }
 
-
-
-
-
-
 - (void)downloadAll
 {
     [SearchForNewFun sharedInstance].loopTime = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
@@ -121,11 +116,8 @@ typedef NS_ENUM(NSInteger, isToday){
     
 }
 
-
-
 - (void)showNotification
 {
-    
     _notification.titleText = @"获取更多信息";
     _notification.subtitleText = @"您想获取更多之前的「瞎扯」信息吗？";
     _notification.image = [UIImage imageNamed:@"update"];
@@ -158,7 +150,7 @@ typedef NS_ENUM(NSInteger, isToday){
 //    [self showDropDownViewFromDirection:LMDropdownViewDirectionTop];
 }
 
--(void)dropdownNotificationTopButtonTapped {
+- (void)dropdownNotificationTopButtonTapped {
     
     NSLog(@"Top button tapped");
     
@@ -168,7 +160,7 @@ typedef NS_ENUM(NSInteger, isToday){
     [_notification dismissWithGravityAnimation:YES];
 }
 
--(void)dropdownNotificationBottomButtonTapped {
+- (void)dropdownNotificationBottomButtonTapped {
     
     NSLog(@"Bottom button tapped");
     
@@ -225,15 +217,11 @@ typedef NS_ENUM(NSInteger, isToday){
     CGRect headerFrame = CGRectMake(0, 0, tableView.frame.size.width, HEIGHT_OF_SECTION_HEADER);
     UIView *sectionHeaderView = [[UIView alloc] initWithFrame:headerFrame];
     sectionHeaderView.backgroundColor = [UIColor grayColor];
-    
     NSString *headerString = [[[self.fetchedResultsController sections] objectAtIndex:section] name];
-//    UILabel *headerLabel = [[UILabel alloc] init];
     UIButton *headerBtn = [[UIButton alloc] initWithFrame:headerFrame];
     [headerBtn setTitle:headerString forState:UIControlStateNormal];
     headerBtn.tag = section;
     [headerBtn addTarget:self action:@selector(switchSectionHideWithTag:) forControlEvents:UIControlEventTouchUpInside];
-//    headerLabel.text = headerString;
-//    [headerLabel sizeToFit];
     [sectionHeaderView addSubview:headerBtn];
     
     headerBtn.translatesAutoresizingMaskIntoConstraints = NO;
@@ -313,7 +301,6 @@ typedef NS_ENUM(NSInteger, isToday){
 #pragma mark - Logic to Fetch Data
 - (void)decideIfShouldGetNewJson
 {
-//    [self.tableView.mj_header beginRefreshing];
     self.tableView.mj_footer.hidden = YES;
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
@@ -347,7 +334,6 @@ typedef NS_ENUM(NSInteger, isToday){
                 self.ifIsLoopNewData = YES;
                 [SearchForNewFun sharedInstance].loopTime = days;
             }
-            
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
@@ -396,8 +382,6 @@ typedef NS_ENUM(NSInteger, isToday){
 //    }
 //}
 
-
-
 #pragma mark - TableView DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -438,8 +422,6 @@ typedef NS_ENUM(NSInteger, isToday){
     cell.date = fun.storyDate;
     cell.imageURL = fun.image;
     cell.unread = fun.unread;
-        
-    
 }
 
 #pragma mark - TableView Delegate

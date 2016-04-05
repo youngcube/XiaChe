@@ -12,7 +12,4 @@
 
 @interface StoryDetailViewController : UIViewController
 @property (nonatomic, strong) FunStory *passFun;
-//@property (nonatomic, copy) NSString *url;
-//@property (nonatomic ,copy) NSString *thisStoryTime;
-//@property (nonatomic ,copy) NSString *detailCleanId;
 @end
