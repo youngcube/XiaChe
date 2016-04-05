@@ -12,4 +12,7 @@
 @interface UIColor (Extension)
 + (UIColor *)customNavColor;
 + (UIColor *)cellSeparateLine;
++ (UIColor *)cellHeaderColor;
++ (UIColor *)cellHeaderTextColor;
++ (UIColor *)customBlack;
 @end

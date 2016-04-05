@@ -18,13 +18,17 @@
 #import "SectionCell.h"
 #import "SectionMenu.h"
 #import "AFDropdownNotification.h"
+#import "MonthSelectView.h"
+#import <Masonry.h>
+
 #define HEIGHT_OF_SECTION_HEADER 50.5f
 
-@interface SectionsViewController ()<AFDropdownNotificationDelegate>
+@interface SectionsViewController ()<AFDropdownNotificationDelegate,MonthSelectDelegate>
 {
     CGFloat _startPos;
     NSUInteger _currentSection;
-    BOOL _expand;
+//    BOOL _expand;
+    CGFloat _selectOffset;
 }
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
@@ -56,10 +60,7 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     self = [super initWithStyle:style];
     if (self){
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(showNotification)];
-        
-        
-        
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(examType)];
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:[StorageManager sharedInstance] action:@selector(removeAllData)];
     }
     return self;
@@ -69,21 +70,36 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     [SearchForNewFun sharedInstance].loopTime = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
     self.ifIsLoopNewData = NO;
-    _expand = NO;
-    [self expandAll];
+//    _expand = NO;
+//    [self expandAll];
     [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
+}
+
+- (void)monthSelectAtIndex:(NSUInteger)index offset:(CGFloat)offset
+{
+    NSIndexPath *newIndex = [NSIndexPath indexPathForRow:NSNotFound inSection:index];
+    _selectOffset = offset;
+    [self.tableView scrollToRowAtIndexPath:newIndex atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
 
 - (void)nextSection
 {
     NSLog(@"number of section = " );
     _currentSection++;
-    
     for (int i = 0 ; i < self.tableView.numberOfSections; i ++){
         NSLog(@"%@",[[[self.fetchedResultsController sections] objectAtIndex:i] name]);
     }
     NSIndexPath *index = [NSIndexPath indexPathForRow:NSNotFound inSection:_currentSection];
     [self.tableView scrollToRowAtIndexPath:index atScrollPosition:UITableViewScrollPositionTop animated:YES];
+}
+
+- (void)examType
+{
+    MonthSelectView *mouth = [[MonthSelectView alloc] initWithFrame:self.view.frame];
+    mouth.monthArray = [[self fetchedResultsController] sections];
+    mouth.delegate = self;
+    mouth.selectOffset = _selectOffset;
+    [mouth show];
 }
 
 - (void)viewDidLoad {
@@ -99,13 +115,11 @@ typedef NS_ENUM(NSInteger, isToday){
     self.navigationItem.titleView = titleNew;
     self.navTitle = titleNew;
     
-    
     self.sectionDict = [NSMutableDictionary dictionary];
-    _expand = YES;
+//    _expand = YES;
     
     _notification = [[AFDropdownNotification alloc] init];
     _notification.notificationDelegate = self;
-    
     
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"FunStory"];
     NSArray *thisArray = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:request error:nil];
@@ -209,28 +223,30 @@ typedef NS_ENUM(NSInteger, isToday){
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return 40;
+    return 30;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     CGRect headerFrame = CGRectMake(0, 0, tableView.frame.size.width, HEIGHT_OF_SECTION_HEADER);
     UIView *sectionHeaderView = [[UIView alloc] initWithFrame:headerFrame];
-    sectionHeaderView.backgroundColor = [UIColor grayColor];
+    sectionHeaderView.backgroundColor = [UIColor cellHeaderColor];
     NSString *headerString = [[[self.fetchedResultsController sections] objectAtIndex:section] name];
-    UIButton *headerBtn = [[UIButton alloc] initWithFrame:headerFrame];
-    [headerBtn setTitle:headerString forState:UIControlStateNormal];
-    headerBtn.tag = section;
-    [headerBtn addTarget:self action:@selector(switchSectionHideWithTag:) forControlEvents:UIControlEventTouchUpInside];
+    UILabel *headerBtn = [[UILabel alloc] initWithFrame:headerFrame];
+//    [headerBtn setTitle:headerString forState:UIControlStateNormal];
+    headerBtn.text = headerString;
+    headerBtn.textColor = [UIColor cellHeaderTextColor];
+    headerBtn.font = [UIFont systemFontOfSize:14];
+//    headerBtn.tag = section;
+//    [headerBtn addTarget:self action:@selector(switchSectionHideWithTag:) forControlEvents:UIControlEventTouchUpInside];
     [sectionHeaderView addSubview:headerBtn];
     
     headerBtn.translatesAutoresizingMaskIntoConstraints = NO;
     
-    NSLayoutConstraint *centerX = [NSLayoutConstraint constraintWithItem:headerBtn attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:sectionHeaderView attribute:NSLayoutAttributeCenterX multiplier:1.0f constant:0.0f];
-    [sectionHeaderView addConstraint:centerX];
-    
-    NSLayoutConstraint *centerY = [NSLayoutConstraint constraintWithItem:headerBtn attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:sectionHeaderView attribute:NSLayoutAttributeCenterY multiplier:1.0f constant:0.0f];
-    [sectionHeaderView addConstraint:centerY];
+    [headerBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.equalTo(sectionHeaderView);
+        make.left.equalTo(sectionHeaderView.mas_left).offset(20);
+    }];
     return sectionHeaderView;
 }
 
@@ -250,8 +266,8 @@ typedef NS_ENUM(NSInteger, isToday){
 - (void)setupFooter
 {
     self.autoHeader = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-        _expand = NO;
-        [self expandAll];
+//        _expand = NO;
+//        [self expandAll];
         [self decideIfShouldGetNewJson];
     }];
     self.autoHeader.lastUpdatedTimeLabel.hidden = YES;
@@ -262,8 +278,8 @@ typedef NS_ENUM(NSInteger, isToday){
     self.autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
         self.ifIsLoopNewData = NO;
-        _expand = NO;
-        [self expandAll];
+//        _expand = NO;
+//        [self expandAll];
         [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
     }];
     
@@ -275,28 +291,28 @@ typedef NS_ENUM(NSInteger, isToday){
     }
 }
 
-- (void)expandAll
-{
-    if (_expand){
-        for (int i = 0 ; i < [[self.fetchedResultsController sections] count] ; i ++){
-            NSNumber *sections = [NSNumber numberWithInteger:i];
-            NSString *tagStr = [NSString stringWithFormat:@"%@",sections];
-            [self.sectionDict setObject:@1 forKey:tagStr];
-            NSIndexSet *set = [NSIndexSet indexSetWithIndex:i];
-            [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
-        }
-        _expand = NO;
-    }else{
-        for (int i = 0 ; i < [[self.fetchedResultsController sections] count] ; i ++){
-            NSNumber *sections = [NSNumber numberWithInteger:i];
-            NSString *tagStr = [NSString stringWithFormat:@"%@",sections];
-            [self.sectionDict setObject:@0 forKey:tagStr];
-            NSIndexSet *set = [NSIndexSet indexSetWithIndex:i];
-            [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
-        }
-        _expand = YES;
-    }
-}
+//- (void)expandAll
+//{
+//    if (_expand){
+//        for (int i = 0 ; i < [[self.fetchedResultsController sections] count] ; i ++){
+//            NSNumber *sections = [NSNumber numberWithInteger:i];
+//            NSString *tagStr = [NSString stringWithFormat:@"%@",sections];
+//            [self.sectionDict setObject:@1 forKey:tagStr];
+//            NSIndexSet *set = [NSIndexSet indexSetWithIndex:i];
+//            [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
+//        }
+//        _expand = NO;
+//    }else{
+//        for (int i = 0 ; i < [[self.fetchedResultsController sections] count] ; i ++){
+//            NSNumber *sections = [NSNumber numberWithInteger:i];
+//            NSString *tagStr = [NSString stringWithFormat:@"%@",sections];
+//            [self.sectionDict setObject:@0 forKey:tagStr];
+//            NSIndexSet *set = [NSIndexSet indexSetWithIndex:i];
+//            [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
+//        }
+//        _expand = YES;
+//    }
+//}
 
 #pragma mark - Logic to Fetch Data
 - (void)decideIfShouldGetNewJson

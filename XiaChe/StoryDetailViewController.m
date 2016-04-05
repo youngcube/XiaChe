@@ -19,7 +19,6 @@
 #import "UIImageView+WebCache.h"
 #import "UIColor+Extension.h"
 #import <WebKit/WebKit.h>
-#import "DetailToolbar.h"
 #import "WebViewController.h"
 
 @interface StoryDetailViewController()<WKNavigationDelegate,UIScrollViewDelegate>
@@ -28,7 +27,6 @@
 //    CGFloat _startScroll;
 }
 @property (nonatomic, weak) WKWebView *webView;
-@property (nonatomic, weak) DetailToolbar *toolBar;
 @property (nonatomic, weak) UIImageView *topImage;
 @property (nonatomic, weak) UIView *headerView;
 @property (nonatomic, weak) UILabel *headerTitleLabel;

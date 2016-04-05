@@ -18,14 +18,12 @@
 typedef NS_ENUM(NSInteger, Sections){
     kSectionOne = 0,
     kSectionTwo,
-    
     NUM_SECTIONS
 };
 
 typedef NS_ENUM(NSInteger, SectionOne){
     kDownList = 0,
     kProgressList,
-    
     NUM_SectionOne_ROWS
 };
 
@@ -63,16 +61,14 @@ typedef NS_ENUM(NSInteger, SectionTwo){
 {
     [super viewDidLoad];
     [self setupTableView];
-    
 }
 
 - (void)stopDownload
 {
+    
     [[SearchForNewFun sharedInstance] removeObserver:self forKeyPath:@"loopTime"];
     [SearchForNewFun sharedInstance].loopTime = 0;
 }
-
-
 
 - (void)download
 {
@@ -125,26 +121,27 @@ typedef NS_ENUM(NSInteger, SectionTwo){
 - (void)configureCell:(SettingCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     NSUInteger listP = [[SearchForNewFun sharedInstance] calculateStartTimeToOldTime];
-//    double this = [listP doubleValue];
     NSUInteger all = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
     double pro = (double)listP/all;
-    
     if (indexPath.section == kSectionOne){
         switch (indexPath.row) { // 下载列表
             case kDownList:
                 cell.contentImage.image = [UIImage imageNamed:@"download"];
+                cell.titleLabel.text = @"缓存瞎扯列表";
+                [cell.downloadBtn setTitle:@"下载" forState:UIControlStateNormal];
                 
-                [cell.titleButton setTitle:@"缓存瞎扯列表" forState:UIControlStateNormal];
-                self.downloadButton = cell.titleButton;
+                [cell.downloadBtn addTarget:self action:@selector(download) forControlEvents:UIControlEventTouchUpInside];
+                [cell.cancelBtn setTitle:@"停止" forState:UIControlStateNormal];
+                [cell.downloadBtn addTarget:self action:@selector(stopDownload) forControlEvents:UIControlEventTouchUpInside];
+                
+                self.downloadButton = cell.downloadBtn;
+                self.cancelDownloadButton = cell.cancelBtn;
+                
                 cell.progressView.hidden = YES;
                 break;
             case kProgressList:
-                
-                
                 [cell.progressView setProgress:(1 - pro) animated:YES];
                 self.listProgress = cell.progressView;
-                
-                
                 break;
             default:
                 break;
@@ -153,17 +150,11 @@ typedef NS_ENUM(NSInteger, SectionTwo){
         switch (indexPath.row) { // 下载详情
             case kDownDetail:
                 cell.contentImage.image = [UIImage imageNamed:@"download"];
-                
-                [cell.titleButton setTitle:@"缓存瞎扯页面" forState:UIControlStateNormal];
-                self.downloadButton = cell.titleButton;
+//                [cell.titleButton setTitle:@"缓存瞎扯页面" forState:UIControlStateNormal];
+//                self.downloadButton = cell.titleButton;
                 cell.progressView.hidden = YES;
                 break;
             case kProgressDetail:
-                
-                
-//                cell.progressView.progress = 1 - pro;
-//                self.listProgress = cell.progressView;
-                
                 break;
             default:
                 break;
@@ -173,133 +164,126 @@ typedef NS_ENUM(NSInteger, SectionTwo){
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
 {
-    
-    
-    
-    
     NSNumber *listP = (NSNumber *)[change objectForKey:NSKeyValueChangeNewKey];
     double this = [listP doubleValue];
     NSUInteger all = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
     double pro = this/all;
     self.listProgress.progress = 1 - pro;
-//    self.progressListLabel.text = [NSString stringWithFormat:@"%f%%",1-pro];
-    
     [self.listProgress showPopUpViewAnimated:YES];
-    
     NSLog(@"%@",[NSString stringWithFormat:@"%f%%",1-pro]);
 }
 
-
-- (void)setupView
-{
-    UIImageView *downloadImage = [[UIImageView alloc] init];
-    downloadImage.image = [UIImage imageNamed:@"download"];
-    
-    [self.view addSubview:downloadImage];
-    
-    UILabel *downloadLabel = [[UILabel alloc] init];
-    downloadLabel.text = @"缓存列表";
-    [self.view addSubview:downloadLabel];
-    
-    UIButton *downloadButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [downloadButton setTitle:@"开始" forState:UIControlStateNormal];
-    [downloadButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [self.view addSubview:downloadButton];
-    
-    UIButton *cancelDownloadButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [cancelDownloadButton setTitle:@"停止" forState:UIControlStateNormal];
-    [cancelDownloadButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [self.view addSubview:cancelDownloadButton];
-    
-    
-    ASProgressPopUpView *listProgressView = [[ASProgressPopUpView alloc] init];
-    [self.view addSubview:listProgressView];
-    
-    [downloadImage mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.view).offset(40);
-        make.top.equalTo(self.mas_topLayoutGuide).offset(40);
-//        make.width.height.equalTo(@40);
-    }];
-    
-    [downloadLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(downloadImage.mas_right).offset(10);
-        make.top.equalTo(downloadImage);
-    }];
-    
-    [downloadButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(downloadButton.mas_left).offset(-20);
-        make.top.equalTo(downloadImage);
-    }];
-    
-    [cancelDownloadButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.view).offset(-40);
-        make.top.equalTo(downloadImage);
-    }];
-    
-    [listProgressView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(downloadLabel.mas_bottom).offset(40);
-        make.left.equalTo(downloadImage);
-        make.right.equalTo(cancelDownloadButton);
-    }];
-    
-}
-
-
-- (void)decideIfShouldGetNewJson
-{
-    self.fetchCount = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
-        
-        if ([model.date isEqualToString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]]){
-            
-        }else{
-            
-            NSDate *newDate = [self.formatter dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
-            NSDate *today = [self.formatter dateFromString:model.date];
-            NSTimeInterval interval = [today timeIntervalSinceDate:newDate];
-            
-            //从后往前需要加的天数
-            NSUInteger days = (interval / 86400) - 1;
-            
-            NSLog(@"%lu",(unsigned long)days);
-            
-            if(newDate == NULL){ // 首次刷新，列表为空的情况
-                NSLog(@"这是第一次刷新");
-                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:NO];
-                self.ifIsLoopNewData = NO;
-                [SearchForNewFun sharedInstance].loopTime = self.fetchCount;
-            }else{
-                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:YES];
-                self.ifIsLoopNewData = YES;
-                [SearchForNewFun sharedInstance].loopTime = days;
-            }
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
-    }];
-}
-
-- (void)downList
-{
-    NSString *oldString;
-    if (self.ifIsLoopNewData == YES){
-        oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO];
-        NSDate *newDate = [self.formatter dateFromString:oldString];
-        NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:newDate];
-        oldString = [self.formatter stringFromDate:oldDateRange];
-    }else{
-        oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
-    }
-    NSDate *oldDate = [self.formatter dateFromString:oldString];
-    NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
-    [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
-    NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %lu",(unsigned long)(self.fetchCount - [SearchForNewFun sharedInstance].loopTime),(unsigned long)self.fetchCount];
-    NSLog(@"%@",loadString);
-    [SearchForNewFun sharedInstance].loopTime--;
-}
+#pragma mark - 废弃的方法
+//- (void)setupView
+//{
+//    UIImageView *downloadImage = [[UIImageView alloc] init];
+//    downloadImage.image = [UIImage imageNamed:@"download"];
+//    
+//    [self.view addSubview:downloadImage];
+//    
+//    UILabel *downloadLabel = [[UILabel alloc] init];
+//    downloadLabel.text = @"缓存列表";
+//    [self.view addSubview:downloadLabel];
+//    
+//    UIButton *downloadButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [downloadButton setTitle:@"开始" forState:UIControlStateNormal];
+//    [downloadButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+//    [self.view addSubview:downloadButton];
+//    
+//    UIButton *cancelDownloadButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [cancelDownloadButton setTitle:@"停止" forState:UIControlStateNormal];
+//    [cancelDownloadButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+//    [self.view addSubview:cancelDownloadButton];
+//    
+//    
+//    ASProgressPopUpView *listProgressView = [[ASProgressPopUpView alloc] init];
+//    [self.view addSubview:listProgressView];
+//    
+//    [downloadImage mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.equalTo(self.view).offset(40);
+//        make.top.equalTo(self.mas_topLayoutGuide).offset(40);
+////        make.width.height.equalTo(@40);
+//    }];
+//    
+//    [downloadLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.equalTo(downloadImage.mas_right).offset(10);
+//        make.top.equalTo(downloadImage);
+//    }];
+//    
+//    [downloadButton mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.right.equalTo(downloadButton.mas_left).offset(-20);
+//        make.top.equalTo(downloadImage);
+//    }];
+//    
+//    [cancelDownloadButton mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.right.equalTo(self.view).offset(-40);
+//        make.top.equalTo(downloadImage);
+//    }];
+//    
+//    [listProgressView mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.top.equalTo(downloadLabel.mas_bottom).offset(40);
+//        make.left.equalTo(downloadImage);
+//        make.right.equalTo(cancelDownloadButton);
+//    }];
+//    
+//}
+//
+//
+//- (void)decideIfShouldGetNewJson
+//{
+//    self.fetchCount = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+//        
+//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
+//        
+//        if ([model.date isEqualToString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]]){
+//            
+//        }else{
+//            
+//            NSDate *newDate = [self.formatter dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
+//            NSDate *today = [self.formatter dateFromString:model.date];
+//            NSTimeInterval interval = [today timeIntervalSinceDate:newDate];
+//            
+//            //从后往前需要加的天数
+//            NSUInteger days = (interval / 86400) - 1;
+//            
+//            NSLog(@"%lu",(unsigned long)days);
+//            
+//            if(newDate == NULL){ // 首次刷新，列表为空的情况
+//                NSLog(@"这是第一次刷新");
+//                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:NO];
+//                self.ifIsLoopNewData = NO;
+//                [SearchForNewFun sharedInstance].loopTime = self.fetchCount;
+//            }else{
+//                [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:YES];
+//                self.ifIsLoopNewData = YES;
+//                [SearchForNewFun sharedInstance].loopTime = days;
+//            }
+//        }
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        NSLog(@"failed! %@",error);
+//    }];
+//}
+//
+//- (void)downList
+//{
+//    NSString *oldString;
+//    if (self.ifIsLoopNewData == YES){
+//        oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO];
+//        NSDate *newDate = [self.formatter dateFromString:oldString];
+//        NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:newDate];
+//        oldString = [self.formatter stringFromDate:oldDateRange];
+//    }else{
+//        oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
+//    }
+//    NSDate *oldDate = [self.formatter dateFromString:oldString];
+//    NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
+//    [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
+//    NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %lu",(unsigned long)(self.fetchCount - [SearchForNewFun sharedInstance].loopTime),(unsigned long)self.fetchCount];
+//    NSLog(@"%@",loadString);
+//    [SearchForNewFun sharedInstance].loopTime--;
+//}
 
 @end

@@ -17,4 +17,20 @@
 {
     return HexRGB(0xe2e2e2);
 }
+
++ (UIColor *)cellHeaderColor
+{
+    return RGBCOLOR(241, 241, 241);
+}
+
++ (UIColor *)cellHeaderTextColor
+{
+    return RGBCOLOR(106, 106, 106);
+}
+
++ (UIColor *)customBlack
+{
+    return RGBCOLOR(52, 52, 52);
+}
+
 @end

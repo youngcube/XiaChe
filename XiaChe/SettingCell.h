@@ -10,11 +10,10 @@
 #import "ASProgressPopUpView.h"
 @interface SettingCell : UITableViewCell<ASProgressPopUpViewDelegate>
 @property (nonatomic, weak) UIImageView *contentImage;
-@property (nonatomic, weak) UIButton *titleButton;
-
+@property (nonatomic, weak) UILabel *titleLabel;
+@property (nonatomic, weak) UIButton *downloadBtn;
+@property (nonatomic, weak) UIButton *cancelBtn;
 @property (weak, nonatomic) ASProgressPopUpView *progressView;
-
-
 
 + (instancetype)createCellAtTableView:(UITableView *)tableView;
 @end

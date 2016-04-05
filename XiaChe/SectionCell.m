@@ -41,7 +41,7 @@
         self.contentImage = imageView;
         
         UILabel *titleLabel = [[UILabel alloc] init];
-        titleLabel.font = [UIFont boldSystemFontOfSize:15];
+        titleLabel.font = [UIFont systemFontOfSize:15];
         titleLabel.numberOfLines = 0;
         [self.contentView addSubview:titleLabel];
         self.titleLabel = titleLabel;
@@ -100,11 +100,15 @@
 {
     _unread = unread;
     if ([unread boolValue]){
-        _titleLabel.textColor = [UIColor blackColor];
-        _dateLabel.textColor = [UIColor blackColor];
+        _titleLabel.textColor = [UIColor customBlack];
+        _dateLabel.textColor = [UIColor customBlack];
+        _titleLabel.font = [UIFont boldSystemFontOfSize:15];
+        _contentImage.alpha = 1.0f;
     }else{
         _titleLabel.textColor = [UIColor grayColor];
         _dateLabel.textColor = [UIColor grayColor];
+        _titleLabel.font = [UIFont systemFontOfSize:15];
+        _contentImage.alpha = 0.6f;
     }
 }
 

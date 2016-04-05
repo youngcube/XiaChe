@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		861DC1B31CA2C829000602A8 /* DetailToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 861DC1B21CA2C829000602A8 /* DetailToolbar.m */; };
 		8660B6801C999855006917FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B67F1C999855006917FC /* main.m */; };
 		8660B6831C999855006917FC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6821C999855006917FC /* AppDelegate.m */; };
 		8660B68B1C999855006917FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8660B68A1C999855006917FC /* Assets.xcassets */; };
@@ -32,6 +31,8 @@
 		86E930791CB29DAF006D039A /* AFDropdownNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930781CB29DAF006D039A /* AFDropdownNotification.m */; };
 		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
 		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
+		BF77A60C1CB3526600630BA0 /* MonthSelectView.m in Sources */ = {isa = PBXBuildFile; fileRef = BF77A60B1CB3526600630BA0 /* MonthSelectView.m */; };
+		BF77A60F1CB3534D00630BA0 /* UIImage+ImageEffect.m in Sources */ = {isa = PBXBuildFile; fileRef = BF77A60E1CB3534D00630BA0 /* UIImage+ImageEffect.m */; };
 		BF80EE7D1CA8DDB800FAE74C /* UIColor+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */; };
 		BF80EE801CA9055600FAE74C /* SectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BF80EE7F1CA9055600FAE74C /* SectionCell.m */; };
 		BFE253BA1CAA0966005735C2 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BFE253B91CAA0966005735C2 /* SettingsViewController.m */; };
@@ -43,8 +44,6 @@
 		05C763C8077018BB0496F602 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		61292C93D30E7820BF32A7C1 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		65E49BE52C9BF52D623685A7 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		861DC1B11CA2C829000602A8 /* DetailToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailToolbar.h; sourceTree = "<group>"; };
-		861DC1B21CA2C829000602A8 /* DetailToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailToolbar.m; sourceTree = "<group>"; };
 		8660B67B1C999855006917FC /* XiaChe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XiaChe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8660B67F1C999855006917FC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8660B6811C999855006917FC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -90,6 +89,10 @@
 		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
 		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
 		BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationBar.m; sourceTree = "<group>"; };
+		BF77A60A1CB3526600630BA0 /* MonthSelectView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MonthSelectView.h; sourceTree = "<group>"; };
+		BF77A60B1CB3526600630BA0 /* MonthSelectView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MonthSelectView.m; sourceTree = "<group>"; };
+		BF77A60D1CB3534D00630BA0 /* UIImage+ImageEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffect.h"; sourceTree = "<group>"; };
+		BF77A60E1CB3534D00630BA0 /* UIImage+ImageEffect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffect.m"; sourceTree = "<group>"; };
 		BF80EE7B1CA8DDB800FAE74C /* UIColor+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Extension.h"; sourceTree = "<group>"; };
 		BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Extension.m"; sourceTree = "<group>"; };
 		BF80EE7E1CA9055600FAE74C /* SectionCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SectionCell.h; sourceTree = "<group>"; };
@@ -211,14 +214,14 @@
 		8660B6D61C9D4308006917FC /* View */ = {
 			isa = PBXGroup;
 			children = (
-				861DC1B11CA2C829000602A8 /* DetailToolbar.h */,
-				861DC1B21CA2C829000602A8 /* DetailToolbar.m */,
 				BF80EE7E1CA9055600FAE74C /* SectionCell.h */,
 				BF80EE7F1CA9055600FAE74C /* SectionCell.m */,
 				BFE253BB1CAA11D5005735C2 /* SectionMenu.h */,
 				BFE253BC1CAA11D5005735C2 /* SectionMenu.m */,
 				86E9305D1CB24940006D039A /* SettingCell.h */,
 				86E9305E1CB24940006D039A /* SettingCell.m */,
+				BF77A60A1CB3526600630BA0 /* MonthSelectView.h */,
+				BF77A60B1CB3526600630BA0 /* MonthSelectView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -294,6 +297,8 @@
 			children = (
 				BF80EE7B1CA8DDB800FAE74C /* UIColor+Extension.h */,
 				BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */,
+				BF77A60D1CB3534D00630BA0 /* UIImage+ImageEffect.h */,
+				BF77A60E1CB3534D00630BA0 /* UIImage+ImageEffect.m */,
 			);
 			name = Extension;
 			sourceTree = "<group>";
@@ -443,13 +448,14 @@
 				8660B6A71C99A090006917FC /* StorageManager.m in Sources */,
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,
 				86E930791CB29DAF006D039A /* AFDropdownNotification.m in Sources */,
+				BF77A60F1CB3534D00630BA0 /* UIImage+ImageEffect.m in Sources */,
 				BFE253BD1CAA11D5005735C2 /* SectionMenu.m in Sources */,
 				86E9306D1CB29CE2006D039A /* ASProgressPopUpView.m in Sources */,
 				86E9306C1CB29CE2006D039A /* ASPopUpView.m in Sources */,
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
+				BF77A60C1CB3526600630BA0 /* MonthSelectView.m in Sources */,
 				86E930591CB074CE006D039A /* WebViewController.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,
-				861DC1B31CA2C829000602A8 /* DetailToolbar.m in Sources */,
 				8660B6E91C9F0137006917FC /* FunDetail.m in Sources */,
 				86E9305C1CB09236006D039A /* CustomTabBarController.m in Sources */,
 			);
