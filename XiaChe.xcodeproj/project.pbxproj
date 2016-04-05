@@ -29,6 +29,7 @@
 		86E9306C1CB29CE2006D039A /* ASPopUpView.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930691CB29CE2006D039A /* ASPopUpView.m */; };
 		86E9306D1CB29CE2006D039A /* ASProgressPopUpView.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9306B1CB29CE2006D039A /* ASProgressPopUpView.m */; };
 		86E930791CB29DAF006D039A /* AFDropdownNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930781CB29DAF006D039A /* AFDropdownNotification.m */; };
+		86E9307C1CB4025B006D039A /* SettingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9307B1CB4025B006D039A /* SettingView.m */; };
 		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
 		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
 		BF77A60C1CB3526600630BA0 /* MonthSelectView.m in Sources */ = {isa = PBXBuildFile; fileRef = BF77A60B1CB3526600630BA0 /* MonthSelectView.m */; };
@@ -85,6 +86,8 @@
 		86E9306B1CB29CE2006D039A /* ASProgressPopUpView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ASProgressPopUpView.m; path = OpenSource/ASPopUp/ASProgressPopUpView.m; sourceTree = "<group>"; };
 		86E930771CB29DAF006D039A /* AFDropdownNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFDropdownNotification.h; sourceTree = "<group>"; };
 		86E930781CB29DAF006D039A /* AFDropdownNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFDropdownNotification.m; sourceTree = "<group>"; };
+		86E9307A1CB4025B006D039A /* SettingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingView.h; sourceTree = "<group>"; };
+		86E9307B1CB4025B006D039A /* SettingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingView.m; sourceTree = "<group>"; };
 		BF6D12A61CA141EA00758CCF /* CustomNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationController.h; sourceTree = "<group>"; };
 		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
 		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
@@ -222,6 +225,8 @@
 				86E9305E1CB24940006D039A /* SettingCell.m */,
 				BF77A60A1CB3526600630BA0 /* MonthSelectView.h */,
 				BF77A60B1CB3526600630BA0 /* MonthSelectView.m */,
+				86E9307A1CB4025B006D039A /* SettingView.h */,
+				86E9307B1CB4025B006D039A /* SettingView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -455,6 +460,7 @@
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
 				BF77A60C1CB3526600630BA0 /* MonthSelectView.m in Sources */,
 				86E930591CB074CE006D039A /* WebViewController.m in Sources */,
+				86E9307C1CB4025B006D039A /* SettingView.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,
 				8660B6E91C9F0137006917FC /* FunDetail.m in Sources */,
 				86E9305C1CB09236006D039A /* CustomTabBarController.m in Sources */,

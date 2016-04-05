@@ -34,7 +34,7 @@
 @property (nonatomic, copy) NSString *dateString;
 @property (nonatomic) BOOL getNextFun;
 @property (nonatomic) double webViewProgress;
-@property (nonatomic, weak) MBProgressHUD *hud;
+//@property (nonatomic, weak) MBProgressHUD *hud;
 @property (nonatomic, weak) UIProgressView *progressView;
 @property (nonatomic, weak) UIBarButtonItem *nextBtnItem;
 @property (nonatomic, weak) UIBarButtonItem *beforeBtnItem;
@@ -97,8 +97,8 @@ typedef NS_ENUM(NSInteger, Steps){
     WKWebView *webView = [[WKWebView alloc] initWithFrame:webFrame configuration:config];
     webView.navigationDelegate = self;
     webView.scrollView.delegate = self;
-    webView.backgroundColor = RGBCOLOR(249, 249, 249);
-    webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
+//    webView.backgroundColor = RGBCOLOR(249, 249, 249);
+//    webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
     webView.scrollView.showsVerticalScrollIndicator = NO;
     [self.view addSubview:webView];
     self.webView = webView;
@@ -149,12 +149,12 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - webview delegate
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-    NSLog(@"progress = %f",webView.estimatedProgress);
-    self.hud.progress = webView.estimatedProgress;
-    [self.hud hide:YES];
+//    NSLog(@"progress = %f",webView.estimatedProgress);
+//    self.hud.progress = webView.estimatedProgress;
+//    [self.hud hide:YES];
     
     NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
-    NSLog(@"story date = %@ %@",self.passFun.storyDate,todayString);
+    
     if ([self.passFun.storyDate isEqualToString:todayString]){
         [self.nextBtnItem setEnabled:NO];
     }else{
@@ -168,7 +168,7 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
 {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    NSLog(@"navigation = %@",webView.URL);
+//    NSLog(@"navigation = %@",webView.URL);
     if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
         WebViewController *web = [[WebViewController alloc] init];
         web.url = webView.URL;
@@ -273,16 +273,53 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 网络逻辑
 - (void)decideIfShoudGetDataFromNet
 {
-    if ([self fetchWebString].detailId == NULL){
-        [self loadDetailData];
-    }else{
-        [self loadWebView:[self fetchWebString]];
-    }
+//    if ([self fetchWebString].body == NULL ){
+//        NSLog(@"今天没有瞎扯");
+//        [self setupNoView];
+//    }else{
+        if ([self fetchWebString].detailId == NULL){
+//            if ([self fetchWebString].body == NULL ){
+//                        NSLog(@"今天没有瞎扯");
+//                        [self setupNoView];
+//            }else{
+                [self loadDetailData];
+//            }
+            
+            
+        }else{
+            [self loadWebView:[self fetchWebString]];
+        }
+//    }
+}
+
+- (void)setupNoView
+{
+//    UIView *view = [[UIView alloc] initWithFrame:self.webView.bounds];
+//    [self.webView addSubview:view];
+//    UILabel *warningLabel = [[UILabel alloc] initWithFrame:view.bounds];
+//    warningLabel.text = @"今天没有瞎扯！";
+//    [view addSubview:warningLabel];
+    
+    
+//        [self.passFun setUnread:[NSNumber numberWithBool:NO]];
+//        [[StorageManager sharedInstance].managedObjectContext save:nil];
+    
+    NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href= /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>抱歉，今天没有瞎扯！</body></html>"];
+    [self.webView loadHTMLString:htmlString baseURL:nil];
+    
+    self.topImage.image = nil;
+    self.headerTitleLabel.text = @"";
+    self.headerSourceLabel.text = @"";
 }
 
 #pragma mark 将JSON装载到DetailItem中
 - (void)loadDetailData
 {
+    if (self.passFun.storyId == NULL){
+        [self setupNoView];
+        return;
+    }
+    
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
@@ -297,8 +334,17 @@ typedef NS_ENUM(NSInteger, Steps){
         st.image = detail.image;
         st.image_source = detail.image_source;
         [[StorageManager sharedInstance].managedObjectContext save:nil];
-
-        [self loadWebView:[self fetchWebString]];
+        
+        if ([self fetchWebString].body == NULL ){
+            NSLog(@"今天没有瞎扯");
+            [self setupNoView];
+//            [self loadWebView:[self fetchWebString]];
+        }else{
+            [self loadWebView:[self fetchWebString]];
+        }
+        
+        
+//        [self loadWebView:[self fetchWebString]];
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 
@@ -308,16 +354,21 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 加载WebView
 -(void)loadWebView:(FunDetail *)funDetail
 {
-    [self.passFun setUnread:[NSNumber numberWithBool:NO]];
-    [[StorageManager sharedInstance].managedObjectContext save:nil];
-    
-    NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
-    [self.webView loadHTMLString:htmlString baseURL:nil];
-    self.navigationItem.title = funDetail.storyId.title;
-    [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
-    
-    self.headerTitleLabel.text = self.passFun.title;
-    self.headerSourceLabel.text = funDetail.image_source;
+    if([funDetail.body isEqualToString:@""]){
+        [self setupNoView];
+        NSLog(@"今天没有瞎扯");
+    }else{
+        [self.passFun setUnread:[NSNumber numberWithBool:NO]];
+        [[StorageManager sharedInstance].managedObjectContext save:nil];
+        
+        NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
+        [self.webView loadHTMLString:htmlString baseURL:nil];
+        self.navigationItem.title = funDetail.storyId.title;
+        [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
+        
+        self.headerTitleLabel.text = self.passFun.title;
+        self.headerSourceLabel.text = funDetail.image_source;
+    }
 }
 
 - (FunDetail *)fetchWebString
@@ -349,17 +400,29 @@ typedef NS_ENUM(NSInteger, Steps){
     return funDate;
 }
 
+#pragma mark - 若storyId不存在，则按照时间来读
+
+
 #pragma mark - 计算当前时间的前一天和后一天
 - (NSString *)dateStringForInt:(Steps)step
 {
     //传入时间 -1*86300
-    FunStory *sto = [self fetchDate];
-    NSString *todayString = sto.storyDate;
+    NSString *todayString;
+    if (self.passFun.storyId == NULL){
+        todayString = self.passFun.storyDate;
+    }else{
+        FunStory *sto = [self fetchDate];
+        todayString = sto.storyDate;
+    }
+    
+    
+    
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
     [format setDateFormat:@"yyyyMMdd"];
     NSDate *todayDate = [format dateFromString:todayString];
     NSDate *nextRange = [NSDate dateWithTimeInterval:+86400*step sinceDate:todayDate];
     NSString *newDateRangeString = [format stringFromDate:nextRange];
+    NSLog(@"前 = %@，当前storyID = %@",newDateRangeString,todayString);
     return newDateRangeString;
 }
 
@@ -378,8 +441,8 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)switchToNewDetail:(UIButton *)sender
 {
-    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
+//    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+//    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
     
     if (sender.tag == 1001){
         self.dateString = [self dateStringForInt:kNext];
@@ -425,7 +488,7 @@ typedef NS_ENUM(NSInteger, Steps){
         NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
         [fetchRequest setSortDescriptors:@[sort]];
         NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
-        NSLog(@"今天的日期是！ %@",self.dateString);
+//        NSLog(@"今天的日期是！ %@",self.dateString);
         [fetchRequest setPredicate:pre];
         NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
         FunStory *funDate = [array firstObject];

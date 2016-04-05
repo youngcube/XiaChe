@@ -24,7 +24,7 @@
         cell = [[SettingCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
     }
     tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    tableView.allowsSelection = NO;
+//    tableView.allowsSelection = NO;
     return cell;
 }
 
@@ -76,7 +76,7 @@
         [self.contentImage mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(self.mas_left).offset(25);
             make.centerY.equalTo(self);
-//            make.width.height.equalTo(@30);
+            make.width.height.equalTo(@30);
         }];
         
         [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {

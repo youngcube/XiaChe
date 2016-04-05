@@ -19,6 +19,7 @@
 #import "SectionMenu.h"
 #import "AFDropdownNotification.h"
 #import "MonthSelectView.h"
+#import "SettingView.h"
 #import <Masonry.h>
 
 #define HEIGHT_OF_SECTION_HEADER 50.5f
@@ -29,6 +30,7 @@
     NSUInteger _currentSection;
 //    BOOL _expand;
     CGFloat _selectOffset;
+    NSUInteger _selectIndex;
 }
 @property (nonatomic, strong) SectionModel *model;
 //@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
@@ -60,8 +62,8 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     self = [super initWithStyle:style];
     if (self){
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(examType)];
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:[StorageManager sharedInstance] action:@selector(removeAllData)];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(selectType)];
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(settingBundle)];
     }
     return self;
 }
@@ -79,26 +81,35 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     NSIndexPath *newIndex = [NSIndexPath indexPathForRow:NSNotFound inSection:index];
     _selectOffset = offset;
+    _selectIndex = index;
     [self.tableView scrollToRowAtIndexPath:newIndex atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
 
-- (void)nextSection
+//- (void)nextSection
+//{
+//    NSLog(@"number of section = " );
+//    _currentSection++;
+//    for (int i = 0 ; i < self.tableView.numberOfSections; i ++){
+//        NSLog(@"%@",[[[self.fetchedResultsController sections] objectAtIndex:i] name]);
+//    }
+//    NSIndexPath *index = [NSIndexPath indexPathForRow:NSNotFound inSection:_currentSection];
+//    [self.tableView scrollToRowAtIndexPath:index atScrollPosition:UITableViewScrollPositionTop animated:YES];
+//}
+
+- (void)settingBundle
 {
-    NSLog(@"number of section = " );
-    _currentSection++;
-    for (int i = 0 ; i < self.tableView.numberOfSections; i ++){
-        NSLog(@"%@",[[[self.fetchedResultsController sections] objectAtIndex:i] name]);
-    }
-    NSIndexPath *index = [NSIndexPath indexPathForRow:NSNotFound inSection:_currentSection];
-    [self.tableView scrollToRowAtIndexPath:index atScrollPosition:UITableViewScrollPositionTop animated:YES];
+    SettingView *set = [[SettingView alloc] initWithFrame:self.view.frame];
+    
+    [set show];
 }
 
-- (void)examType
+- (void)selectType
 {
     MonthSelectView *mouth = [[MonthSelectView alloc] initWithFrame:self.view.frame];
     mouth.monthArray = [[self fetchedResultsController] sections];
     mouth.delegate = self;
     mouth.selectOffset = _selectOffset;
+    mouth.selectIndex = _selectIndex;
     [mouth show];
 }
 
@@ -116,7 +127,6 @@ typedef NS_ENUM(NSInteger, isToday){
     self.navTitle = titleNew;
     
     self.sectionDict = [NSMutableDictionary dictionary];
-//    _expand = YES;
     
     _notification = [[AFDropdownNotification alloc] init];
     _notification.notificationDelegate = self;

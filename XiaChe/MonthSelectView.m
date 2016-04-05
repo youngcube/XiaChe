@@ -22,7 +22,6 @@
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        self.selectionStyle = UITableViewCellSelectionStyleNone;
         UILabel *monthLabel = [[UILabel alloc] init];
         [self.contentView addSubview:monthLabel];
         self.monthLabel = monthLabel;
@@ -40,15 +39,14 @@
 
 @end
 
-
 @interface MonthSelectView()<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate>
 {
     CGFloat _thisOffset;
+    NSInteger _thisIndex;
 }
 @property (nonatomic, strong) UIView *containerView;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UIView *header;
-//@property (nonatomic, strong) NSString *examType;
 @property (nonatomic, strong) MASConstraint *topConstraint;
 
 @end
@@ -141,7 +139,7 @@ static CGFloat kSectionHeader = 10.0;
     [window addSubview:self];
     
     CGPoint lastPoint = CGPointMake(0, _selectOffset);
-    [self.tableView setContentOffset:lastPoint animated:YES];
+    [self.tableView setContentOffset:lastPoint animated:NO];
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
@@ -176,6 +174,8 @@ static CGFloat kSectionHeader = 10.0;
     id <NSFetchedResultsSectionInfo> sectionInfo = nil;
     sectionInfo = [self.monthArray objectAtIndex:indexPath.row];
     [cell setTitle:[sectionInfo name]];
+    NSIndexPath *index = [NSIndexPath indexPathForRow:self.selectIndex inSection:0];
+    [tableView selectRowAtIndexPath:index animated:YES scrollPosition:UITableViewScrollPositionNone];
     return cell;
 }
 
@@ -191,12 +191,9 @@ static CGFloat kSectionHeader = 10.0;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
     id <NSFetchedResultsSectionInfo> sectionInfo = nil;
     sectionInfo = [self.monthArray objectAtIndex:indexPath.row];
-    
     [self.delegate monthSelectAtIndex:indexPath.row offset:_thisOffset];
-    
     [self dismissAnimation];
 }
 

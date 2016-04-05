@@ -65,7 +65,6 @@ typedef NS_ENUM(NSInteger, SectionTwo){
 
 - (void)stopDownload
 {
-    
     [[SearchForNewFun sharedInstance] removeObserver:self forKeyPath:@"loopTime"];
     [SearchForNewFun sharedInstance].loopTime = 0;
 }
@@ -126,7 +125,7 @@ typedef NS_ENUM(NSInteger, SectionTwo){
     if (indexPath.section == kSectionOne){
         switch (indexPath.row) { // 下载列表
             case kDownList:
-                cell.contentImage.image = [UIImage imageNamed:@"download"];
+                cell.contentImage.image = [UIImage imageNamed:@"update"];
                 cell.titleLabel.text = @"缓存瞎扯列表";
                 [cell.downloadBtn setTitle:@"下载" forState:UIControlStateNormal];
                 
@@ -159,6 +158,19 @@ typedef NS_ENUM(NSInteger, SectionTwo){
             default:
                 break;
         }
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    switch (indexPath.row) {
+        case kDownList:
+            [self download];
+            
+            break;
+            
+        default:
+            break;
     }
 }
 

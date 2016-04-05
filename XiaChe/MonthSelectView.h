@@ -16,7 +16,9 @@
 
 @interface MonthSelectView : UIView
 @property (nonatomic) CGFloat selectOffset;
+@property (nonatomic) NSInteger selectIndex;
 @property (nonatomic, strong) NSArray *monthArray;
 @property (nonatomic, weak) id <MonthSelectDelegate> delegate;
+
 - (void)show;
 @end
