@@ -155,8 +155,10 @@ typedef NS_ENUM(NSInteger, isToday){
     self.tableView.mj_footer = self.autoFooter;
     if ([[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES] isEqualToString:@"20130523"]){
         self.tableView.mj_footer.hidden = YES;
+        self.autoFooter.hidden = YES;
     }else{
         self.tableView.mj_footer.hidden = NO;
+        self.autoFooter.hidden = NO;
     }
 }
 
@@ -297,20 +299,15 @@ typedef NS_ENUM(NSInteger, isToday){
 }
 
 - (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
-    
     switch(type) {
-            
         case NSFetchedResultsChangeInsert:
             [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
             break;
-            
         case NSFetchedResultsChangeDelete:
             [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
             break;
-        
         case NSFetchedResultsChangeMove:
             break;
-            
         case NSFetchedResultsChangeUpdate:
             break;
     }
@@ -346,7 +343,6 @@ typedef NS_ENUM(NSInteger, isToday){
         self.fetchedResultsController = fetchCtrl;
         NSError *error;
         if (![self.fetchedResultsController performFetch:&error]){
-            
             abort();
         }
     }

@@ -301,6 +301,7 @@ typedef NS_ENUM(NSInteger, SectionTwo){
                 }
                 [self.tableView deselectRowAtIndexPath:downIndex animated:YES];
                 [self.tableView reloadRowsAtIndexPaths:@[buttonIndex] withRowAnimation:UITableViewRowAnimationNone];
+//                [self.tableView reloadData];
                 break;
             case kProgressList:
                 break;
