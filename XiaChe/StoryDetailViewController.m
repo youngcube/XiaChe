@@ -377,7 +377,18 @@ typedef NS_ENUM(NSInteger, Steps){
         [self.webView loadHTMLString:htmlString baseURL:nil];
         self.navigationItem.title = funDetail.storyId.title;
         [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
-        self.headerTitleLabel.text = self.passFun.title;
+        
+        
+        NSMutableAttributedString *attrTitle = [[NSMutableAttributedString alloc] initWithString:self.passFun.title];
+        NSShadow * shadow = [[NSShadow alloc] init];
+        shadow.shadowColor = [UIColor cellHeaderColor];
+        shadow.shadowBlurRadius = 0.5;
+        shadow.shadowOffset = CGSizeMake(0.5, 0.5);
+        NSDictionary * attris = @{NSShadowAttributeName:shadow};
+        [attrTitle setAttributes:attris range:NSMakeRange(0,self.passFun.title.length)];
+        self.headerTitleLabel.attributedText = attrTitle;
+        
+//        self.headerTitleLabel.text = self.passFun.title;
         self.headerSourceLabel.text = funDetail.image_source;
     }
 }
@@ -425,9 +436,6 @@ typedef NS_ENUM(NSInteger, Steps){
         FunStory *sto = [self fetchDate];
         todayString = sto.storyDate;
     }
-    
-    
-    
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
     [format setDateFormat:@"yyyyMMdd"];
     NSDate *todayDate = [format dateFromString:todayString];

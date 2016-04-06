@@ -147,9 +147,13 @@ typedef NS_ENUM(NSInteger, isToday){
     [self.tableView.mj_header beginRefreshing];
     
     self.autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-        [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
-        self.ifIsLoopNewData = NO;
-        [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
+        if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0){
+            [self.autoFooter endRefreshingWithNoMoreData];
+        }else{
+            [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
+            self.ifIsLoopNewData = NO;
+            [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
+        }
     }];
     
     self.tableView.mj_footer = self.autoFooter;

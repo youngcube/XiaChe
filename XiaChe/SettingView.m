@@ -109,7 +109,7 @@ static CGFloat kSectionHeader = 10.0;
             self.topConstraint = make.top.equalTo(self.mas_bottom);
             make.centerX.equalTo(self);
             make.width.mas_equalTo(kTableViewWidth);
-            make.height.mas_equalTo(kHeaderHeight + kSectionHeader  * 2 + kRowHeight * 5);
+            make.height.mas_equalTo(kHeaderHeight + kSectionHeader  * 2 + kRowHeight * 2);
         }];
         
         _tableView = [[UITableView alloc] init];
@@ -123,7 +123,7 @@ static CGFloat kSectionHeader = 10.0;
         [_containerView addSubview:_tableView];
         [_tableView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.bottom.centerX.width.equalTo(_containerView);
-            make.height.mas_equalTo(kSectionHeader * 2 + kRowHeight * 5);
+            make.height.mas_equalTo(kSectionHeader * 2 + kRowHeight * 2);
         }];
         
         _header = [[UIView alloc] init];
@@ -132,7 +132,7 @@ static CGFloat kSectionHeader = 10.0;
         label.textColor = [UIColor whiteColor];
         label.font = [UIFont systemFontOfSize:14];
         [_header addSubview:label];
-        label.text = NSLocalizedString(@"偏好", nil);
+        label.text = NSLocalizedString(@"缓冲", nil);
         [label mas_makeConstraints:^(MASConstraintMaker *make) {
             make.center.equalTo(_header);
         }];
@@ -189,7 +189,6 @@ static CGFloat kSectionHeader = 10.0;
 
 typedef NS_ENUM(NSInteger, Sections){
     kSectionOne = 0,
-    kSectionTwo,
     NUM_SECTIONS
 };
 
@@ -199,11 +198,11 @@ typedef NS_ENUM(NSInteger, SectionOne){
     NUM_SectionOne_ROWS
 };
 
-typedef NS_ENUM(NSInteger, SectionTwo){
-    kDownDetail = 0,
-    kProgressDetail,
-    NUM_SectionTwo_ROWS
-};
+//typedef NS_ENUM(NSInteger, SectionTwo){
+//    kDownDetail = 0,
+//    kProgressDetail,
+//    NUM_SectionTwo_ROWS
+//};
 
 #pragma mark - TableView
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -213,15 +212,15 @@ typedef NS_ENUM(NSInteger, SectionTwo){
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    if (section == kSectionOne){
+//    if (section == kSectionOne){
         if ([SearchForNewFun sharedInstance].loopTime == 0){
             return NUM_SectionOne_ROWS - 1;
         }else{
             return NUM_SectionOne_ROWS;
         }
-    }else{
-        return NUM_SectionTwo_ROWS;
-    }
+//    }else{
+//        return NUM_SectionTwo_ROWS;
+//    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -243,6 +242,9 @@ typedef NS_ENUM(NSInteger, SectionTwo){
     if (indexPath.section == kSectionOne){
         switch (indexPath.row) { // 下载列表
             case kDownList:
+                cell.settingLabel.hidden = NO;
+                cell.contentImage.hidden = NO;
+                cell.progressView.hidden = YES;
                 cell.contentImage.image = [UIImage imageNamed:@"update"];
                 if ([SearchForNewFun sharedInstance].loopTime == 0){
                     
@@ -256,9 +258,11 @@ typedef NS_ENUM(NSInteger, SectionTwo){
                 }else{
                     cell.settingLabel.text = @"暂停";
                 }
-                cell.progressView.hidden = YES;
                 break;
             case kProgressList:
+                cell.settingLabel.hidden = YES;
+                cell.contentImage.hidden = YES;
+                cell.progressView.hidden = NO;
                 if ([SearchForNewFun sharedInstance].loopTime > 0){
                     [cell.progressView setProgress:(1 - pro) animated:YES];
                     self.listProgress = cell.progressView;
@@ -268,19 +272,20 @@ typedef NS_ENUM(NSInteger, SectionTwo){
             default:
                 break;
         }
-    }else if (indexPath.section == kSectionTwo){
-        switch (indexPath.row) { // 下载详情
-            case kDownDetail:
-                cell.contentImage.image = [UIImage imageNamed:@"download"];
-                cell.settingLabel.text = @"清空列表";
-                cell.progressView.hidden = YES;
-                break;
-            case kProgressDetail:
-                break;
-            default:
-                break;
-        }
     }
+//    else if (indexPath.section == kSectionTwo){
+//        switch (indexPath.row) { // 下载详情
+//            case kDownDetail:
+//                cell.contentImage.image = [UIImage imageNamed:@"download"];
+//                cell.settingLabel.text = @"清空列表";
+//                cell.progressView.hidden = YES;
+//                break;
+//            case kProgressDetail:
+//                break;
+//            default:
+//                break;
+//        }
+//    }
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -292,32 +297,35 @@ typedef NS_ENUM(NSInteger, SectionTwo){
             case kDownList:
                 if ([SearchForNewFun sharedInstance].loopTime > 0){
                     [self stopDownload];
-                    [self.tableView deleteRowsAtIndexPaths:@[downIndex] withRowAnimation:UITableViewRowAnimationNone];
+                    [self.tableView reloadData];
+//                    [self.tableView deleteRowsAtIndexPaths:@[downIndex] withRowAnimation:UITableViewRowAnimationNone];
                 }else{
                     [self download];
                     if (self.fetchCount != 0){
-                        [self.tableView insertRowsAtIndexPaths:@[downIndex] withRowAnimation:UITableViewRowAnimationNone];
+//                        [self.tableView insertRowsAtIndexPaths:@[downIndex] withRowAnimation:UITableViewRowAnimationNone];
+                        [self.tableView reloadData];
                     }
                 }
                 [self.tableView deselectRowAtIndexPath:downIndex animated:YES];
-                [self.tableView reloadRowsAtIndexPaths:@[buttonIndex] withRowAnimation:UITableViewRowAnimationNone];
-//                [self.tableView reloadData];
+//                [self.tableView reloadRowsAtIndexPaths:@[buttonIndex] withRowAnimation:UITableViewRowAnimationNone];
+                [self.tableView reloadData];
                 break;
             case kProgressList:
                 break;
             default:
                 break;
         }
-    }else{
-        switch (indexPath.row) {
-            case kDownDetail:
-                [[StorageManager sharedInstance] removeAllData];
-                break;
-                
-            default:
-                break;
-        }
     }
+//    else{
+//        switch (indexPath.row) {
+//            case kDownDetail:
+//                [[StorageManager sharedInstance] removeAllData];
+//                break;
+        
+//            default:
+//                break;
+//        }
+//    }
 //    [self dismissAnimation];
 }
 
@@ -362,7 +370,7 @@ typedef NS_ENUM(NSInteger, SectionTwo){
     self.listProgress.progress = 1 - pro;
     [self.listProgress showPopUpViewAnimated:YES];
     NSLog(@"%lu",(unsigned long)[[SearchForNewFun sharedInstance] calculateStartTimeToOldTime]);
-    if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0){
+    if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0 || [SearchForNewFun sharedInstance].loopTime == 0){
         [self.tableView reloadData];
     }
 }
