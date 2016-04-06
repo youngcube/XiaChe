@@ -53,7 +53,7 @@
         
         [self.contentImage mas_makeConstraints:^(MASConstraintMaker *make) {
             make.right.equalTo(self).offset(-20);
-            make.width.equalTo(@80);
+            make.width.equalTo(@75);
             make.height.equalTo(@70);
             make.centerY.equalTo(self);
         }];

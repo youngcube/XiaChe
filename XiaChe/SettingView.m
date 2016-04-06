@@ -13,6 +13,7 @@
 #import "FunStory.h"
 #import "ASProgressPopUpView.h"
 #import "SearchForNewFun.h"
+#import "StorageManager.h"
 
 @interface SettingViewCell : UITableViewCell<ASProgressPopUpViewDelegate>
 //@property (nonatomic, copy) NSString *settingTitle;
@@ -79,9 +80,7 @@
 @end
 
 @interface SettingView()<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate>
-{
-    BOOL _ifClickDownloadBtn; //避免二次remove KVO
-}
+
 @property (nonatomic, strong) UIView *containerView;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UIView *header;
@@ -167,7 +166,7 @@ static CGFloat kSectionHeader = 10.0;
     }];
     
     [[SearchForNewFun sharedInstance] addObserver:self forKeyPath:@"loopTime" options:NSKeyValueObservingOptionNew context:NULL];
-    _ifClickDownloadBtn = NO;
+    
     [window addSubview:self];
     
 }
@@ -207,9 +206,22 @@ typedef NS_ENUM(NSInteger, SectionTwo){
 };
 
 #pragma mark - TableView
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return NUM_SECTIONS;
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return NUM_SECTIONS+1;
+    if (section == kSectionOne){
+        if ([SearchForNewFun sharedInstance].loopTime == 0){
+            return NUM_SectionOne_ROWS - 1;
+        }else{
+            return NUM_SectionOne_ROWS;
+        }
+    }else{
+        return NUM_SectionTwo_ROWS;
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -232,16 +244,26 @@ typedef NS_ENUM(NSInteger, SectionTwo){
         switch (indexPath.row) { // 下载列表
             case kDownList:
                 cell.contentImage.image = [UIImage imageNamed:@"update"];
-                cell.settingLabel.text = @"缓存瞎扯列表";
-                
+                if ([SearchForNewFun sharedInstance].loopTime == 0){
+                    
+                    if (self.fetchCount==0){
+                        cell.settingLabel.text = @"已缓冲全部列表";
+                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    }else{
+                        cell.settingLabel.text = @"缓存之前的列表";
+                    }
+                    
+                }else{
+                    cell.settingLabel.text = @"暂停";
+                }
                 cell.progressView.hidden = YES;
                 break;
             case kProgressList:
-                [cell.progressView setProgress:(1 - pro) animated:YES];
-                self.listProgress = cell.progressView;
-                break;
-            case kProgressList + 1:
-                cell.settingLabel.text = @"停止";
+                if ([SearchForNewFun sharedInstance].loopTime > 0){
+                    [cell.progressView setProgress:(1 - pro) animated:YES];
+                    self.listProgress = cell.progressView;
+                }
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 break;
             default:
                 break;
@@ -250,8 +272,7 @@ typedef NS_ENUM(NSInteger, SectionTwo){
         switch (indexPath.row) { // 下载详情
             case kDownDetail:
                 cell.contentImage.image = [UIImage imageNamed:@"download"];
-                //                [cell.titleButton setTitle:@"缓存瞎扯页面" forState:UIControlStateNormal];
-                //                self.downloadButton = cell.titleButton;
+                cell.settingLabel.text = @"清空列表";
                 cell.progressView.hidden = YES;
                 break;
             case kProgressDetail:
@@ -262,63 +283,73 @@ typedef NS_ENUM(NSInteger, SectionTwo){
     }
 }
 
-- (void)dealloc
-{
-    if (_ifClickDownloadBtn){
-        @try {
-            [[SearchForNewFun sharedInstance] removeObserver:self forKeyPath:@"loopTime" context:NULL];
-        } @catch (NSException *exception) {
-            
-        }
-    }
-}
-
-- (void)stopDownload
-{
-    _ifClickDownloadBtn = NO;
-    [[SearchForNewFun sharedInstance] removeObserver:self forKeyPath:@"loopTime"];
-    
-    [SearchForNewFun sharedInstance].loopTime = 0;
-}
-
-- (void)download
-{
-    [[SearchForNewFun sharedInstance] addObserver:self forKeyPath:@"loopTime" options:NSKeyValueObservingOptionNew context:NULL];
-    _ifClickDownloadBtn = YES;
-    self.fetchCount = [[SearchForNewFun sharedInstance] calculateStartTimeToOldTime];
-    [SearchForNewFun sharedInstance].loopTime = self.fetchCount;
-    self.ifIsLoopNewData = NO;
-    [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
-}
-
-//- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    NSString *typeId = @"good";
-//    if ([typeId isEqualToString:_examType]) {
-//        [cell setSelected:YES animated:NO];
-//    }else{
-//        [cell setSelected:NO animated:NO];
-//    }
-//}
-
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section == kSectionOne){
+        NSIndexPath *downIndex = [NSIndexPath indexPathForRow:kProgressList inSection:kSectionOne];
+        NSIndexPath *buttonIndex = [NSIndexPath indexPathForRow:kDownList inSection:kSectionOne];
         switch (indexPath.row) { // 下载列表
             case kDownList:
-                [self download];
+                if ([SearchForNewFun sharedInstance].loopTime > 0){
+                    [self stopDownload];
+                    [self.tableView deleteRowsAtIndexPaths:@[downIndex] withRowAnimation:UITableViewRowAnimationNone];
+                }else{
+                    [self download];
+                    if (self.fetchCount != 0){
+                        [self.tableView insertRowsAtIndexPaths:@[downIndex] withRowAnimation:UITableViewRowAnimationNone];
+                    }
+                }
+                [self.tableView deselectRowAtIndexPath:downIndex animated:YES];
+                [self.tableView reloadRowsAtIndexPaths:@[buttonIndex] withRowAnimation:UITableViewRowAnimationNone];
                 break;
             case kProgressList:
+                break;
+            default:
+                break;
+        }
+    }else{
+        switch (indexPath.row) {
+            case kDownDetail:
+                [[StorageManager sharedInstance] removeAllData];
+                break;
                 
-                break;
-            case kProgressList + 1:
-                [self stopDownload];
-                break;
             default:
                 break;
         }
     }
 //    [self dismissAnimation];
+}
+
+- (void)dealloc
+{
+    @try {
+        [[SearchForNewFun sharedInstance] removeObserver:self forKeyPath:@"loopTime" context:NULL];
+    } @catch (NSException *exception) {
+        
+    }
+}
+
+- (void)stopDownload
+{
+//    [[SearchForNewFun sharedInstance] removeObserver:self forKeyPath:@"loopTime"];
+    [SearchForNewFun sharedInstance].loopTime = 0;
+    self.listProgress.hidden = YES;
+}
+
+//- (NSUInteger)fetchCount
+//{
+//    return [[SearchForNewFun sharedInstance] calculateStartTimeToOldTime];
+//}
+
+- (void)download
+{
+//    [[SearchForNewFun sharedInstance] addObserver:self forKeyPath:@"loopTime" options:NSKeyValueObservingOptionNew context:NULL];
+    self.listProgress.hidden = NO;
+    self.fetchCount = [[SearchForNewFun sharedInstance] calculateStartTimeToOldTime];
+//    NSLog(@"self.fetchCount = %d",self.fetchCount);
+    [SearchForNewFun sharedInstance].loopTime = self.fetchCount;
+    self.ifIsLoopNewData = NO;
+    [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
@@ -329,7 +360,6 @@ typedef NS_ENUM(NSInteger, SectionTwo){
     double pro = this/all;
     self.listProgress.progress = 1 - pro;
     [self.listProgress showPopUpViewAnimated:YES];
-    NSLog(@"%@",[NSString stringWithFormat:@"%f%%",1-pro]);
 }
 
 @end

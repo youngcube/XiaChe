@@ -11,9 +11,10 @@
 #import "UIColor+Extension.h"
 #import <Masonry.h>
 #import <MBProgressHUD.h>
+#import "ASProgressPopUpView.h"
 @interface WebViewController ()<WKNavigationDelegate,UIScrollViewDelegate>
 @property (nonatomic, weak) WKWebView *webView;
-@property (nonatomic, weak) UIProgressView *progressView;
+@property (nonatomic, weak) ASProgressPopUpView *progressView;
 //@property (nonatomic, weak) MBProgressHUD *hud;
 @end
 
@@ -51,9 +52,12 @@
     //    MDProgress *progress = [[MDProgress alloc] init];
     //    progress.progressStyle = MDProgressStyleLinear;
     //    progress.progressType = MDProgressTypeDeterminate;
-    UIProgressView *progress = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
-    progress.trackTintColor = [UIColor grayColor];
-    progress.progressTintColor = [UIColor blueColor];
+    ASProgressPopUpView *progress = [[ASProgressPopUpView alloc] init];
+    progress.popUpViewAnimatedColors = @[[UIColor redColor], [UIColor orangeColor], [UIColor greenColor]];
+    progress.popUpViewCornerRadius = 14.0;
+//    UIProgressView *progress = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+//    progress.trackTintColor = [UIColor grayColor];
+//    progress.progressTintColor = [UIColor blueColor];
     [self.view addSubview:progress];
     self.progressView = progress;
     [progress mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -70,7 +74,6 @@
     CGRect webFrame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
     
-    
     WKWebView *webView = [[WKWebView alloc] initWithFrame:webFrame configuration:config];
     webView.navigationDelegate = self;
     webView.scrollView.delegate = self;
@@ -84,7 +87,6 @@
     
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self setupProgress];
-    
 }
 
 - (void)setUrl:(NSURL *)url
@@ -93,7 +95,6 @@
     [self setupWebView];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     [self.webView loadRequest:request];
-    
 }
 
 #pragma mark - webview delegate
