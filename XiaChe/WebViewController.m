@@ -15,7 +15,6 @@
 @interface WebViewController ()<WKNavigationDelegate,UIScrollViewDelegate>
 @property (nonatomic, weak) WKWebView *webView;
 @property (nonatomic, weak) ASProgressPopUpView *progressView;
-//@property (nonatomic, weak) MBProgressHUD *hud;
 @end
 
 @implementation WebViewController
@@ -30,7 +29,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    [self setupWebView];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
@@ -122,17 +120,11 @@
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
 {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-    
-    
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
 {
-    
     [self.progressView setProgress:self.webView.estimatedProgress animated:YES];
 }
-
-
-
 
 @end

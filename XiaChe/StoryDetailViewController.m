@@ -247,14 +247,19 @@ typedef NS_ENUM(NSInteger, Steps){
     self.beforeBtnItem = beforeBtn;
     
     NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
-    
+    //当天是最新的一天，禁用下一页
     if ([self.passFun.storyDate isEqualToString:todayString]){
         [self.nextBtnItem setEnabled:NO];
     }else{
         [self.nextBtnItem setEnabled:YES];
     }
-
-    [self setToolbarItems:@[pop,flex,beforeBtn,flex,dateItem,flex,nextBtn,flex,fixWidth] animated:YES];
+    //当天是知乎日报头一天，禁用上一页
+    if ([self.passFun.storyDate isEqualToString:FirstDayString]){
+        [self.beforeBtnItem setEnabled:NO];
+    }else{
+        [self.beforeBtnItem setEnabled:YES];
+    }
+    [self setToolbarItems:@[pop,flex,beforeBtn,flex,nextBtn,flex,fixWidth,dateItem,fixWidth] animated:YES];
 }
 
 - (NSString *)thisDate
@@ -284,37 +289,16 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 网络逻辑
 - (void)decideIfShoudGetDataFromNet
 {
-//    if ([self fetchWebString].body == NULL ){
-//        NSLog(@"今天没有瞎扯");
-//        [self setupNoView];
-//    }else{
-        if ([self fetchWebString].detailId == NULL){
-//            if ([self fetchWebString].body == NULL ){
-//                        NSLog(@"今天没有瞎扯");
-//                        [self setupNoView];
-//            }else{
-                [self loadDetailData];
-//            }
-            
-            
-        }else{
-            [self loadWebView:[self fetchWebString]];
-        }
-//    }
+    if ([self fetchWebString].detailId == NULL){
+            [self loadDetailData];
+    }else{
+        [self loadWebView:[self fetchWebString]];
+    }
 }
 
+//TODO 404页面
 - (void)setupNoView
 {
-//    UIView *view = [[UIView alloc] initWithFrame:self.webView.bounds];
-//    [self.webView addSubview:view];
-//    UILabel *warningLabel = [[UILabel alloc] initWithFrame:view.bounds];
-//    warningLabel.text = @"今天没有瞎扯！";
-//    [view addSubview:warningLabel];
-    
-    
-//        [self.passFun setUnread:[NSNumber numberWithBool:NO]];
-//        [[StorageManager sharedInstance].managedObjectContext save:nil];
-    
     NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href= /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>抱歉，今天没有瞎扯！</body></html>"];
     [self.webView loadHTMLString:htmlString baseURL:nil];
     
@@ -458,6 +442,8 @@ typedef NS_ENUM(NSInteger, Steps){
     return fun.storyDate;
 }
 
+//TODO 切换上下篇
+//TODO 优化等待界面
 - (void)switchToNewDetail:(UIButton *)sender
 {
 //    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];

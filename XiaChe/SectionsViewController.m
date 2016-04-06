@@ -36,9 +36,10 @@
 @property (nonatomic) BOOL ifIsLoopNewData; // 86400是否要* -1
 @property (nonatomic, strong) MJRefreshNormalHeader *autoHeader;
 @property (nonatomic, strong) MJRefreshAutoNormalFooter *autoFooter;
-@property (nonatomic, strong) UIButton *navTitle;
+@property (nonatomic, strong) UILabel *navTitle;
 @property (nonatomic, strong) AFDropdownNotification *notification;
-
+@property (nonatomic, strong) NSPredicate *predicate;
+@property (nonatomic, copy) NSString *predicateCache;
 @end
 
 @implementation SectionsViewController
@@ -47,6 +48,14 @@ typedef NS_ENUM(NSInteger, isToday){
     kNext = 0,
     kBefore = 1
 };
+
+- (instancetype)initWithPredicate:(NSString *)predicate
+{
+    self = [self initWithStyle:UITableViewStylePlain];
+    self.predicate = [NSPredicate predicateWithFormat:@"title BEGINSWITH %@",predicate];
+    self.predicateCache = predicate;
+    return self;
+}
 
 - (instancetype)initWithStyle:(UITableViewStyle)style
 {
@@ -81,11 +90,38 @@ typedef NS_ENUM(NSInteger, isToday){
     [self.formatter setDateFormat:@"yyyyMMdd"];
     [self setupFooter];
     
-    UIButton *titleNew = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
-    [titleNew setTitle:@"·" forState:UIControlStateNormal];
-    [titleNew setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//    UIButton *titleNew = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
+//    
+//    
+//    
+//    [titleNew setTitle:@"·" forState:UIControlStateNormal];
+//    [titleNew setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
+    UILabel *titleNew = [[UILabel alloc] init];
+    if ([self.predicateCache isEqualToString:@"瞎扯"]){
+        titleNew.text = @"瞎扯吐槽";
+    }else if ([self.predicateCache isEqualToString:@"深夜"]){
+        titleNew.text = @"深夜惊奇";
+    }
     self.navigationItem.titleView = titleNew;
     self.navTitle = titleNew;
+    
+    
+    
+    StorageManager *manager = [StorageManager sharedInstance];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
+    [fetchRequest setEntity:entity];
+    
+    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO];
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+    [fetchRequest setFetchBatchSize:20];
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"title BEGINSWITH %@",@"瞎扯"];
+    [fetchRequest setPredicate:pre];
+    NSArray *thisA = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+    
+    NSLog(@" fetch count = %d,fetchCtrol = %@",thisA.count,self.fetchedResultsController.fetchRequest.predicate);
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -157,7 +193,7 @@ typedef NS_ENUM(NSInteger, isToday){
     }];
     
     self.tableView.mj_footer = self.autoFooter;
-    if ([[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES] isEqualToString:@"20130523"]){
+    if ([[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES] isEqualToString:FirstDayString]){
         self.tableView.mj_footer.hidden = YES;
         self.autoFooter.hidden = YES;
     }else{
@@ -229,10 +265,10 @@ typedef NS_ENUM(NSInteger, isToday){
         NSDate *oldDate = [self.formatter dateFromString:oldString];
         NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
         [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
-        NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %d",(unsigned long)(EACH_TIME_FETCH_NUM - [SearchForNewFun sharedInstance].loopTime),EACH_TIME_FETCH_NUM];
-        [self.autoFooter setTitle:loadString forState:MJRefreshStateRefreshing];
+//        NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %d",(unsigned long)(EACH_TIME_FETCH_NUM - [SearchForNewFun sharedInstance].loopTime),EACH_TIME_FETCH_NUM];
+//        [self.autoFooter setTitle:loadString forState:MJRefreshStateRefreshing];
         
-        if ([SearchForNewFun sharedInstance].isLoopDetail){
+        if (![SearchForNewFun sharedInstance].isLoopDetail){
             [SearchForNewFun sharedInstance].loopTime--;
         }
     }
@@ -279,6 +315,7 @@ typedef NS_ENUM(NSInteger, isToday){
     FunStory *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
     detail.passFun = object;
     [self.navigationController pushViewController:detail animated:YES];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 #pragma mark - NSFetchedResultsController Delegate
@@ -339,10 +376,10 @@ typedef NS_ENUM(NSInteger, isToday){
         NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO];
         [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
         [fetchRequest setFetchBatchSize:20];
-        
+        [fetchRequest setPredicate:self.predicate];
         NSFetchedResultsController *fetchCtrl = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
                                                                                     managedObjectContext:manager.managedObjectContext
-                                                                                      sectionNameKeyPath:@"simpleMonth" cacheName:@"cellId"];
+                                                                                      sectionNameKeyPath:@"simpleMonth" cacheName:[NSString stringWithFormat:@"%@",self.predicateCache]];
         fetchCtrl.delegate = self;
         self.fetchedResultsController = fetchCtrl;
         NSError *error;

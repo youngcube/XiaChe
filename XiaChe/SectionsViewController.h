@@ -10,4 +10,5 @@
 #import "StorageManager.h"
 @interface SectionsViewController : UITableViewController<NSFetchedResultsControllerDelegate>
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
+- (instancetype)initWithPredicate:(NSString *)predicate;
 @end

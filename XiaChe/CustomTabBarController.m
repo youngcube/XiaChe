@@ -21,19 +21,24 @@
     self = [super init];
     if (self){
         
-        SectionsViewController *sections = [[SectionsViewController alloc] init];
+        SectionsViewController *xiaChe = [[SectionsViewController alloc] initWithPredicate:@"瞎扯"];
+        CustomNavigationController *naviXiache = [[CustomNavigationController alloc] initWithRootViewController:xiaChe];
         
-        CustomNavigationController *naviSection = [[CustomNavigationController alloc] initWithRootViewController:sections];
+        SectionsViewController *shenYe = [[SectionsViewController alloc] initWithPredicate:@"深夜"];
+        CustomNavigationController *naviShenYe = [[CustomNavigationController alloc] initWithRootViewController:shenYe];
         
         
         int offset = 7;
         UIEdgeInsets imageInset = UIEdgeInsetsMake(offset, 0, -offset, 0);
-//        naviSection.title = @"浏览";
-        naviSection.tabBarItem.imageInsets = imageInset;
-        naviSection.tabBarItem.image = [UIImage imageNamed:@"laugh"];
-        naviSection.tabBarItem.selectedImage = [UIImage imageNamed:@"laughSelected"];
+        naviXiache.tabBarItem.imageInsets = imageInset;
+        naviXiache.tabBarItem.image = [UIImage imageNamed:@"laugh"];
+        naviXiache.tabBarItem.selectedImage = [UIImage imageNamed:@"laughSelected"];
         
-        NSArray *array = @[naviSection];
+        naviShenYe.tabBarItem.imageInsets = imageInset;
+        naviShenYe.tabBarItem.image = [UIImage imageNamed:@"deepnight"];
+        naviShenYe.tabBarItem.selectedImage = [UIImage imageNamed:@"deepnightSelected"];
+        
+        NSArray *array = @[naviXiache,naviShenYe];
         [self setViewControllers:array animated:YES];
     }
     return self;

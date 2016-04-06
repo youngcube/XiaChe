@@ -19,11 +19,12 @@
 @property (nonatomic, strong) SectionModel *model;
 @property (nonatomic, strong) NSDateFormatter *formatter;
 @property (nonatomic) BOOL ifHasXiaChe;
+@property (nonatomic) BOOL isHasShenYe;
 
 @end
 
 @implementation SearchForNewFun
-
+//TODO 检测是否有网络
 + (instancetype)sharedInstance
 {
     static SearchForNewFun *search = nil;
@@ -45,13 +46,14 @@
 }
 
 #pragma mark - 计算从知乎日报开始至今的日子
+#pragma mark 因为有瞎扯和深夜两个项目，所以要乘以2
 - (NSUInteger)calculateStartTimeToNow
 {
     NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"YYYYMMdd"];
-    NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130523"];
+    NSDate *mostBeforeDate = [dateFormatter dateFromString:FirstDayString];
     NSDate *nowDate = [NSDate date];
-    NSTimeInterval time=[nowDate timeIntervalSinceDate:mostBeforeDate];
+    NSTimeInterval time=[nowDate timeIntervalSinceDate:mostBeforeDate] * 2;
     NSUInteger days=((int)time)/(3600*24);
     return days;
 }
@@ -60,9 +62,9 @@
 {
     NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"YYYYMMdd"];
-    NSDate *mostBeforeDate = [dateFormatter dateFromString:@"20130523"];
+    NSDate *mostBeforeDate = [dateFormatter dateFromString:FirstDayString];
     NSDate *oldDate = [dateFormatter dateFromString:[self fetchLastestDayFromStorage:YES]];
-    NSTimeInterval time=[oldDate timeIntervalSinceDate:mostBeforeDate];
+    NSTimeInterval time = [oldDate timeIntervalSinceDate:mostBeforeDate] * 2;
     NSUInteger days=((int)time)/(3600*24);
     return days;
 }
@@ -125,6 +127,14 @@
                 st.image = [story.images firstObject];
                 [st setUnread:[NSNumber numberWithBool:YES]];
                 [self getDetailJsonWithId:story.storyId];
+            }else if ([story.title hasPrefix:@"深夜"]){
+                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                st.storyDate = self.model.date;
+                st.title = story.title;
+                st.storyId = story.storyId;
+                st.image = [story.images firstObject];
+                [st setUnread:[NSNumber numberWithBool:YES]];
+                [self getDetailJsonWithId:story.storyId];
             }
         }
         [[StorageManager sharedInstance].managedObjectContext save:nil];
@@ -136,7 +146,7 @@
 #pragma mark - 获取新数据
 - (void)getJsonWithString:(NSString *)dateString
 {
-    if ([dateString isEqualToString:@"20130523"]) return;
+    if ([dateString isEqualToString:FirstDayString]) return;
     NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
     
     
@@ -173,12 +183,25 @@
                     [st setUnread:[NSNumber numberWithBool:YES]];
                     _ifHasXiaChe = YES;
                     [self getDetailJsonWithId:story.storyId];
+                }else if ([story.title hasPrefix:@"深夜"]){
+                    FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                    st.storyDate = self.model.date;
+                    st.title = story.title;
+                    st.storyId = story.storyId;
+                    st.image = [story.images firstObject];
+                    [st setUnread:[NSNumber numberWithBool:YES]];
+                    _isHasShenYe = YES;
+                    [self getDetailJsonWithId:story.storyId];
                 }
             }
             if (!_ifHasXiaChe){
                 FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
                 st.storyDate = self.model.date;
                 st.title = @"本日没有瞎扯专栏";
+            }else if (!_isHasShenYe){
+                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                st.storyDate = self.model.date;
+                st.title = @"本日没有深夜专栏";
             }
 //            [[StorageManager sharedInstance].managedObjectContext save:&error];
             self.isLoopDetail = NO;

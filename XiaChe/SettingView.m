@@ -32,6 +32,7 @@
         self.settingLabel = settingLabel;
         
         UIImageView *imageView = [[UIImageView alloc] init];
+        imageView.contentMode = UIViewContentModeCenter;
         [self.contentView addSubview:imageView];
         self.contentImage = imageView;
         
@@ -67,11 +68,6 @@
     return self;
 }
 
-//- (void)setTitle:(NSString *)title
-//{
-//    self.settingLabel.text = title;
-//}
-
 - (void)progressViewWillDisplayPopUpView:(ASProgressPopUpView *)progressView;
 {
     [self.superview bringSubviewToFront:self];
@@ -101,6 +97,13 @@ static CGFloat kSectionHeader = 10.0;
         self.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.6];
         
+        NSUInteger rowCount;
+        if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0){
+            rowCount = 1;
+        }else{
+            rowCount = 2;
+        }
+        
         _containerView = [[UIView alloc] init];
         _containerView.layer.cornerRadius = 4;
         _containerView.clipsToBounds = YES;
@@ -109,7 +112,7 @@ static CGFloat kSectionHeader = 10.0;
             self.topConstraint = make.top.equalTo(self.mas_bottom);
             make.centerX.equalTo(self);
             make.width.mas_equalTo(kTableViewWidth);
-            make.height.mas_equalTo(kHeaderHeight + kSectionHeader  * 2 + kRowHeight * 2);
+            make.height.mas_equalTo(kHeaderHeight + kSectionHeader  * 2 + kRowHeight * rowCount);
         }];
         
         _tableView = [[UITableView alloc] init];
@@ -123,7 +126,7 @@ static CGFloat kSectionHeader = 10.0;
         [_containerView addSubview:_tableView];
         [_tableView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.bottom.centerX.width.equalTo(_containerView);
-            make.height.mas_equalTo(kSectionHeader * 2 + kRowHeight * 2);
+            make.height.mas_equalTo(kSectionHeader * 2 + kRowHeight * rowCount);
         }];
         
         _header = [[UIView alloc] init];
@@ -225,12 +228,14 @@ typedef NS_ENUM(NSInteger, SectionOne){
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *selectCell = @"selectCell";
-    SettingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:selectCell];
-    if (!cell){
-        cell = [[SettingViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:selectCell];
-    }
+//    static NSString *selectCell = @"selectCell";
+//    SettingViewCell *cell = [tableView dequeueReusableCellWithIdentifier:selectCell];
+//    if (!cell){
+//        cell = [[SettingViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:selectCell];
+//    }
+    SettingViewCell *cell = [[SettingViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     [self configureCell:cell atIndexPath:indexPath];
+    tableView.scrollEnabled = NO;
     return cell;
 }
 
@@ -245,17 +250,19 @@ typedef NS_ENUM(NSInteger, SectionOne){
                 cell.settingLabel.hidden = NO;
                 cell.contentImage.hidden = NO;
                 cell.progressView.hidden = YES;
-                cell.contentImage.image = [UIImage imageNamed:@"update"];
+                
                 if ([SearchForNewFun sharedInstance].loopTime == 0){
                     
                     if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0){
+                        cell.contentImage.image = [UIImage imageNamed:@"finish"];
                         cell.settingLabel.text = @"已缓冲全部列表";
                         cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     }else{
+                        cell.contentImage.image = [UIImage imageNamed:@"download"];
                         cell.settingLabel.text = @"缓存之前的列表";
                     }
-                    
                 }else{
+                    cell.contentImage.image = [UIImage imageNamed:@"update"];
                     cell.settingLabel.text = @"暂停";
                 }
                 break;
@@ -355,7 +362,7 @@ typedef NS_ENUM(NSInteger, SectionOne){
 //    [[SearchForNewFun sharedInstance] addObserver:self forKeyPath:@"loopTime" options:NSKeyValueObservingOptionNew context:NULL];
     self.listProgress.hidden = NO;
     self.fetchCount = [[SearchForNewFun sharedInstance] calculateStartTimeToOldTime];
-//    NSLog(@"self.fetchCount = %d",self.fetchCount);
+    NSLog(@"self.fetchCount = %d",self.fetchCount);
     [SearchForNewFun sharedInstance].loopTime = self.fetchCount;
     self.ifIsLoopNewData = NO;
     [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
@@ -369,7 +376,7 @@ typedef NS_ENUM(NSInteger, SectionOne){
     double pro = this/all;
     self.listProgress.progress = 1 - pro;
     [self.listProgress showPopUpViewAnimated:YES];
-    NSLog(@"%lu",(unsigned long)[[SearchForNewFun sharedInstance] calculateStartTimeToOldTime]);
+    NSLog(@"calculate = %lu , loop = %lu",(unsigned long)[[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] , (unsigned long)[SearchForNewFun sharedInstance].loopTime);
     if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0 || [SearchForNewFun sharedInstance].loopTime == 0){
         [self.tableView reloadData];
     }
