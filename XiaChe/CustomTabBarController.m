@@ -8,7 +8,6 @@
 
 #import "CustomTabBarController.h"
 #import "SectionsViewController.h"
-#import "SettingsViewController.h"
 #import "CustomNavigationController.h"
 
 @interface CustomTabBarController ()
@@ -23,9 +22,9 @@
     if (self){
         
         SectionsViewController *sections = [[SectionsViewController alloc] init];
-        SettingsViewController *setting = [[SettingsViewController alloc] init];
+        
         CustomNavigationController *naviSection = [[CustomNavigationController alloc] initWithRootViewController:sections];
-        CustomNavigationController *naviSetting = [[CustomNavigationController alloc] initWithRootViewController:setting];
+        
         
         int offset = 7;
         UIEdgeInsets imageInset = UIEdgeInsetsMake(offset, 0, -offset, 0);
@@ -33,9 +32,8 @@
         naviSection.tabBarItem.imageInsets = imageInset;
         naviSection.tabBarItem.image = [UIImage imageNamed:@"laugh"];
         naviSection.tabBarItem.selectedImage = [UIImage imageNamed:@"laughSelected"];
-        naviSetting.tabBarItem.imageInsets = imageInset;
-        naviSetting.tabBarItem.image = [UIImage imageNamed:@"bags"];
-        NSArray *array = @[naviSection,naviSetting];
+        
+        NSArray *array = @[naviSection];
         [self setViewControllers:array animated:YES];
     }
     return self;

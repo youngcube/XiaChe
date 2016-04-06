@@ -69,22 +69,26 @@
 
 - (void)removeAllData
 {
-//    [self.persistentStoreCoordinator removePersistentStore:self.persistentStore error:nil];
-//    [[NSFileManager defaultManager] removeItemAtPath:self.persistentStore.URL.path error:nil];
-    
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:self.managedObjectContext];
-    [fetchRequest setEntity:entity];
+    NSFetchRequest *requestList = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entityList = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:self.managedObjectContext];
+    [requestList setEntity:entityList];
     
     NSError *error;
-    NSArray *items = [_managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    NSArray *itemList = [_managedObjectContext executeFetchRequest:requestList error:&error];
+    NSFetchRequest *requestDetail = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entityDetail = [NSEntityDescription entityForName:@"FunDetail" inManagedObjectContext:self.managedObjectContext];
+    [requestDetail setEntity:entityDetail];
     
+    NSArray *itemDetail = [_managedObjectContext executeFetchRequest:requestDetail error:&error];
     
-    for (NSManagedObject *managedObject in items) {
+    for (NSManagedObject *managedObject in itemList) {
         [_managedObjectContext deleteObject:managedObject];
-        
     }
+    
+    for (NSManagedObject *managedObject in itemDetail) {
+        [_managedObjectContext deleteObject:managedObject];
+    }
+
     if (![_managedObjectContext save:&error]) {
         
     }

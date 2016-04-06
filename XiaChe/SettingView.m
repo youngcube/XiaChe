@@ -362,8 +362,6 @@ typedef NS_ENUM(NSInteger, SectionTwo){
     [self.listProgress showPopUpViewAnimated:YES];
     NSLog(@"%lu",(unsigned long)[[SearchForNewFun sharedInstance] calculateStartTimeToOldTime]);
     if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0){
-//        NSIndexPath *downIndex = [NSIndexPath indexPathForRow:kProgressList inSection:kSectionOne];
-//        [self.tableView deleteRowsAtIndexPaths:@[downIndex] withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView reloadData];
     }
 }

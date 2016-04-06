@@ -20,6 +20,14 @@
 
 @implementation WebViewController
 
+- (instancetype)init
+{
+    if (self = [super init]){
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(refreshWebView)];
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 //    [self setupWebView];
@@ -47,17 +55,17 @@
     [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
+- (void)refreshWebView
+{
+    [self.webView reload];
+    [self setupProgress];
+}
+
 - (void)setupProgress
 {
-    //    MDProgress *progress = [[MDProgress alloc] init];
-    //    progress.progressStyle = MDProgressStyleLinear;
-    //    progress.progressType = MDProgressTypeDeterminate;
     ASProgressPopUpView *progress = [[ASProgressPopUpView alloc] init];
     progress.popUpViewAnimatedColors = @[[UIColor redColor], [UIColor orangeColor], [UIColor greenColor]];
     progress.popUpViewCornerRadius = 14.0;
-//    UIProgressView *progress = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
-//    progress.trackTintColor = [UIColor grayColor];
-//    progress.progressTintColor = [UIColor blueColor];
     [self.view addSubview:progress];
     self.progressView = progress;
     [progress mas_makeConstraints:^(MASConstraintMaker *make) {

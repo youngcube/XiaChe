@@ -39,6 +39,7 @@
 @property (nonatomic, weak) UIBarButtonItem *nextBtnItem;
 @property (nonatomic, weak) UIBarButtonItem *beforeBtnItem;
 @property (nonatomic, copy) NSString *thisDate;
+@property (nonatomic, copy) NSString *cssString;
 @end
 
 typedef NS_ENUM(NSInteger, Steps){
@@ -52,6 +53,12 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     self = [super init];
     if (self){
+        NSURL *cssUrl = [[NSBundle mainBundle] URLForResource:@"funstyle" withExtension:@"css"];
+        self.cssString = [NSString stringWithContentsOfURL:cssUrl encoding:NSUTF8StringEncoding error:nil];
+        
+        
+        
+        
         
     }
     return self;
@@ -66,6 +73,10 @@ typedef NS_ENUM(NSInteger, Steps){
     [self decideIfShoudGetDataFromNet];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(detailDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    
+    
+    
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -360,12 +371,12 @@ typedef NS_ENUM(NSInteger, Steps){
     }else{
         [self.passFun setUnread:[NSNumber numberWithBool:NO]];
         [[StorageManager sharedInstance].managedObjectContext save:nil];
+//        NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
         
-        NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
+        NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\"/><style type = \"text/css\" >%@</style><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", self.cssString,funDetail.body];
         [self.webView loadHTMLString:htmlString baseURL:nil];
         self.navigationItem.title = funDetail.storyId.title;
         [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
-        
         self.headerTitleLabel.text = self.passFun.title;
         self.headerSourceLabel.text = funDetail.image_source;
     }

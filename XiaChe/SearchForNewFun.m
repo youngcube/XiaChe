@@ -124,6 +124,7 @@
                 st.storyId = story.storyId;
                 st.image = [story.images firstObject];
                 [st setUnread:[NSNumber numberWithBool:YES]];
+                [self getDetailJsonWithId:story.storyId];
             }
         }
         [[StorageManager sharedInstance].managedObjectContext save:nil];
@@ -171,6 +172,7 @@
                     st.image = [story.images firstObject];
                     [st setUnread:[NSNumber numberWithBool:YES]];
                     _ifHasXiaChe = YES;
+                    [self getDetailJsonWithId:story.storyId];
                 }
             }
             if (!_ifHasXiaChe){
@@ -179,11 +181,13 @@
                 st.title = @"本日没有瞎扯专栏";
             }
 //            [[StorageManager sharedInstance].managedObjectContext save:&error];
+            self.isLoopDetail = NO;
             if (![[StorageManager sharedInstance].managedObjectContext save:&error]) {
                 abort();
             }
         }
         _ifHasXiaChe = NO;
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
@@ -205,6 +209,7 @@
 //        NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     
 //        if (array.count == 0){
+    
             NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,storyId];
             AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
             [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
@@ -218,6 +223,7 @@
                 st.detailId = detail.detailId;
                 st.image = detail.image;
                 st.image_source = detail.image_source;
+                self.isLoopDetail = YES;
                 [[StorageManager sharedInstance].managedObjectContext save:nil];
                 
             } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {

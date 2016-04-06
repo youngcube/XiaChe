@@ -25,7 +25,6 @@
 		86E930121CAA91E0006D039A /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86E930111CAA91E0006D039A /* WebKit.framework */; };
 		86E930591CB074CE006D039A /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930581CB074CE006D039A /* WebViewController.m */; };
 		86E9305C1CB09236006D039A /* CustomTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9305B1CB09236006D039A /* CustomTabBarController.m */; };
-		86E9305F1CB24940006D039A /* SettingCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9305E1CB24940006D039A /* SettingCell.m */; };
 		86E9306C1CB29CE2006D039A /* ASPopUpView.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930691CB29CE2006D039A /* ASPopUpView.m */; };
 		86E9306D1CB29CE2006D039A /* ASProgressPopUpView.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9306B1CB29CE2006D039A /* ASProgressPopUpView.m */; };
 		86E930791CB29DAF006D039A /* AFDropdownNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930781CB29DAF006D039A /* AFDropdownNotification.m */; };
@@ -36,8 +35,7 @@
 		BF77A60F1CB3534D00630BA0 /* UIImage+ImageEffect.m in Sources */ = {isa = PBXBuildFile; fileRef = BF77A60E1CB3534D00630BA0 /* UIImage+ImageEffect.m */; };
 		BF80EE7D1CA8DDB800FAE74C /* UIColor+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */; };
 		BF80EE801CA9055600FAE74C /* SectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BF80EE7F1CA9055600FAE74C /* SectionCell.m */; };
-		BFE253BA1CAA0966005735C2 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BFE253B91CAA0966005735C2 /* SettingsViewController.m */; };
-		BFE253BD1CAA11D5005735C2 /* SectionMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = BFE253BC1CAA11D5005735C2 /* SectionMenu.m */; };
+		BFFEA5531CB4DD710075BB5E /* funstyle.css in Resources */ = {isa = PBXBuildFile; fileRef = BFFEA5521CB4DD710075BB5E /* funstyle.css */; };
 		E2F4C05251C05686DFE83893 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E49BE52C9BF52D623685A7 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -78,8 +76,6 @@
 		86E930581CB074CE006D039A /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
 		86E9305A1CB09236006D039A /* CustomTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomTabBarController.h; sourceTree = "<group>"; };
 		86E9305B1CB09236006D039A /* CustomTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomTabBarController.m; sourceTree = "<group>"; };
-		86E9305D1CB24940006D039A /* SettingCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingCell.h; sourceTree = "<group>"; };
-		86E9305E1CB24940006D039A /* SettingCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingCell.m; sourceTree = "<group>"; };
 		86E930681CB29CE2006D039A /* ASPopUpView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ASPopUpView.h; path = OpenSource/ASPopUp/ASPopUpView.h; sourceTree = "<group>"; };
 		86E930691CB29CE2006D039A /* ASPopUpView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ASPopUpView.m; path = OpenSource/ASPopUp/ASPopUpView.m; sourceTree = "<group>"; };
 		86E9306A1CB29CE2006D039A /* ASProgressPopUpView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ASProgressPopUpView.h; path = OpenSource/ASPopUp/ASProgressPopUpView.h; sourceTree = "<group>"; };
@@ -100,10 +96,7 @@
 		BF80EE7C1CA8DDB800FAE74C /* UIColor+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Extension.m"; sourceTree = "<group>"; };
 		BF80EE7E1CA9055600FAE74C /* SectionCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SectionCell.h; sourceTree = "<group>"; };
 		BF80EE7F1CA9055600FAE74C /* SectionCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SectionCell.m; sourceTree = "<group>"; };
-		BFE253B81CAA0966005735C2 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
-		BFE253B91CAA0966005735C2 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
-		BFE253BB1CAA11D5005735C2 /* SectionMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SectionMenu.h; sourceTree = "<group>"; };
-		BFE253BC1CAA11D5005735C2 /* SectionMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SectionMenu.m; sourceTree = "<group>"; };
+		BFFEA5521CB4DD710075BB5E /* funstyle.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = funstyle.css; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +144,7 @@
 		8660B67D1C999855006917FC /* XiaChe */ = {
 			isa = PBXGroup;
 			children = (
+				BFFEA5521CB4DD710075BB5E /* funstyle.css */,
 				86E930601CB263BD006D039A /* OpenSource */,
 				BF80EE7A1CA8DD9900FAE74C /* Extension */,
 				BF6D12A41CA141BA00758CCF /* CustomViewController */,
@@ -219,10 +213,6 @@
 			children = (
 				BF80EE7E1CA9055600FAE74C /* SectionCell.h */,
 				BF80EE7F1CA9055600FAE74C /* SectionCell.m */,
-				BFE253BB1CAA11D5005735C2 /* SectionMenu.h */,
-				BFE253BC1CAA11D5005735C2 /* SectionMenu.m */,
-				86E9305D1CB24940006D039A /* SettingCell.h */,
-				86E9305E1CB24940006D039A /* SettingCell.m */,
 				BF77A60A1CB3526600630BA0 /* MonthSelectView.h */,
 				BF77A60B1CB3526600630BA0 /* MonthSelectView.m */,
 				86E9307A1CB4025B006D039A /* SettingView.h */,
@@ -240,8 +230,6 @@
 				8660B69B1C99989B006917FC /* StoryDetailViewController.m */,
 				86E930571CB074CE006D039A /* WebViewController.h */,
 				86E930581CB074CE006D039A /* WebViewController.m */,
-				BFE253B81CAA0966005735C2 /* SettingsViewController.h */,
-				BFE253B91CAA0966005735C2 /* SettingsViewController.m */,
 			);
 			name = ViewController;
 			sourceTree = "<group>";
@@ -378,6 +366,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8660B68E1C999855006917FC /* LaunchScreen.storyboard in Resources */,
+				BFFEA5531CB4DD710075BB5E /* funstyle.css in Resources */,
 				8660B68B1C999855006917FC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -445,16 +434,13 @@
 				8660B6801C999855006917FC /* main.m in Sources */,
 				8660B6E21C9F0104006917FC /* FunStory+CoreDataProperties.m in Sources */,
 				BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */,
-				86E9305F1CB24940006D039A /* SettingCell.m in Sources */,
 				BF80EE7D1CA8DDB800FAE74C /* UIColor+Extension.m in Sources */,
 				8660B6A41C999EE9006917FC /* StoryModel.xcdatamodeld in Sources */,
 				8660B69C1C99989B006917FC /* SectionModel.m in Sources */,
-				BFE253BA1CAA0966005735C2 /* SettingsViewController.m in Sources */,
 				8660B6A71C99A090006917FC /* StorageManager.m in Sources */,
 				8660B69D1C99989B006917FC /* SectionsViewController.m in Sources */,
 				86E930791CB29DAF006D039A /* AFDropdownNotification.m in Sources */,
 				BF77A60F1CB3534D00630BA0 /* UIImage+ImageEffect.m in Sources */,
-				BFE253BD1CAA11D5005735C2 /* SectionMenu.m in Sources */,
 				86E9306D1CB29CE2006D039A /* ASProgressPopUpView.m in Sources */,
 				86E9306C1CB29CE2006D039A /* ASPopUpView.m in Sources */,
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,

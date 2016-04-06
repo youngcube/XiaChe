@@ -11,6 +11,7 @@
 @interface SearchForNewFun : NSObject
 
 @property (nonatomic) NSUInteger loopTime;
+@property (nonatomic) BOOL isLoopDetail;
 + (instancetype)sharedInstance;
 - (NSString *)fetchLastestDayFromStorage:(BOOL)lastest;
 - (void)accordingDateToLoopNewDataWithData:(BOOL)data;
