@@ -246,7 +246,7 @@ typedef NS_ENUM(NSInteger, SectionTwo){
                 cell.contentImage.image = [UIImage imageNamed:@"update"];
                 if ([SearchForNewFun sharedInstance].loopTime == 0){
                     
-                    if (self.fetchCount==0){
+                    if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0){
                         cell.settingLabel.text = @"已缓冲全部列表";
                         cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     }else{
@@ -360,6 +360,12 @@ typedef NS_ENUM(NSInteger, SectionTwo){
     double pro = this/all;
     self.listProgress.progress = 1 - pro;
     [self.listProgress showPopUpViewAnimated:YES];
+    NSLog(@"%lu",(unsigned long)[[SearchForNewFun sharedInstance] calculateStartTimeToOldTime]);
+    if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0){
+//        NSIndexPath *downIndex = [NSIndexPath indexPathForRow:kProgressList inSection:kSectionOne];
+//        [self.tableView deleteRowsAtIndexPaths:@[downIndex] withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView reloadData];
+    }
 }
 
 @end

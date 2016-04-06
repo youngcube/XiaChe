@@ -18,4 +18,5 @@
 - (void)getJsonWithString:(NSString *)dateString;
 - (NSUInteger)calculateStartTimeToNow;
 - (NSUInteger)calculateStartTimeToOldTime;
+- (void)getDetailJsonWithId:(NSString *)storyId;
 @end

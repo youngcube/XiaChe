@@ -24,7 +24,7 @@
 
 #define HEIGHT_OF_SECTION_HEADER 50.5f
 
-@interface SectionsViewController ()<AFDropdownNotificationDelegate,MonthSelectDelegate>
+@interface SectionsViewController ()<MonthSelectDelegate>
 {
     CGFloat _startPos;
     NSUInteger _currentSection;
@@ -37,6 +37,7 @@
 @property (nonatomic, strong) NSDateFormatter *formatter;
 //@property (nonatomic) NSUInteger loopTime;
 @property (nonatomic) BOOL ifIsLoopNewData; // 86400是否要* -1
+@property (nonatomic) BOOL isLoopDetail;
 @property (nonatomic, strong) MJRefreshNormalHeader *autoHeader;
 @property (nonatomic, strong) MJRefreshAutoNormalFooter *autoFooter;
 
@@ -45,7 +46,7 @@
 //@property (nonatomic, strong) UIView *sectionHeaderView;
 //@property (nonatomic, strong) UILabel *headerLabel;
 @property (nonatomic, strong) UIButton *navTitle;
-@property (nonatomic, strong) NSMutableDictionary *sectionDict;
+//@property (nonatomic, strong) NSMutableDictionary *sectionDict;
 @property (nonatomic, strong) AFDropdownNotification *notification;
 
 
@@ -68,14 +69,14 @@ typedef NS_ENUM(NSInteger, isToday){
     return self;
 }
 
-- (void)downloadAll
-{
-    [SearchForNewFun sharedInstance].loopTime = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
-    self.ifIsLoopNewData = NO;
-//    _expand = NO;
-//    [self expandAll];
-    [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
-}
+//- (void)downloadAll
+//{
+//    [SearchForNewFun sharedInstance].loopTime = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
+//    self.ifIsLoopNewData = NO;
+////    _expand = NO;
+////    [self expandAll];
+//    [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
+//}
 
 - (void)monthSelectAtIndex:(NSUInteger)index offset:(CGFloat)offset
 {
@@ -126,73 +127,68 @@ typedef NS_ENUM(NSInteger, isToday){
     self.navigationItem.titleView = titleNew;
     self.navTitle = titleNew;
     
-    self.sectionDict = [NSMutableDictionary dictionary];
+//    self.sectionDict = [NSMutableDictionary dictionary];
     
-    _notification = [[AFDropdownNotification alloc] init];
-    _notification.notificationDelegate = self;
+//    _notification = [[AFDropdownNotification alloc] init];
+//    _notification.notificationDelegate = self;
     
-    NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"FunStory"];
-    NSArray *thisArray = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:request error:nil];
 
-    for (FunStory *st in thisArray){
-        NSLog(@"%@",st.storyId);
-    }
-    
+//    [[SearchForNewFun sharedInstance] getDetailJson];
 }
 
-- (void)showNotification
-{
-    _notification.titleText = @"获取更多信息";
-    _notification.subtitleText = @"您想获取更多之前的「瞎扯」信息吗？";
-    _notification.image = [UIImage imageNamed:@"update"];
-    _notification.topButtonText = @"好的";
-    _notification.bottomButtonText = @"不要";
-    _notification.dismissOnTap = YES;
-    [_notification presentInView:self.view withGravityAnimation:YES];
-    
-    [_notification listenEventsWithBlock:^(AFDropdownNotificationEvent event) {
-        
-        switch (event) {
-            case AFDropdownNotificationEventTopButton:
-                // Top button
-                break;
-                
-            case AFDropdownNotificationEventBottomButton:
-                // Bottom button
-                break;
-                
-            case AFDropdownNotificationEventTap:
-                // Tap
-                break;
-                
-            default:
-                break;
-        }
-    }];
-    
-    NSLog(@"show notification");
-//    [self showDropDownViewFromDirection:LMDropdownViewDirectionTop];
-}
+//- (void)showNotification
+//{
+//    _notification.titleText = @"获取更多信息";
+//    _notification.subtitleText = @"您想获取更多之前的「瞎扯」信息吗？";
+//    _notification.image = [UIImage imageNamed:@"update"];
+//    _notification.topButtonText = @"好的";
+//    _notification.bottomButtonText = @"不要";
+//    _notification.dismissOnTap = YES;
+//    [_notification presentInView:self.view withGravityAnimation:YES];
+//    
+//    [_notification listenEventsWithBlock:^(AFDropdownNotificationEvent event) {
+//        
+//        switch (event) {
+//            case AFDropdownNotificationEventTopButton:
+//                // Top button
+//                break;
+//                
+//            case AFDropdownNotificationEventBottomButton:
+//                // Bottom button
+//                break;
+//                
+//            case AFDropdownNotificationEventTap:
+//                // Tap
+//                break;
+//                
+//            default:
+//                break;
+//        }
+//    }];
+//    
+//    NSLog(@"show notification");
+////    [self showDropDownViewFromDirection:LMDropdownViewDirectionTop];
+//}
 
-- (void)dropdownNotificationTopButtonTapped {
-    
-    NSLog(@"Top button tapped");
-    
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Top button tapped" message:@"Hooray! You tapped the top button" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    [alert show];
-    
-    [_notification dismissWithGravityAnimation:YES];
-}
-
-- (void)dropdownNotificationBottomButtonTapped {
-    
-    NSLog(@"Bottom button tapped");
-    
-//    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Bottom button tapped" message:@"Hooray! You tapped the bottom button" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//- (void)dropdownNotificationTopButtonTapped {
+//    
+//    NSLog(@"Top button tapped");
+//    
+//    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Top button tapped" message:@"Hooray! You tapped the top button" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
 //    [alert show];
-    [self downloadAll];
-    [_notification dismissWithGravityAnimation:YES];
-}
+//    
+//    [_notification dismissWithGravityAnimation:YES];
+//}
+
+//- (void)dropdownNotificationBottomButtonTapped {
+//    
+//    NSLog(@"Bottom button tapped");
+//    
+////    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Bottom button tapped" message:@"Hooray! You tapped the bottom button" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+////    [alert show];
+////    [self downloadAll];
+//    [_notification dismissWithGravityAnimation:YES];
+//}
 
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
@@ -260,17 +256,17 @@ typedef NS_ENUM(NSInteger, isToday){
     return sectionHeaderView;
 }
 
-- (void)switchSectionHideWithTag:(UIButton *)btn
-{
-    NSString *tagStr = [NSString stringWithFormat:@"%ld",btn.tag];
-    if ([self.sectionDict[tagStr] integerValue]==0){
-        [self.sectionDict setObject:@1 forKey:tagStr];
-    }else{
-        [self.sectionDict setObject:@0 forKey:tagStr];
-    }
-    NSIndexSet *set = [NSIndexSet indexSetWithIndex:btn.tag];
-    [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
-}
+//- (void)switchSectionHideWithTag:(UIButton *)btn
+//{
+//    NSString *tagStr = [NSString stringWithFormat:@"%ld",btn.tag];
+//    if ([self.sectionDict[tagStr] integerValue]==0){
+//        [self.sectionDict setObject:@1 forKey:tagStr];
+//    }else{
+//        [self.sectionDict setObject:@0 forKey:tagStr];
+//    }
+//    NSIndexSet *set = [NSIndexSet indexSetWithIndex:btn.tag];
+//    [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
+//}
 
 #pragma mark - UI
 - (void)setupFooter
@@ -417,12 +413,12 @@ typedef NS_ENUM(NSInteger, isToday){
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][section];
-    NSString *tagStr = [NSString stringWithFormat:@"%ld",section];
-    if ([self.sectionDict[tagStr] integerValue] == 0){
+//    NSString *tagStr = [NSString stringWithFormat:@"%ld",section];
+//    if ([self.sectionDict[tagStr] integerValue] == 0){
         return [sectionInfo numberOfObjects];
-    }else{
-        return 0;
-    }
+//    }else{
+//        return 0;
+//    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -535,7 +531,7 @@ typedef NS_ENUM(NSInteger, isToday){
         self.fetchedResultsController = fetchCtrl;
         NSError *error;
         if (![self.fetchedResultsController performFetch:&error]){
-            NSLog(@"%@",error);
+            
             abort();
         }
     }

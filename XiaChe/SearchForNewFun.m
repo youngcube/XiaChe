@@ -9,6 +9,7 @@
 #import "SearchForNewFun.h"
 #import "StorageManager.h"
 #import "FunStory.h"
+#import "FunDetail.h"
 #import "Consts.h"
 #import <AFNetworking/AFNetworking.h>
 #import "SectionModel.h"
@@ -146,6 +147,7 @@
     [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSError *error = nil;
         self.model = [SectionModel yy_modelWithJSON:responseObject];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
@@ -176,7 +178,10 @@
                 st.storyDate = self.model.date;
                 st.title = @"本日没有瞎扯专栏";
             }
-            [[StorageManager sharedInstance].managedObjectContext save:nil];
+//            [[StorageManager sharedInstance].managedObjectContext save:&error];
+            if (![[StorageManager sharedInstance].managedObjectContext save:&error]) {
+                abort();
+            }
         }
         _ifHasXiaChe = NO;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -184,6 +189,47 @@
     }];
     
 }
+
+- (void)getDetailJsonWithId:(NSString *)storyId
+{
+//    NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"FunStory"];
+//    NSArray *thisArray = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:request error:nil];
+////    for (FunStory *thisStory in thisArray){
+//    for (int i = 0 ; i < thisArray.count ; i ++){
+//        FunStory *thisStory = thisArray[i];
+//        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+//        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunDetail" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+//        [fetchRequest setEntity:entity];
+//        NSPredicate *pre = [NSPredicate predicateWithFormat:@"detailId == %@",thisStory.storyId];
+//        [fetchRequest setPredicate:pre];
+//        NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+    
+//        if (array.count == 0){
+            NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,storyId];
+            AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+            [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+                
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                
+                StoryDetail *detail = [StoryDetail yy_modelWithDictionary:responseObject];
+                FunDetail *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunDetail" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                st.body = detail.body;
+                st.css = [detail.css lastObject];
+                st.detailId = detail.detailId;
+                st.image = detail.image;
+                st.image_source = detail.image_source;
+                [[StorageManager sharedInstance].managedObjectContext save:nil];
+                
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                
+            }];
+    
+//        }
+    
+//    }
+}
+
+
 
 //- (BOOL)decideIfLastestIsToday
 //{
