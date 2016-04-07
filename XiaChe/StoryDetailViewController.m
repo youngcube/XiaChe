@@ -237,10 +237,8 @@ typedef NS_ENUM(NSInteger, Steps){
     nextBtn.tag = 1001;
     self.nextBtnItem = nextBtn;
     
-    
     UIBarButtonItem *dateItem = [[UIBarButtonItem alloc] initWithTitle:self.thisDate style:UIBarButtonItemStylePlain target:self action:nil];
     dateItem.enabled = NO;
-    
     
     UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"downArrow"] style:UIBarButtonItemStylePlain target:self action:@selector(switchToNewDetail:)];
     beforeBtn.tag = 1002;
@@ -349,6 +347,7 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 加载WebView
 -(void)loadWebView:(FunDetail *)funDetail
 {
+    NSLog(@"fun detail body = %@",funDetail.body);
     if([funDetail.body isEqualToString:@""]){
         [self setupNoView];
         NSLog(@"今天没有瞎扯");
@@ -462,7 +461,7 @@ typedef NS_ENUM(NSInteger, Steps){
     [fetchRequest setEntity:entity];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
-    NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"(storyDate == %@) AND (title BEGINSWITH %@)",self.dateString,self.predicateCache];
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *funDate = [array firstObject];

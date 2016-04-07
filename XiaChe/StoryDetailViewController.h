@@ -12,4 +12,5 @@
 
 @interface StoryDetailViewController : UIViewController
 @property (nonatomic, strong) FunStory *passFun;
+@property (nonatomic, copy) NSString *predicateCache;
 @end

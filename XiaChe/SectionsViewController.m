@@ -241,6 +241,7 @@ typedef NS_ENUM(NSInteger, isToday){
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
+        [self.tableView.mj_header endRefreshing];
     }];
 }
 
@@ -314,6 +315,7 @@ typedef NS_ENUM(NSInteger, isToday){
     StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
     FunStory *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
     detail.passFun = object;
+    detail.predicateCache = self.predicateCache;
     [self.navigationController pushViewController:detail animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }

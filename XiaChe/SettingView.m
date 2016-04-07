@@ -262,7 +262,7 @@ typedef NS_ENUM(NSInteger, SectionOne){
                         cell.settingLabel.text = @"缓存之前的列表";
                     }
                 }else{
-                    cell.contentImage.image = [UIImage imageNamed:@"update"];
+                    cell.contentImage.image = [UIImage imageNamed:@"download"];
                     cell.settingLabel.text = @"暂停";
                 }
                 break;

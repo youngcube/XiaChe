@@ -113,7 +113,6 @@
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         self.model = [SectionModel yy_modelWithJSON:responseObject];
         NSString *todayString = self.model.date;
-        
         NSString *fetchNewestDay = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
         if (![todayString isEqualToString:fetchNewestDay]){
             [[NSUserDefaults standardUserDefaults] setObject:todayString forKey:@"todayString"];
@@ -148,7 +147,6 @@
 {
     if ([dateString isEqualToString:FirstDayString]) return;
     NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
-    
     
     // 知乎日报可能没有瞎扯，需要跳过的逻辑
     // http://news.at.zhihu.com/api/4/news/before/20140120
@@ -214,7 +212,6 @@
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"failed! %@",error);
     }];
-    
 }
 
 - (void)getDetailJsonWithId:(NSString *)storyId
