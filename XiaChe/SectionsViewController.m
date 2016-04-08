@@ -10,7 +10,7 @@
 #import "SectionModel.h"
 #import "Consts.h"
 #import <AFNetworking/AFNetworking.h>
-#import "StoryDetailViewController.h"
+//#import "StoryDetailViewController.h"
 #import <MJRefresh/MJRefresh.h>
 #import "FunStory.h"
 #import "SearchForNewFun.h"
@@ -244,13 +244,14 @@ typedef NS_ENUM(NSInteger, isToday){
         [self.tableView.mj_header endRefreshing];
     }];
 }
-
+// 数据保存了
 - (void)dataDidSave
 {
-    if ([SearchForNewFun sharedInstance].loopTime == 0) {
+    if ([SearchForNewFun sharedInstance].loopTime == 0) { //最后一次保存
         self.tableView.mj_footer.hidden = NO;
         [self.tableView.mj_header endRefreshing];
         [self.tableView.mj_footer endRefreshing];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISH_SWITCH object:nil];
         return;
     }else{
         NSString *oldString;
@@ -313,11 +314,106 @@ typedef NS_ENUM(NSInteger, isToday){
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     StoryDetailViewController *detail = [[StoryDetailViewController alloc] init];
+    detail.delegate = self;
     FunStory *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    [self.fetchedResultsController sections];
     detail.passFun = object;
     detail.predicateCache = self.predicateCache;
+    
+    
+    
+//    NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:passFun];
+    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][indexPath.section];
+    NSUInteger totalSection = [self.fetchedResultsController sections].count;
+    NSUInteger totalRow = [sectionInfo numberOfObjects];
+    NSUInteger thisRow = indexPath.row;
+    NSUInteger thisSection = indexPath.section;
+    NSLog(@"totalSection = %d,totalRow = %d,thisRow = %d,thisSection = %d",totalSection,totalRow,thisRow,thisSection);
+    
+    
     [self.navigationController pushViewController:detail animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (FunStory *)nextStoryDetailFetchWithPassFun:(FunStory *)passFun buttonEnabled:(UIBarButtonItem *)buttonItem
+{
+    NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:passFun];
+    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][indexPath.section];
+    NSUInteger totalSection = [self.fetchedResultsController sections].count;
+    NSUInteger totalRow = [sectionInfo numberOfObjects];
+    NSUInteger thisRow = indexPath.row;
+    NSUInteger thisSection = indexPath.section;
+    
+    
+    
+    if (thisRow == 0){ // 本月最后一天
+        
+        if (thisSection == 0){ //最新的月份的最后一天（最新一天）
+            
+            buttonItem.enabled = NO;
+            NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:0 inSection:0];
+            
+            return [self.fetchedResultsController objectAtIndexPath:nextIndex];
+            
+            
+        }else{ //正常
+            thisSection = thisSection - 1;
+            id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][thisSection];
+            totalRow = [sectionInfo numberOfObjects];
+            thisRow = totalRow - 1;
+            NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:thisRow inSection:thisSection];
+            buttonItem.enabled = YES;
+            return [self.fetchedResultsController objectAtIndexPath:nextIndex];
+        }
+    }
+    
+    NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:thisRow - 1 inSection:thisSection];
+    buttonItem.enabled = YES;
+    return [self.fetchedResultsController objectAtIndexPath:nextIndex];
+}
+
+- (FunStory *)beforeStoryDetailFetchWithPassFun:(FunStory *)passFun
+{
+    NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:passFun];
+    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][indexPath.section];
+    NSUInteger totalSection = [self.fetchedResultsController sections].count;
+    NSUInteger totalRow = [sectionInfo numberOfObjects];
+    NSUInteger thisRow = indexPath.row;
+    NSUInteger thisSection = indexPath.section;
+    
+    if (thisRow == totalRow - 1){ // 本月1号，需要后退到上个月31号
+        
+        if (thisSection == totalSection - 1){ //到底了，需要加载新数据或者直接到底5.23
+            // new data
+            // fetch 7天 防止有没有的情况出现
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_START_SWITCH object:nil];
+            
+            dispatch_group_t group = dispatch_group_create();
+            dispatch_queue_t queue = dispatch_queue_create("chell", 0);
+            dispatch_group_async(group, queue, ^{
+                
+            });
+            
+            dispatch_group_notify(group, queue, ^{
+                
+            });
+            
+            [SearchForNewFun sharedInstance].loopTime = 7;
+            self.ifIsLoopNewData = NO;
+            [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
+            
+            
+            NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
+            return [self.fetchedResultsController objectAtIndexPath:beforeIndex];
+        }else{ //本月1号，需要后退到上个月31号
+            thisSection++;
+            thisRow = 0;
+            NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow inSection:thisSection];
+            return [self.fetchedResultsController objectAtIndexPath:beforeIndex];
+        }
+    }
+    NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
+    return [self.fetchedResultsController objectAtIndexPath:beforeIndex];
 }
 
 #pragma mark - NSFetchedResultsController Delegate

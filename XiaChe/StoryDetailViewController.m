@@ -34,7 +34,7 @@
 @property (nonatomic, copy) NSString *dateString;
 @property (nonatomic) BOOL getNextFun;
 @property (nonatomic) double webViewProgress;
-//@property (nonatomic, weak) MBProgressHUD *hud;
+@property (nonatomic, weak) MBProgressHUD *hud;
 @property (nonatomic, weak) UIProgressView *progressView;
 @property (nonatomic, weak) UIBarButtonItem *nextBtnItem;
 @property (nonatomic, weak) UIBarButtonItem *beforeBtnItem;
@@ -71,12 +71,24 @@ typedef NS_ENUM(NSInteger, Steps){
     [self setupToolbar];
     [self setupWebView];
     [self decideIfShoudGetDataFromNet];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(detailDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideHud) name:NOTIFICATION_FINISH_SWITCH object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showHud) name:NOTIFICATION_START_SWITCH object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    
-    
-    
-    
+}
+
+- (void)showHud
+{
+    UIWindow *lastWindow = [[UIApplication sharedApplication].windows lastObject];
+//    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:lastWindow];
+    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
+//    self.hud = hud;
+//    [hud show:YES];
+}
+
+- (void)hideHud
+{
+    [self.hud hide:YES afterDelay:0.3];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -244,19 +256,19 @@ typedef NS_ENUM(NSInteger, Steps){
     beforeBtn.tag = 1002;
     self.beforeBtnItem = beforeBtn;
     
-    NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
-    //当天是最新的一天，禁用下一页
-    if ([self.passFun.storyDate isEqualToString:todayString]){
-        [self.nextBtnItem setEnabled:NO];
-    }else{
-        [self.nextBtnItem setEnabled:YES];
-    }
-    //当天是知乎日报头一天，禁用上一页
-    if ([self.passFun.storyDate isEqualToString:FirstDayString]){
-        [self.beforeBtnItem setEnabled:NO];
-    }else{
-        [self.beforeBtnItem setEnabled:YES];
-    }
+//    NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
+//    //当天是最新的一天，禁用下一页
+//    if ([self.passFun.storyDate isEqualToString:todayString]){
+//        [self.nextBtnItem setEnabled:NO];
+//    }else{
+//        [self.nextBtnItem setEnabled:YES];
+//    }
+//    //当天是知乎日报头一天，禁用上一页
+//    if ([self.passFun.storyDate isEqualToString:FirstDayString]){
+//        [self.beforeBtnItem setEnabled:NO];
+//    }else{
+//        [self.beforeBtnItem setEnabled:YES];
+//    }
     [self setToolbarItems:@[pop,flex,beforeBtn,flex,nextBtn,flex,fixWidth,dateItem,fixWidth] animated:YES];
 }
 
@@ -347,7 +359,6 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - 加载WebView
 -(void)loadWebView:(FunDetail *)funDetail
 {
-    NSLog(@"fun detail body = %@",funDetail.body);
     if([funDetail.body isEqualToString:@""]){
         [self setupNoView];
         NSLog(@"今天没有瞎扯");
@@ -449,35 +460,11 @@ typedef NS_ENUM(NSInteger, Steps){
 //    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
     
     if (sender.tag == 1001){
-        self.dateString = [self dateStringForInt:kNext];
-        [self.nextBtnItem setEnabled:NO];
+        self.passFun = [self.delegate nextStoryDetailFetchWithPassFun:self.passFun buttonEnabled:self.nextBtnItem];
+        [self loadDetailData];
     }else if(sender.tag == 1002){
-        self.dateString = [self dateStringForInt:kBefore];
-        [self.beforeBtnItem setEnabled:NO];
-    }
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-    [fetchRequest setEntity:entity];
-    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
-    [fetchRequest setSortDescriptors:@[sort]];
-    NSPredicate *pre = [NSPredicate predicateWithFormat:@"(storyDate == %@) AND (title BEGINSWITH %@)",self.dateString,self.predicateCache];
-    [fetchRequest setPredicate:pre];
-    NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    FunStory *funDate = [array firstObject];
-    
-    if (funDate == NULL){
-        self.getNextFun = YES;
-        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-        [formatter setDateFormat:@"yyyyMMdd"];
-        NSDate *oldDate = [formatter dateFromString:self.dateString];
-        NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400 sinceDate:oldDate];
-        NSString *oldDateRangeString = [formatter stringFromDate:oldDateRange];
-        [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
-        
-    }else{
-        self.passFun = funDate;
-        [self decideIfShoudGetDataFromNet];
+        self.passFun = [self.delegate beforeStoryDetailFetchWithPassFun:self.passFun];
+        [self loadDetailData];
     }
 }
 

@@ -8,7 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "StorageManager.h"
-@interface SectionsViewController : UITableViewController<NSFetchedResultsControllerDelegate>
+#import "StoryDetailViewController.h"
+
+
+@interface SectionsViewController : UITableViewController<NSFetchedResultsControllerDelegate,StoryDetailViewControllerDelegate>
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 - (instancetype)initWithPredicate:(NSString *)predicate;
 @end
