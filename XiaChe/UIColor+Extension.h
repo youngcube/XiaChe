@@ -15,4 +15,5 @@
 + (UIColor *)cellHeaderColor;
 + (UIColor *)cellHeaderTextColor;
 + (UIColor *)customBlack;
++ (UIColor *)customToolDate;
 @end

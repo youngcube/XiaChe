@@ -33,4 +33,9 @@
     return RGBCOLOR(52, 52, 52);
 }
 
++ (UIColor *)customToolDate
+{
+    return RGBCOLOR(0, 89, 187);
+}
+
 @end

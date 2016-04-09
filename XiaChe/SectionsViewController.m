@@ -40,10 +40,10 @@
 @property (nonatomic, strong) AFDropdownNotification *notification;
 @property (nonatomic, strong) NSPredicate *predicate;
 @property (nonatomic, copy) NSString *predicateCache;
+@property (nonatomic, strong) FunStory *getFun;
 @end
 
 @implementation SectionsViewController
-
 typedef NS_ENUM(NSInteger, isToday){
     kNext = 0,
     kBefore = 1
@@ -106,8 +106,6 @@ typedef NS_ENUM(NSInteger, isToday){
     self.navigationItem.titleView = titleNew;
     self.navTitle = titleNew;
     
-    
-    
     StorageManager *manager = [StorageManager sharedInstance];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
@@ -119,9 +117,7 @@ typedef NS_ENUM(NSInteger, isToday){
     NSPredicate *pre = [NSPredicate predicateWithFormat:@"title BEGINSWITH %@",@"瞎扯"];
     [fetchRequest setPredicate:pre];
     NSArray *thisA = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    
     NSLog(@" fetch count = %d,fetchCtrol = %@",thisA.count,self.fetchedResultsController.fetchRequest.predicate);
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -247,12 +243,21 @@ typedef NS_ENUM(NSInteger, isToday){
 // 数据保存了
 - (void)dataDidSave
 {
+    NSLog(@"loop time = %d,",[SearchForNewFun sharedInstance].loopTime);
     if ([SearchForNewFun sharedInstance].loopTime == 0) { //最后一次保存
-        self.tableView.mj_footer.hidden = NO;
-        [self.tableView.mj_header endRefreshing];
-        [self.tableView.mj_footer endRefreshing];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISH_SWITCH object:nil];
-        return;
+        
+        if (self.getFun){ //如果getfun存在，说明需要loadwebview
+            NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:self.getFun];
+            NSUInteger thisRow = indexPath.row;
+            NSUInteger thisSection = indexPath.section;
+            NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
+            
+        }
+            self.tableView.mj_footer.hidden = NO;
+            [self.tableView.mj_header endRefreshing];
+            [self.tableView.mj_footer endRefreshing];
+            return;
     }else{
         NSString *oldString;
         self.tableView.mj_footer.hidden = YES;
@@ -267,9 +272,6 @@ typedef NS_ENUM(NSInteger, isToday){
         NSDate *oldDate = [self.formatter dateFromString:oldString];
         NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
         [[SearchForNewFun sharedInstance] getJsonWithString:oldDateRangeString];
-//        NSString *loadString = [NSString stringWithFormat:@"正在努力加载 %lu / %d",(unsigned long)(EACH_TIME_FETCH_NUM - [SearchForNewFun sharedInstance].loopTime),EACH_TIME_FETCH_NUM];
-//        [self.autoFooter setTitle:loadString forState:MJRefreshStateRefreshing];
-        
         if (![SearchForNewFun sharedInstance].isLoopDetail){
             [SearchForNewFun sharedInstance].loopTime--;
         }
@@ -335,7 +337,7 @@ typedef NS_ENUM(NSInteger, isToday){
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-- (FunStory *)nextStoryDetailFetchWithPassFun:(FunStory *)passFun buttonEnabled:(UIBarButtonItem *)buttonItem
+- (void)nextStoryDetailFetchWithPassFun:(FunStory *)passFun
 {
     NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:passFun];
     id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][indexPath.section];
@@ -343,36 +345,25 @@ typedef NS_ENUM(NSInteger, isToday){
     NSUInteger totalRow = [sectionInfo numberOfObjects];
     NSUInteger thisRow = indexPath.row;
     NSUInteger thisSection = indexPath.section;
-    
-    
-    
     if (thisRow == 0){ // 本月最后一天
-        
         if (thisSection == 0){ //最新的月份的最后一天（最新一天）
-            
-            buttonItem.enabled = NO;
             NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:0 inSection:0];
-            
-            return [self.fetchedResultsController objectAtIndexPath:nextIndex];
-            
-            
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:nextIndex]];
         }else{ //正常
             thisSection = thisSection - 1;
             id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][thisSection];
             totalRow = [sectionInfo numberOfObjects];
             thisRow = totalRow - 1;
             NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:thisRow inSection:thisSection];
-            buttonItem.enabled = YES;
-            return [self.fetchedResultsController objectAtIndexPath:nextIndex];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:nextIndex]];
         }
     }
     
     NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:thisRow - 1 inSection:thisSection];
-    buttonItem.enabled = YES;
-    return [self.fetchedResultsController objectAtIndexPath:nextIndex];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:nextIndex]];
 }
 
-- (FunStory *)beforeStoryDetailFetchWithPassFun:(FunStory *)passFun
+- (void)beforeStoryDetailFetchWithPassFun:(FunStory *)passFun
 {
     NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:passFun];
     id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][indexPath.section];
@@ -386,34 +377,23 @@ typedef NS_ENUM(NSInteger, isToday){
         if (thisSection == totalSection - 1){ //到底了，需要加载新数据或者直接到底5.23
             // new data
             // fetch 7天 防止有没有的情况出现
-            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_START_SWITCH object:nil];
-            
-            dispatch_group_t group = dispatch_group_create();
-            dispatch_queue_t queue = dispatch_queue_create("chell", 0);
-            dispatch_group_async(group, queue, ^{
-                
-            });
-            
-            dispatch_group_notify(group, queue, ^{
-                
-            });
-            
-            [SearchForNewFun sharedInstance].loopTime = 7;
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_START_HUD object:nil];
+            [SearchForNewFun sharedInstance].loopTime = 3; //抓之后3天的避免没有瞎扯
             self.ifIsLoopNewData = NO;
             [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
+            self.getFun = passFun; //传递passfun，通知fetch并loadweb
             
-            
-            NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
-            return [self.fetchedResultsController objectAtIndexPath:beforeIndex];
         }else{ //本月1号，需要后退到上个月31号
             thisSection++;
             thisRow = 0;
             NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow inSection:thisSection];
-            return [self.fetchedResultsController objectAtIndexPath:beforeIndex];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
         }
+    }else{ // 正常情况
+        NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
     }
-    NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
-    return [self.fetchedResultsController objectAtIndexPath:beforeIndex];
+    
 }
 
 #pragma mark - NSFetchedResultsController Delegate

@@ -71,24 +71,29 @@ typedef NS_ENUM(NSInteger, Steps){
     [self setupToolbar];
     [self setupWebView];
     [self decideIfShoudGetDataFromNet];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideHud) name:NOTIFICATION_FINISH_SWITCH object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showHud) name:NOTIFICATION_START_SWITCH object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadWebNoti:) name:NOTIFICATION_LOAD_WEBVIEW object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showHud) name:NOTIFICATION_START_HUD object:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideHud) name:NOTIFICATION_FINISH_HUD object:self];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
 - (void)showHud
 {
     UIWindow *lastWindow = [[UIApplication sharedApplication].windows lastObject];
-//    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithWindow:lastWindow];
     self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     self.hud.mode = MBProgressHUDModeAnnularDeterminate;
-//    self.hud = hud;
-//    [hud show:YES];
 }
 
 - (void)hideHud
 {
     [self.hud hide:YES afterDelay:0.3];
+}
+
+- (void)loadWebNoti:(NSNotification *)notification
+{
+    self.passFun = [notification object];
+    NSLog(@"passfun = %@",self.passFun.storyDate);
+    [self loadWebView:[self fetchWebString]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -115,7 +120,7 @@ typedef NS_ENUM(NSInteger, Steps){
 
 - (void)setupWebView
 {
-    CGRect webFrame = CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height);
+    CGRect webFrame = CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height - 20);
     WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
     WKWebView *webView = [[WKWebView alloc] initWithFrame:webFrame configuration:config];
     webView.navigationDelegate = self;
@@ -176,6 +181,31 @@ typedef NS_ENUM(NSInteger, Steps){
 //    self.hud.progress = webView.estimatedProgress;
 //    [self.hud hide:YES];
     
+//    NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
+//    
+//    if ([self.passFun.storyDate isEqualToString:todayString]){
+//        [self.nextBtnItem setEnabled:NO];
+//    }else{
+//        [self.nextBtnItem setEnabled:YES];
+//    }
+//    [self.beforeBtnItem setEnabled:YES];
+//    [self setupToolbar];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+}
+
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
+{
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
+        WebViewController *web = [[WebViewController alloc] init];
+        web.url = webView.URL;
+        [self.navigationController pushViewController:web animated:YES];
+        [webView stopLoading];
+    }
+}
+
+-(void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation
+{
     NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
     
     if ([self.passFun.storyDate isEqualToString:todayString]){
@@ -185,19 +215,6 @@ typedef NS_ENUM(NSInteger, Steps){
     }
     [self.beforeBtnItem setEnabled:YES];
     [self setupToolbar];
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-}
-
-- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
-{
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-//    NSLog(@"navigation = %@",webView.URL);
-    if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
-        WebViewController *web = [[WebViewController alloc] init];
-        web.url = webView.URL;
-        [self.navigationController pushViewController:web animated:YES];
-        [webView stopLoading];
-    }
 }
 
 
@@ -361,10 +378,11 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     if([funDetail.body isEqualToString:@""]){
         [self setupNoView];
+        
         NSLog(@"今天没有瞎扯");
     }else{
         [self.passFun setUnread:[NSNumber numberWithBool:NO]];
-        [[StorageManager sharedInstance].managedObjectContext save:nil];
+//        [[StorageManager sharedInstance].managedObjectContext save:nil];
 //        NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
         
         NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\"/><style type = \"text/css\" >%@</style><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", self.cssString,funDetail.body];
@@ -418,40 +436,6 @@ typedef NS_ENUM(NSInteger, Steps){
 
 #pragma mark - 若storyId不存在，则按照时间来读
 
-
-#pragma mark - 计算当前时间的前一天和后一天
-- (NSString *)dateStringForInt:(Steps)step
-{
-    //传入时间 -1*86300
-    NSString *todayString;
-    if (self.passFun.storyId == NULL){
-        todayString = self.passFun.storyDate;
-    }else{
-        FunStory *sto = [self fetchDate];
-        todayString = sto.storyDate;
-    }
-    NSDateFormatter *format = [[NSDateFormatter alloc] init];
-    [format setDateFormat:@"yyyyMMdd"];
-    NSDate *todayDate = [format dateFromString:todayString];
-    NSDate *nextRange = [NSDate dateWithTimeInterval:+86400*step sinceDate:todayDate];
-    NSString *newDateRangeString = [format stringFromDate:nextRange];
-    NSLog(@"前 = %@，当前storyID = %@",newDateRangeString,todayString);
-    return newDateRangeString;
-}
-
-#pragma mark - 直接从CoreData读取最新的文章
-- (NSString *)fetchLastestDayFromStorage
-{
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-    [fetchRequest setEntity:entity];
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO]; // YES返回最老的
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    NSArray *late = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    FunStory *fun = [late firstObject];
-    return fun.storyDate;
-}
-
 //TODO 切换上下篇
 //TODO 优化等待界面
 - (void)switchToNewDetail:(UIButton *)sender
@@ -460,33 +444,66 @@ typedef NS_ENUM(NSInteger, Steps){
 //    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
     
     if (sender.tag == 1001){
-        self.passFun = [self.delegate nextStoryDetailFetchWithPassFun:self.passFun buttonEnabled:self.nextBtnItem];
-        [self loadDetailData];
+        [self.delegate nextStoryDetailFetchWithPassFun:self.passFun];
+//        [self loadWebView:[self fetchWebString]];
     }else if(sender.tag == 1002){
-        self.passFun = [self.delegate beforeStoryDetailFetchWithPassFun:self.passFun];
-        [self loadDetailData];
+        [self.delegate beforeStoryDetailFetchWithPassFun:self.passFun];
+//        [self loadWebView:[self fetchWebString]];
     }
 }
 
-- (void)detailDidSave
-{
-    if (self.getNextFun == NO) {
-        return;
-    }else{
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-        [fetchRequest setEntity:entity];
-        NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
-        [fetchRequest setSortDescriptors:@[sort]];
-        NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
-//        NSLog(@"今天的日期是！ %@",self.dateString);
-        [fetchRequest setPredicate:pre];
-        NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-        FunStory *funDate = [array firstObject];
-        self.passFun = funDate;
-        [self decideIfShoudGetDataFromNet];
-        self.getNextFun = NO;
-    }
-}
+
+//#pragma mark - 计算当前时间的前一天和后一天
+//- (NSString *)dateStringForInt:(Steps)step
+//{
+//    //传入时间 -1*86300
+//    NSString *todayString;
+//    if (self.passFun.storyId == NULL){
+//        todayString = self.passFun.storyDate;
+//    }else{
+//        FunStory *sto = [self fetchDate];
+//        todayString = sto.storyDate;
+//    }
+//    NSDateFormatter *format = [[NSDateFormatter alloc] init];
+//    [format setDateFormat:@"yyyyMMdd"];
+//    NSDate *todayDate = [format dateFromString:todayString];
+//    NSDate *nextRange = [NSDate dateWithTimeInterval:+86400*step sinceDate:todayDate];
+//    NSString *newDateRangeString = [format stringFromDate:nextRange];
+//    NSLog(@"前 = %@，当前storyID = %@",newDateRangeString,todayString);
+//    return newDateRangeString;
+//}
+
+//#pragma mark - 直接从CoreData读取最新的文章
+//- (NSString *)fetchLastestDayFromStorage
+//{
+//    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+//    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+//    [fetchRequest setEntity:entity];
+//    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO]; // YES返回最老的
+//    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+//    NSArray *late = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+//    FunStory *fun = [late firstObject];
+//    return fun.storyDate;
+//}
+//- (void)detailDidSave
+//{
+//    if (self.getNextFun == NO) {
+//        return;
+//    }else{
+//        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+//        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+//        [fetchRequest setEntity:entity];
+//        NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
+//        [fetchRequest setSortDescriptors:@[sort]];
+//        NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
+////        NSLog(@"今天的日期是！ %@",self.dateString);
+//        [fetchRequest setPredicate:pre];
+//        NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
+//        FunStory *funDate = [array firstObject];
+//        self.passFun = funDate;
+//        [self decideIfShoudGetDataFromNet];
+//        self.getNextFun = NO;
+//    }
+//}
 
 @end

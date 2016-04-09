@@ -6,13 +6,13 @@
 //  Copyright © 2016 cube. All rights reserved.
 //
 
-#define EACH_TIME_FETCH_NUM 10
+#define EACH_TIME_FETCH_NUM 1
 #define RGBCOLOR(r,g,b) [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:1]
 
 static NSString* const LatestNewsString = @"http://news-at.zhihu.com/api/4/news/latest";
 static NSString* const BeforeNewsString = @"http://news.at.zhihu.com/api/4/news/before/";
 static NSString* const DetailNewsString = @"http://news-at.zhihu.com/api/4/news/";
-//static NSString* const NOTIFICATION_SWITCH_FUN = @"notification_switch_fun";
-static NSString* const NOTIFICATION_FINISH_SWITCH = @"notification_finish_switch";
-static NSString* const NOTIFICATION_START_SWITCH = @"notification_finish_download";
+static NSString* const NOTIFICATION_LOAD_WEBVIEW = @"notification_load_webview";
+static NSString* const NOTIFICATION_FINISH_HUD = @"notification_finish_hud";
+static NSString* const NOTIFICATION_START_HUD = @"notification_start_hud";
 static NSString* const FirstDayString = @"20130523";

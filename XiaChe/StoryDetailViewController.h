@@ -13,8 +13,9 @@
 @class StoryDetailViewController;
 @class FunStory;
 @protocol StoryDetailViewControllerDelegate<NSObject>
-- (FunStory *)nextStoryDetailFetchWithPassFun:(FunStory *)passFun buttonEnabled:(UIBarButtonItem *)buttonItem;
-- (FunStory *)beforeStoryDetailFetchWithPassFun:(FunStory *)passFun;
+@required
+- (void)nextStoryDetailFetchWithPassFun:(FunStory *)passFun;
+- (void)beforeStoryDetailFetchWithPassFun:(FunStory *)passFun;
 @end
 
 @interface StoryDetailViewController : UIViewController
