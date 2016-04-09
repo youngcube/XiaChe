@@ -9,8 +9,12 @@
 #import "UIColor+Extension.h"
 
 @implementation UIColor (Extension)
+//+ (UIColor *)customNavColor{
+//    return RGBCOLOR(52, 136, 254);
+//}
+
 + (UIColor *)customNavColor{
-    return RGBCOLOR(52, 136, 254);
+    return RGBCOLOR(173, 24, 24);
 }
 
 + (UIColor *)cellSeparateLine

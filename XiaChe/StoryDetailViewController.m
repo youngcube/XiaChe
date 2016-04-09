@@ -38,6 +38,7 @@
 @property (nonatomic, weak) UIProgressView *progressView;
 @property (nonatomic, weak) UIBarButtonItem *nextBtnItem;
 @property (nonatomic, weak) UIBarButtonItem *beforeBtnItem;
+@property (nonatomic, weak) UIBarButtonItem *dateItem;
 @property (nonatomic, copy) NSString *thisDate;
 @property (nonatomic, copy) NSString *cssString;
 @end
@@ -55,11 +56,6 @@ typedef NS_ENUM(NSInteger, Steps){
     if (self){
         NSURL *cssUrl = [[NSBundle mainBundle] URLForResource:@"funstyle" withExtension:@"css"];
         self.cssString = [NSString stringWithContentsOfURL:cssUrl encoding:NSUTF8StringEncoding error:nil];
-        
-        
-        
-        
-        
     }
     return self;
 }
@@ -72,15 +68,15 @@ typedef NS_ENUM(NSInteger, Steps){
     [self setupWebView];
     [self decideIfShoudGetDataFromNet];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadWebNoti:) name:NOTIFICATION_LOAD_WEBVIEW object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showHud) name:NOTIFICATION_START_HUD object:self];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideHud) name:NOTIFICATION_FINISH_HUD object:self];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showHud) name:NOTIFICATION_START_HUD object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideHud) name:NOTIFICATION_FINISH_HUD object:nil];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
 - (void)showHud
 {
     UIWindow *lastWindow = [[UIApplication sharedApplication].windows lastObject];
-    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    self.hud = [MBProgressHUD showHUDAddedTo:self.webView animated:YES];
     self.hud.mode = MBProgressHUDModeAnnularDeterminate;
 }
 
@@ -93,13 +89,12 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     self.passFun = [notification object];
     NSLog(@"passfun = %@",self.passFun.storyDate);
-    [self loadWebView:[self fetchWebString]];
+    [self decideIfShoudGetDataFromNet];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self.navigationController setToolbarHidden:NO animated:YES];
 }
@@ -127,7 +122,7 @@ typedef NS_ENUM(NSInteger, Steps){
     webView.scrollView.delegate = self;
 //    webView.backgroundColor = RGBCOLOR(249, 249, 249);
 //    webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
-    webView.scrollView.showsVerticalScrollIndicator = NO;
+//    webView.scrollView.showsVerticalScrollIndicator = NO;
     [self.view addSubview:webView];
     self.webView = webView;
     
@@ -150,17 +145,18 @@ typedef NS_ENUM(NSInteger, Steps){
     UILabel *headerTitleLabel = [[UILabel alloc] init];
     headerTitleLabel.numberOfLines = 0;
     headerTitleLabel.font = [UIFont boldSystemFontOfSize:20];
-    headerTitleLabel.textColor = [UIColor whiteColor];
+    headerTitleLabel.textColor = [UIColor blackColor];
     headerTitleLabel.textAlignment = NSTextAlignmentLeft;
     [headerView addSubview:headerTitleLabel];
     self.headerTitleLabel = headerTitleLabel;
     
     UILabel *headerSourceLabel = [[UILabel alloc] init];
     headerSourceLabel.font = [UIFont systemFontOfSize:9];
-    headerSourceLabel.textColor = [UIColor cellSeparateLine];
+    headerSourceLabel.textColor = [UIColor blackColor];
     headerSourceLabel.textAlignment = NSTextAlignmentRight;
     [headerView addSubview:headerSourceLabel];
     self.headerSourceLabel = headerSourceLabel;
+    headerSourceLabel.hidden = YES;
     
     [headerTitleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.headerView.mas_left).offset(20);
@@ -214,7 +210,7 @@ typedef NS_ENUM(NSInteger, Steps){
         [self.nextBtnItem setEnabled:YES];
     }
     [self.beforeBtnItem setEnabled:YES];
-    [self setupToolbar];
+    [self updateToolbar];
 }
 
 
@@ -227,7 +223,11 @@ typedef NS_ENUM(NSInteger, Steps){
         if (offSetY>=self.headerView.frame.size.height - 40){
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
         }else{
-            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+            if (self.topImage.image == nil){ // 如果没有图片 状态栏是黑色
+                [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+            }else{ // 如果有图片 状态栏是白色
+                [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+            }
         }
         if (-offSetY <= 80 && -offSetY >= 0) {
             self.headerView.frame = CGRectMake(0, -40 - offSetY / 2, self.view.frame.size.width, 260 - offSetY / 2);
@@ -262,16 +262,40 @@ typedef NS_ENUM(NSInteger, Steps){
     UIBarButtonItem *pop = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"] style:UIBarButtonItemStylePlain target:self action:@selector(popToLastVc)];
     UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    
+    
+    
     UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"upArrow"] style:UIBarButtonItemStylePlain target:self action:@selector(switchToNewDetail:)];
+    
+//    UIButton *nextbutton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [nextbutton setImage:[UIImage imageNamed:@"upArrow"] forState:UIControlStateNormal];
+//    [nextbutton setTitle:@"hao" forState:UIControlStateNormal];
+//    [nextbutton setTintColor:[UIColor customNavColor]];
+//    CGRect btnf = nextbutton.frame;
+//    btnf.size.width = 20;
+//    btnf.size.height = 20;
+//    nextbutton.frame = btnf;
+//    UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithCustomView:nextbutton];
+//    nextbutton.enabled = NO;
+    
     nextBtn.tag = 1001;
     self.nextBtnItem = nextBtn;
     
     UIBarButtonItem *dateItem = [[UIBarButtonItem alloc] initWithTitle:self.thisDate style:UIBarButtonItemStylePlain target:self action:nil];
     dateItem.enabled = NO;
+    self.dateItem = dateItem;
     
     UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"downArrow"] style:UIBarButtonItemStylePlain target:self action:@selector(switchToNewDetail:)];
     beforeBtn.tag = 1002;
     self.beforeBtnItem = beforeBtn;
+    
+    if ([SearchForNewFun sharedInstance].loopTime == 0){
+        nextBtn.enabled = YES;
+        beforeBtn.enabled = YES;
+    }else{
+        nextBtn.enabled = NO;
+        beforeBtn.enabled = NO;
+    }
     
 //    NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
 //    //当天是最新的一天，禁用下一页
@@ -287,6 +311,18 @@ typedef NS_ENUM(NSInteger, Steps){
 //        [self.beforeBtnItem setEnabled:YES];
 //    }
     [self setToolbarItems:@[pop,flex,beforeBtn,flex,nextBtn,flex,fixWidth,dateItem,fixWidth] animated:YES];
+}
+
+- (void)updateToolbar
+{
+    if ([SearchForNewFun sharedInstance].loopTime == 0){
+        self.nextBtnItem.enabled = YES;
+        self.beforeBtnItem.enabled = YES;
+    }else{
+        self.nextBtnItem.enabled = NO;
+        self.beforeBtnItem.enabled = NO;
+    }
+    [self.dateItem setTitle:self.thisDate];
 }
 
 - (NSString *)thisDate
@@ -311,7 +347,6 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     [self.progressView setProgress:self.webView.estimatedProgress animated:YES];
 }
-
 
 #pragma mark - 网络逻辑
 - (void)decideIfShoudGetDataFromNet
@@ -360,13 +395,9 @@ typedef NS_ENUM(NSInteger, Steps){
         if ([self fetchWebString].body == NULL ){
             NSLog(@"今天没有瞎扯");
             [self setupNoView];
-//            [self loadWebView:[self fetchWebString]];
         }else{
             [self loadWebView:[self fetchWebString]];
         }
-        
-        
-//        [self loadWebView:[self fetchWebString]];
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
 
@@ -378,7 +409,6 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     if([funDetail.body isEqualToString:@""]){
         [self setupNoView];
-        
         NSLog(@"今天没有瞎扯");
     }else{
         [self.passFun setUnread:[NSNumber numberWithBool:NO]];
@@ -388,19 +418,35 @@ typedef NS_ENUM(NSInteger, Steps){
         NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\"/><style type = \"text/css\" >%@</style><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", self.cssString,funDetail.body];
         [self.webView loadHTMLString:htmlString baseURL:nil];
         self.navigationItem.title = funDetail.storyId.title;
-        [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
         
+        SDWebImageDownloader *downloader = [SDWebImageDownloader sharedDownloader];
+        [downloader downloadImageWithURL:[NSURL URLWithString:funDetail.image]
+                                 options:0
+                                progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                    
+                                }
+                               completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                                   if (image && finished) {
+                                       [self.topImage setImage:image];
+                                       self.headerTitleLabel.textColor = [UIColor whiteColor];
+                                       self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
+                                       self.headerSourceLabel.hidden = NO;
+                                       [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+                                   }
+                               }];
+//        [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
         
-        NSMutableAttributedString *attrTitle = [[NSMutableAttributedString alloc] initWithString:self.passFun.title];
-        NSShadow * shadow = [[NSShadow alloc] init];
-        shadow.shadowColor = [UIColor cellHeaderColor];
-        shadow.shadowBlurRadius = 0.5;
-        shadow.shadowOffset = CGSizeMake(0.5, 0.5);
-        NSDictionary * attris = @{NSShadowAttributeName:shadow};
-        [attrTitle setAttributes:attris range:NSMakeRange(0,self.passFun.title.length)];
-        self.headerTitleLabel.attributedText = attrTitle;
-        
+//        NSMutableAttributedString *attrTitle = [[NSMutableAttributedString alloc] initWithString:self.passFun.title];
+//        NSShadow * shadow = [[NSShadow alloc] init];
+//        shadow.shadowColor = [UIColor cellHeaderColor];
+//        shadow.shadowBlurRadius = 0.5;
+//        shadow.shadowOffset = CGSizeMake(0.5, 0.5);
+//        NSDictionary * attris = @{NSShadowAttributeName:shadow};
+//        [attrTitle setAttributes:attris range:NSMakeRange(0,self.passFun.title.length)];
+//        self.headerTitleLabel.attributedText = attrTitle;
 //        self.headerTitleLabel.text = self.passFun.title;
+//        self.headerSourceLabel.text = funDetail.image_source;
+        self.headerTitleLabel.text = self.passFun.title;
         self.headerSourceLabel.text = funDetail.image_source;
     }
 }
@@ -450,8 +496,8 @@ typedef NS_ENUM(NSInteger, Steps){
         [self.delegate beforeStoryDetailFetchWithPassFun:self.passFun];
 //        [self loadWebView:[self fetchWebString]];
     }
+    [self updateToolbar];
 }
-
 
 //#pragma mark - 计算当前时间的前一天和后一天
 //- (NSString *)dateStringForInt:(Steps)step

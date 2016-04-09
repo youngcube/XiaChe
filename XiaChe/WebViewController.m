@@ -29,7 +29,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -42,7 +42,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
 - (void)dealloc
@@ -109,12 +109,13 @@
     
     if (![webView.URL.absoluteString isEqualToString:@"about:blank"]){
         self.progressView.progress = webView.estimatedProgress;
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+        
         [UIView animateWithDuration:0.5 animations:^{
             [self.progressView removeFromSuperview];
         }];
     }
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation

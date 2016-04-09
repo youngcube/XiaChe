@@ -86,6 +86,7 @@ typedef NS_ENUM(NSInteger, isToday){
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
     self.formatter = [[NSDateFormatter alloc] init];
     [self.formatter setDateFormat:@"yyyyMMdd"];
     [self setupFooter];
@@ -104,6 +105,7 @@ typedef NS_ENUM(NSInteger, isToday){
         titleNew.text = @"深夜惊奇";
     }
     self.navigationItem.titleView = titleNew;
+    
     self.navTitle = titleNew;
     
     StorageManager *manager = [StorageManager sharedInstance];
@@ -124,13 +126,14 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     [super viewDidAppear:animated];
     [self.navigationController setToolbarHidden:YES animated:YES];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
 #pragma mark - 月份选择delegate
@@ -245,19 +248,18 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     NSLog(@"loop time = %d,",[SearchForNewFun sharedInstance].loopTime);
     if ([SearchForNewFun sharedInstance].loopTime == 0) { //最后一次保存
-        
         if (self.getFun){ //如果getfun存在，说明需要loadwebview
             NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:self.getFun];
             NSUInteger thisRow = indexPath.row;
             NSUInteger thisSection = indexPath.section;
             NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
             [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
-            
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISH_HUD object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
         }
-            self.tableView.mj_footer.hidden = NO;
-            [self.tableView.mj_header endRefreshing];
-            [self.tableView.mj_footer endRefreshing];
-            return;
+        self.tableView.mj_footer.hidden = NO;
+        [self.tableView.mj_header endRefreshing];
+        [self.tableView.mj_footer endRefreshing];
+        return;
     }else{
         NSString *oldString;
         self.tableView.mj_footer.hidden = YES;
@@ -322,8 +324,6 @@ typedef NS_ENUM(NSInteger, isToday){
     detail.passFun = object;
     detail.predicateCache = self.predicateCache;
     
-    
-    
 //    NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:passFun];
     id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][indexPath.section];
     NSUInteger totalSection = [self.fetchedResultsController sections].count;
@@ -331,7 +331,6 @@ typedef NS_ENUM(NSInteger, isToday){
     NSUInteger thisRow = indexPath.row;
     NSUInteger thisSection = indexPath.section;
     NSLog(@"totalSection = %d,totalRow = %d,thisRow = %d,thisSection = %d",totalSection,totalRow,thisRow,thisSection);
-    
     
     [self.navigationController pushViewController:detail animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -349,7 +348,7 @@ typedef NS_ENUM(NSInteger, isToday){
         if (thisSection == 0){ //最新的月份的最后一天（最新一天）
             NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:0 inSection:0];
             [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:nextIndex]];
-        }else{ //正常
+        }else{ //其他下个月跳转
             thisSection = thisSection - 1;
             id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][thisSection];
             totalRow = [sectionInfo numberOfObjects];
@@ -357,10 +356,10 @@ typedef NS_ENUM(NSInteger, isToday){
             NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:thisRow inSection:thisSection];
             [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:nextIndex]];
         }
+    }else{ //正常下一天跳转
+        NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:thisRow - 1 inSection:thisSection];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:nextIndex]];
     }
-    
-    NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:thisRow - 1 inSection:thisSection];
-    [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:nextIndex]];
 }
 
 - (void)beforeStoryDetailFetchWithPassFun:(FunStory *)passFun
@@ -382,7 +381,6 @@ typedef NS_ENUM(NSInteger, isToday){
             self.ifIsLoopNewData = NO;
             [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
             self.getFun = passFun; //传递passfun，通知fetch并loadweb
-            
         }else{ //本月1号，需要后退到上个月31号
             thisSection++;
             thisRow = 0;
@@ -393,7 +391,19 @@ typedef NS_ENUM(NSInteger, isToday){
         NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
         [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
     }
-    
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    //    CGFloat offset = scrollView.contentOffset.y;
+    //
+    //    CGFloat dis = _startPos - offset;
+    //    if (dis > 0){
+    ////        [self.navigationController setToolbarHidden:NO animated:YES];
+    //    }else{
+    ////        [self.navigationController setToolbarHidden:YES animated:YES];
+    //    }
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
 #pragma mark - NSFetchedResultsController Delegate
@@ -473,18 +483,8 @@ typedef NS_ENUM(NSInteger, isToday){
 //{
 //    _startPos = scrollView.contentOffset.y;
 //}
-//
-//- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-//{
-//    CGFloat offset = scrollView.contentOffset.y;
-//
-//    CGFloat dis = _startPos - offset;
-//    if (dis > 0){
-////        [self.navigationController setToolbarHidden:NO animated:YES];
-//    }else{
-////        [self.navigationController setToolbarHidden:YES animated:YES];
-//    }
-//}
+
+
 
 //- (void)switchSectionHideWithTag:(UIButton *)btn
 //{

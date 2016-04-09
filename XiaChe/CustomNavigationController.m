@@ -16,8 +16,8 @@
 //    NSDictionary *textAttr = @{NSForegroundColorAttributeName : [UIColor orangeColor]};
 //    [item setTitleTextAttributes:textAttr forState:UIControlStateNormal];
     NSDictionary *titleAttr = @{NSForegroundColorAttributeName : [UIColor whiteColor]};
-    [[UINavigationBar appearance] setBarTintColor:[UIColor customNavColor]];
-    [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];
+//    [[UINavigationBar appearance] setBarTintColor:[UIColor customNavColor]];
+    [[UINavigationBar appearance] setTintColor:[UIColor customNavColor]];
     [[UINavigationBar appearance] setTitleTextAttributes:titleAttr];
 }
 

@@ -9,6 +9,7 @@
 #import "CustomTabBarController.h"
 #import "SectionsViewController.h"
 #import "CustomNavigationController.h"
+#import "UIColor+Extension.h"
 
 @interface CustomTabBarController ()
 
@@ -27,7 +28,6 @@
         SectionsViewController *shenYe = [[SectionsViewController alloc] initWithPredicate:@"深夜"];
         CustomNavigationController *naviShenYe = [[CustomNavigationController alloc] initWithRootViewController:shenYe];
         
-        
         int offset = 7;
         UIEdgeInsets imageInset = UIEdgeInsetsMake(offset, 0, -offset, 0);
         naviXiache.tabBarItem.imageInsets = imageInset;
@@ -40,6 +40,8 @@
         
         NSArray *array = @[naviXiache,naviShenYe];
         [self setViewControllers:array animated:YES];
+        
+        self.tabBar.tintColor = [UIColor customNavColor];
     }
     return self;
 }
