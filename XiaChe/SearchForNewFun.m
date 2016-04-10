@@ -13,7 +13,7 @@
 #import "Consts.h"
 #import <AFNetworking/AFNetworking.h>
 #import "SectionModel.h"
-
+#import "SDWebImageDownloader.h"
 @interface SearchForNewFun ()
 
 @property (nonatomic, strong) SectionModel *model;
@@ -124,6 +124,12 @@
                 st.title = story.title;
                 st.storyId = story.storyId;
                 st.image = [story.images firstObject];
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    // 下载进度block
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    // 下载完成block
+                    st.imageData = data;
+                }];
                 [st setUnread:[NSNumber numberWithBool:YES]];
                 [self getDetailJsonWithId:story.storyId];
             }else if ([story.title hasPrefix:@"深夜"]){
@@ -132,6 +138,12 @@
                 st.title = story.title;
                 st.storyId = story.storyId;
                 st.image = [story.images firstObject];
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    // 下载进度block
+                } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                    // 下载完成block
+                    st.imageData = data;
+                }];
                 [st setUnread:[NSNumber numberWithBool:YES]];
                 [self getDetailJsonWithId:story.storyId];
             }
@@ -178,6 +190,12 @@
                     st.title = story.title;
                     st.storyId = story.storyId;
                     st.image = [story.images firstObject];
+                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                        // 下载进度block
+                    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                        // 下载完成block
+                        st.imageData = data;
+                    }];
                     [st setUnread:[NSNumber numberWithBool:YES]];
                     _ifHasXiaChe = YES;
                     [self getDetailJsonWithId:story.storyId];
@@ -187,6 +205,12 @@
                     st.title = story.title;
                     st.storyId = story.storyId;
                     st.image = [story.images firstObject];
+                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                        // 下载进度block
+                    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                        // 下载完成block
+                        st.imageData = data;
+                    }];
                     [st setUnread:[NSNumber numberWithBool:YES]];
                     _isHasShenYe = YES;
                     [self getDetailJsonWithId:story.storyId];
@@ -228,6 +252,12 @@
         st.detailId = detail.detailId;
         st.image = detail.image;
         st.image_source = detail.image_source;
+        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+            // 下载进度block
+        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+            // 下载完成block
+            st.imageData = data;
+        }];
         self.isLoopDetail = YES;
         [[StorageManager sharedInstance].managedObjectContext save:nil];
         

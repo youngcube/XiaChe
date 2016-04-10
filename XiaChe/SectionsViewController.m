@@ -224,6 +224,8 @@
 - (void)dataDidSave
 {
     FUNLog(@"loop time = %lu,",(unsigned long)[SearchForNewFun sharedInstance].loopTime);
+    
+    // TODO 后台
     if ([SearchForNewFun sharedInstance].loopTime == 0) { //最后一次保存
         if (self.getFun){ //如果getfun存在，说明需要loadwebview
             if (![SearchForNewFun sharedInstance].isLoopDetail){
@@ -233,7 +235,6 @@
                 NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
             }
-            
         }
         self.tableView.mj_footer.hidden = NO;
         [self.tableView.mj_header endRefreshing];
@@ -282,6 +283,7 @@
 - (void)configureCell:(SectionCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     FunStory *fun = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    cell.funStory = fun;
     cell.title = fun.title;
     cell.date = fun.storyDate;
     cell.imageURL = fun.image;

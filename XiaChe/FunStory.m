@@ -25,5 +25,4 @@
     return [simpleFormat stringFromDate:thisDate];
 }
 
-
 @end

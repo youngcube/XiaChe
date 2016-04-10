@@ -60,7 +60,7 @@ static CGFloat toolBarHeight = 44;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadWebNoti:) name:NOTIFICATION_LOAD_WEBVIEW object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(noMoreNew) name:NOTIFICATION_NO_MORE_NEW object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadMore) name:NOTIFICATION_LOAD_MORE object:nil];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
 - (void)noMoreNew
@@ -195,7 +195,7 @@ static CGFloat toolBarHeight = 44;
         if (offSetY>=self.headerView.frame.size.height - 40){
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
         }else{
-            if (self.topImage.image == nil){ // 如果没有图片 状态栏是黑色
+            if (!self.passFun.imageData){ // 如果没有图片 状态栏是黑色
                 [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
             }else{ // 如果有图片 状态栏是白色
                 [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
@@ -368,9 +368,7 @@ static CGFloat toolBarHeight = 44;
 {
     if([funDetail.body isEqualToString:@""]){
         [self setupNoView];
-        
     }else{
-        
         // 5 .23
         if ([self.passFun.storyDate isEqualToString:FirstDayString] && [self.predicateCache isEqualToString:@"瞎扯"]){
             self.headerTitleLabel.hidden = YES;
@@ -379,7 +377,6 @@ static CGFloat toolBarHeight = 44;
             self.headerTitleLabel.hidden = NO;
             self.headerSourceLabel.hidden = NO;
         }
-        
         [self.passFun setUnread:[NSNumber numberWithBool:NO]];
 //        [[StorageManager sharedInstance].managedObjectContext save:nil];
 //        NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
@@ -388,20 +385,23 @@ static CGFloat toolBarHeight = 44;
         [self.webView loadHTMLString:htmlString baseURL:nil];
         self.navigationItem.title = funDetail.storyId.title;
         
-        SDWebImageDownloader *downloader = [SDWebImageDownloader sharedDownloader];
-        [downloader downloadImageWithURL:[NSURL URLWithString:funDetail.image]
-                                 options:0
-                                progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                                    
-                                }
-                               completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                                   if (image && finished) {
-                                       [self.topImage setImage:image];
-                                       self.headerTitleLabel.textColor = [UIColor whiteColor];
-                                       self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
-                                       self.headerSourceLabel.hidden = NO;
-                                   }
-                               }];
+        // 设置顶部图片
+        if (self.passFun.imageData){
+            self.topImage.image = [UIImage imageWithData:self.passFun.imageData];
+            self.headerTitleLabel.textColor = [UIColor whiteColor];
+            self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
+            self.headerSourceLabel.hidden = NO;
+            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+        }else{
+            [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]
+                             placeholderImage:nil
+                                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                                        [self.passFun setImageData:UIImagePNGRepresentation(image)];
+                                        self.headerTitleLabel.textColor = [UIColor whiteColor];
+                                        self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
+                                        self.headerSourceLabel.hidden = NO;
+                                    }];
+        }
         self.headerTitleLabel.text = self.passFun.title;
         self.headerSourceLabel.text = funDetail.image_source;
     }

@@ -75,7 +75,16 @@
 - (void)setImageURL:(NSString *)imageURL
 {
     _imageURL = imageURL;
-    [self.contentImage sd_setImageWithURL:[NSURL URLWithString:imageURL] placeholderImage:nil];
+    
+    if (self.funStory.imageData){
+        self.contentImage.image = [UIImage imageWithData:self.funStory.imageData];
+    }else{
+        [self.contentImage sd_setImageWithURL:[NSURL URLWithString:imageURL]
+                             placeholderImage:[UIImage imageNamed:@"placeholder"]
+                                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                                        [self.funStory setImageData:UIImagePNGRepresentation(image)];
+                                    }];
+    }
 }
 
 - (void)setTitle:(NSString *)title
@@ -99,15 +108,14 @@
 - (void)setUnread:(NSNumber *)unread
 {
     _unread = unread;
+    _titleLabel.font = [UIFont boldSystemFontOfSize:15];
     if ([unread boolValue]){
         _titleLabel.textColor = [UIColor customBlack];
         _dateLabel.textColor = [UIColor customBlack];
-        _titleLabel.font = [UIFont boldSystemFontOfSize:15];
         _contentImage.alpha = 1.0f;
     }else{
         _titleLabel.textColor = [UIColor grayColor];
         _dateLabel.textColor = [UIColor grayColor];
-        _titleLabel.font = [UIFont systemFontOfSize:15];
         _contentImage.alpha = 0.6f;
     }
 }

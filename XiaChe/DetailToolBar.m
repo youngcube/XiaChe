@@ -75,7 +75,6 @@
         [dateLabel mas_makeConstraints:^(MASConstraintMaker *make) {
             make.height.centerY.equalTo(backBtn);
             make.right.equalTo(self).offset(-30);
-//            make.width.equalTo(@100);
         }];
     }
     return self;
@@ -85,8 +84,8 @@
 {
     //cell的分割线
     CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetStrokeColorWithColor(context, [UIColor customNavColor].CGColor);
-    CGContextStrokeRect(context, CGRectMake(10, 0, rect.size.width-20, 1/[UIScreen mainScreen].scale));
+    CGContextSetStrokeColorWithColor(context, [UIColor cellSeparateLine].CGColor);
+    CGContextStrokeRect(context, CGRectMake(20, 0, rect.size.width-40, 1/[UIScreen mainScreen].scale));
 }
 
 @end

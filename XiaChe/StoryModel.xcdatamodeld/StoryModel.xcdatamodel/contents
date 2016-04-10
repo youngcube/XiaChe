@@ -6,10 +6,12 @@
         <attribute name="detailId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="image" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="image_source" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary" syncable="YES"/>
         <relationship name="storyId" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FunStory" inverseName="detailId" inverseEntity="FunStory" syncable="YES"/>
     </entity>
     <entity name="FunStory" representedClassName="FunStory" syncable="YES">
         <attribute name="image" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="storyDate" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="storyId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
@@ -17,7 +19,7 @@
         <relationship name="detailId" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FunDetail" inverseName="storyId" inverseEntity="FunDetail" syncable="YES"/>
     </entity>
     <elements>
-        <element name="FunDetail" positionX="-54" positionY="-9" width="128" height="135"/>
-        <element name="FunStory" positionX="171" positionY="-9" width="128" height="135"/>
+        <element name="FunDetail" positionX="-54" positionY="-9" width="128" height="150"/>
+        <element name="FunStory" positionX="171" positionY="-9" width="128" height="150"/>
     </elements>
 </model>
