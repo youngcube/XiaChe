@@ -14,7 +14,7 @@
 //}
 
 + (UIColor *)customNavColor{
-    return RGBCOLOR(173, 24, 24);
+    return RGBCOLOR(52, 136, 254);
 }
 
 + (UIColor *)cellSeparateLine

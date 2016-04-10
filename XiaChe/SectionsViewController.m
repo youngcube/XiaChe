@@ -10,7 +10,6 @@
 #import "SectionModel.h"
 #import "Consts.h"
 #import <AFNetworking/AFNetworking.h>
-//#import "StoryDetailViewController.h"
 #import <MJRefresh/MJRefresh.h>
 #import "FunStory.h"
 #import "SearchForNewFun.h"
@@ -25,7 +24,6 @@
 
 @interface SectionsViewController ()<MonthSelectDelegate>
 {
-//    CGFloat _startPos;
     NSUInteger _currentSection;
 
     CGFloat _selectOffset;
@@ -44,10 +42,6 @@
 @end
 
 @implementation SectionsViewController
-typedef NS_ENUM(NSInteger, isToday){
-    kNext = 0,
-    kBefore = 1
-};
 
 - (instancetype)initWithPredicate:(NSString *)predicate
 {
@@ -61,8 +55,8 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     self = [super initWithStyle:style];
     if (self){
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(selectType)];
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(settingBundle)];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"datePick"] style:UIBarButtonItemStylePlain target:self action:@selector(selectType)];
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"settings"] style:UIBarButtonItemStylePlain target:self action:@selector(settingBundle)];
     }
     return self;
 }
@@ -91,14 +85,10 @@ typedef NS_ENUM(NSInteger, isToday){
     [self.formatter setDateFormat:@"yyyyMMdd"];
     [self setupFooter];
     
-//    UIButton *titleNew = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 40)];
-//    
-//    
-//    
-//    [titleNew setTitle:@"·" forState:UIControlStateNormal];
-//    [titleNew setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    
     UILabel *titleNew = [[UILabel alloc] init];
+    titleNew.frame = CGRectMake(0, 0, 100, 150);
+    titleNew.textAlignment = NSTextAlignmentCenter;
+    [titleNew setFont:[UIFont boldSystemFontOfSize:16]];
     if ([self.predicateCache isEqualToString:@"瞎扯"]){
         titleNew.text = @"瞎扯吐槽";
     }else if ([self.predicateCache isEqualToString:@"深夜"]){
@@ -107,19 +97,6 @@ typedef NS_ENUM(NSInteger, isToday){
     self.navigationItem.titleView = titleNew;
     
     self.navTitle = titleNew;
-    
-    StorageManager *manager = [StorageManager sharedInstance];
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
-    [fetchRequest setEntity:entity];
-    
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO];
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    [fetchRequest setFetchBatchSize:20];
-    NSPredicate *pre = [NSPredicate predicateWithFormat:@"title BEGINSWITH %@",@"瞎扯"];
-    [fetchRequest setPredicate:pre];
-    NSArray *thisA = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    NSLog(@" fetch count = %d,fetchCtrol = %@",thisA.count,self.fetchedResultsController.fetchRequest.predicate);
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -212,23 +189,23 @@ typedef NS_ENUM(NSInteger, isToday){
         SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
         
         if ([model.date isEqualToString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]]){
-            NSLog(@"不要刷新");
+            FUNLog(@"不要刷新");
             self.tableView.mj_footer.hidden = NO;
             [self.tableView.mj_header endRefreshing];
         }else{
-            NSLog(@"刷新");
+            FUNLog(@"刷新");
             NSDate *newDate = [self.formatter dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
             NSDate *today = [self.formatter dateFromString:model.date];
             NSTimeInterval interval = [today timeIntervalSinceDate:newDate];
-            NSLog(@" %@ %@ %f",newDate,today,interval);
+            FUNLog(@" %@ %@ %f",newDate,today,interval);
             
             //从后往前需要加的天数
             NSUInteger days = (interval / 86400) - 1;
             
-            NSLog(@"%lu",(unsigned long)days);
+            FUNLog(@"%lu",(unsigned long)days);
             
             if(newDate == NULL){ // 首次刷新，列表为空的情况
-                NSLog(@"这是第一次刷新");
+                FUNLog(@"这是第一次刷新");
                 [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:NO];
                 self.ifIsLoopNewData = NO;
                 [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
@@ -239,22 +216,24 @@ typedef NS_ENUM(NSInteger, isToday){
             }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
+        FUNLog(@"failed! %@",error);
         [self.tableView.mj_header endRefreshing];
     }];
 }
 // 数据保存了
 - (void)dataDidSave
 {
-    NSLog(@"loop time = %d,",[SearchForNewFun sharedInstance].loopTime);
+    FUNLog(@"loop time = %lu,",(unsigned long)[SearchForNewFun sharedInstance].loopTime);
     if ([SearchForNewFun sharedInstance].loopTime == 0) { //最后一次保存
         if (self.getFun){ //如果getfun存在，说明需要loadwebview
-            NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:self.getFun];
-            NSUInteger thisRow = indexPath.row;
-            NSUInteger thisSection = indexPath.section;
-            NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
-            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
-            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_FINISH_HUD object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
+            if (![SearchForNewFun sharedInstance].isLoopDetail){
+                NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:self.getFun];
+                NSUInteger thisRow = indexPath.row;
+                NSUInteger thisSection = indexPath.section;
+                NSIndexPath *beforeIndex = [NSIndexPath indexPathForRow:thisRow + 1 inSection:thisSection];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:beforeIndex]];
+            }
+            
         }
         self.tableView.mj_footer.hidden = NO;
         [self.tableView.mj_header endRefreshing];
@@ -323,15 +302,6 @@ typedef NS_ENUM(NSInteger, isToday){
     [self.fetchedResultsController sections];
     detail.passFun = object;
     detail.predicateCache = self.predicateCache;
-    
-//    NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:passFun];
-    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][indexPath.section];
-    NSUInteger totalSection = [self.fetchedResultsController sections].count;
-    NSUInteger totalRow = [sectionInfo numberOfObjects];
-    NSUInteger thisRow = indexPath.row;
-    NSUInteger thisSection = indexPath.section;
-    NSLog(@"totalSection = %d,totalRow = %d,thisRow = %d,thisSection = %d",totalSection,totalRow,thisRow,thisSection);
-    
     [self.navigationController pushViewController:detail animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
@@ -340,12 +310,12 @@ typedef NS_ENUM(NSInteger, isToday){
 {
     NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:passFun];
     id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][indexPath.section];
-    NSUInteger totalSection = [self.fetchedResultsController sections].count;
     NSUInteger totalRow = [sectionInfo numberOfObjects];
     NSUInteger thisRow = indexPath.row;
     NSUInteger thisSection = indexPath.section;
     if (thisRow == 0){ // 本月最后一天
         if (thisSection == 0){ //最新的月份的最后一天（最新一天）
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_NO_MORE_NEW object:nil];
             NSIndexPath *nextIndex = [NSIndexPath indexPathForRow:0 inSection:0];
             [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_WEBVIEW object:[self.fetchedResultsController objectAtIndexPath:nextIndex]];
         }else{ //其他下个月跳转
@@ -375,8 +345,8 @@ typedef NS_ENUM(NSInteger, isToday){
         
         if (thisSection == totalSection - 1){ //到底了，需要加载新数据或者直接到底5.23
             // new data
-            // fetch 7天 防止有没有的情况出现
-            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_START_HUD object:nil];
+            // fetch 3天 防止有没有的情况出现
+            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_MORE object:nil];
             [SearchForNewFun sharedInstance].loopTime = 3; //抓之后3天的避免没有瞎扯
             self.ifIsLoopNewData = NO;
             [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
@@ -395,14 +365,6 @@ typedef NS_ENUM(NSInteger, isToday){
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    //    CGFloat offset = scrollView.contentOffset.y;
-    //
-    //    CGFloat dis = _startPos - offset;
-    //    if (dis > 0){
-    ////        [self.navigationController setToolbarHidden:NO animated:YES];
-    //    }else{
-    ////        [self.navigationController setToolbarHidden:YES animated:YES];
-    //    }
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
@@ -477,106 +439,4 @@ typedef NS_ENUM(NSInteger, isToday){
     }
     return _fetchedResultsController;
 }
-
-#pragma mark - 废弃的方法
-//- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
-//{
-//    _startPos = scrollView.contentOffset.y;
-//}
-
-
-
-//- (void)switchSectionHideWithTag:(UIButton *)btn
-//{
-//    NSString *tagStr = [NSString stringWithFormat:@"%ld",btn.tag];
-//    if ([self.sectionDict[tagStr] integerValue]==0){
-//        [self.sectionDict setObject:@1 forKey:tagStr];
-//    }else{
-//        [self.sectionDict setObject:@0 forKey:tagStr];
-//    }
-//    NSIndexSet *set = [NSIndexSet indexSetWithIndex:btn.tag];
-//    [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
-//}
-//- (void)expandAll
-//{
-//    if (_expand){
-//        for (int i = 0 ; i < [[self.fetchedResultsController sections] count] ; i ++){
-//            NSNumber *sections = [NSNumber numberWithInteger:i];
-//            NSString *tagStr = [NSString stringWithFormat:@"%@",sections];
-//            [self.sectionDict setObject:@1 forKey:tagStr];
-//            NSIndexSet *set = [NSIndexSet indexSetWithIndex:i];
-//            [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
-//        }
-//        _expand = NO;
-//    }else{
-//        for (int i = 0 ; i < [[self.fetchedResultsController sections] count] ; i ++){
-//            NSNumber *sections = [NSNumber numberWithInteger:i];
-//            NSString *tagStr = [NSString stringWithFormat:@"%@",sections];
-//            [self.sectionDict setObject:@0 forKey:tagStr];
-//            NSIndexSet *set = [NSIndexSet indexSetWithIndex:i];
-//            [self.tableView reloadSections:set withRowAnimation:UITableViewRowAnimationAutomatic];
-//        }
-//        _expand = YES;
-//    }
-//}
-//- (void)showNotification
-//{
-//    _notification.titleText = @"获取更多信息";
-//    _notification.subtitleText = @"您想获取更多之前的「瞎扯」信息吗？";
-//    _notification.image = [UIImage imageNamed:@"update"];
-//    _notification.topButtonText = @"好的";
-//    _notification.bottomButtonText = @"不要";
-//    _notification.dismissOnTap = YES;
-//    [_notification presentInView:self.view withGravityAnimation:YES];
-//
-//    [_notification listenEventsWithBlock:^(AFDropdownNotificationEvent event) {
-//
-//        switch (event) {
-//            case AFDropdownNotificationEventTopButton:
-//                // Top button
-//                break;
-//
-//            case AFDropdownNotificationEventBottomButton:
-//                // Bottom button
-//                break;
-//
-//            case AFDropdownNotificationEventTap:
-//                // Tap
-//                break;
-//
-//            default:
-//                break;
-//        }
-//    }];
-//
-//    NSLog(@"show notification");
-////    [self showDropDownViewFromDirection:LMDropdownViewDirectionTop];
-//}
-
-//- (void)dropdownNotificationTopButtonTapped {
-//
-//    NSLog(@"Top button tapped");
-//
-//    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Top button tapped" message:@"Hooray! You tapped the top button" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-//    [alert show];
-//
-//    [_notification dismissWithGravityAnimation:YES];
-//}
-
-//- (void)dropdownNotificationBottomButtonTapped {
-//
-//    NSLog(@"Bottom button tapped");
-//
-////    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Bottom button tapped" message:@"Hooray! You tapped the bottom button" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-////    [alert show];
-////    [self downloadAll];
-//    [_notification dismissWithGravityAnimation:YES];
-//}
-//- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-//{
-//    NSArray *sections = [[self fetchedResultsController] sections];
-//    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
-//    sectionInfo = [sections objectAtIndex:section];
-//    return [sectionInfo name];
-//}
 @end

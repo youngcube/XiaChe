@@ -29,6 +29,10 @@
 		86E9306D1CB29CE2006D039A /* ASProgressPopUpView.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9306B1CB29CE2006D039A /* ASProgressPopUpView.m */; };
 		86E930791CB29DAF006D039A /* AFDropdownNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930781CB29DAF006D039A /* AFDropdownNotification.m */; };
 		86E9307C1CB4025B006D039A /* SettingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9307B1CB4025B006D039A /* SettingView.m */; };
+		86E930861CB98111006D039A /* DeformationButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930831CB98111006D039A /* DeformationButton.m */; };
+		86E930871CB98111006D039A /* MMMaterialDesignSpinner.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930851CB98111006D039A /* MMMaterialDesignSpinner.m */; };
+		86E9308A1CB98DEF006D039A /* DetailToolBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E930891CB98DEF006D039A /* DetailToolBar.m */; };
+		86E9308E1CBA25AE006D039A /* UIView+Toast.m in Sources */ = {isa = PBXBuildFile; fileRef = 86E9308D1CBA25AE006D039A /* UIView+Toast.m */; };
 		BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */; };
 		BF6D12AC1CA1421A00758CCF /* CustomNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = BF6D12AB1CA1421A00758CCF /* CustomNavigationBar.m */; };
 		BF77A60C1CB3526600630BA0 /* MonthSelectView.m in Sources */ = {isa = PBXBuildFile; fileRef = BF77A60B1CB3526600630BA0 /* MonthSelectView.m */; };
@@ -84,6 +88,14 @@
 		86E930781CB29DAF006D039A /* AFDropdownNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFDropdownNotification.m; sourceTree = "<group>"; };
 		86E9307A1CB4025B006D039A /* SettingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingView.h; sourceTree = "<group>"; };
 		86E9307B1CB4025B006D039A /* SettingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingView.m; sourceTree = "<group>"; };
+		86E930821CB98111006D039A /* DeformationButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeformationButton.h; sourceTree = "<group>"; };
+		86E930831CB98111006D039A /* DeformationButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeformationButton.m; sourceTree = "<group>"; };
+		86E930841CB98111006D039A /* MMMaterialDesignSpinner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMaterialDesignSpinner.h; sourceTree = "<group>"; };
+		86E930851CB98111006D039A /* MMMaterialDesignSpinner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMMaterialDesignSpinner.m; sourceTree = "<group>"; };
+		86E930881CB98DEF006D039A /* DetailToolBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailToolBar.h; sourceTree = "<group>"; };
+		86E930891CB98DEF006D039A /* DetailToolBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailToolBar.m; sourceTree = "<group>"; };
+		86E9308C1CBA25AE006D039A /* UIView+Toast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Toast.h"; sourceTree = "<group>"; };
+		86E9308D1CBA25AE006D039A /* UIView+Toast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Toast.m"; sourceTree = "<group>"; };
 		BF6D12A61CA141EA00758CCF /* CustomNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationController.h; sourceTree = "<group>"; };
 		BF6D12A71CA141EA00758CCF /* CustomNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomNavigationController.m; sourceTree = "<group>"; };
 		BF6D12AA1CA1421A00758CCF /* CustomNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomNavigationBar.h; sourceTree = "<group>"; };
@@ -217,6 +229,8 @@
 				BF77A60B1CB3526600630BA0 /* MonthSelectView.m */,
 				86E9307A1CB4025B006D039A /* SettingView.h */,
 				86E9307B1CB4025B006D039A /* SettingView.m */,
+				86E930881CB98DEF006D039A /* DetailToolBar.h */,
+				86E930891CB98DEF006D039A /* DetailToolBar.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -237,6 +251,8 @@
 		86E930601CB263BD006D039A /* OpenSource */ = {
 			isa = PBXGroup;
 			children = (
+				86E9308B1CBA25AE006D039A /* Toast */,
+				86E930811CB98111006D039A /* DeformationButton */,
 				86E930761CB29DAF006D039A /* AFDropdownNotification */,
 				86E930671CB29CD3006D039A /* ASPopUp */,
 			);
@@ -262,6 +278,28 @@
 			);
 			name = AFDropdownNotification;
 			path = OpenSource/AFDropdownNotification;
+			sourceTree = "<group>";
+		};
+		86E930811CB98111006D039A /* DeformationButton */ = {
+			isa = PBXGroup;
+			children = (
+				86E930821CB98111006D039A /* DeformationButton.h */,
+				86E930831CB98111006D039A /* DeformationButton.m */,
+				86E930841CB98111006D039A /* MMMaterialDesignSpinner.h */,
+				86E930851CB98111006D039A /* MMMaterialDesignSpinner.m */,
+			);
+			name = DeformationButton;
+			path = OpenSource/DeformationButton;
+			sourceTree = "<group>";
+		};
+		86E9308B1CBA25AE006D039A /* Toast */ = {
+			isa = PBXGroup;
+			children = (
+				86E9308C1CBA25AE006D039A /* UIView+Toast.h */,
+				86E9308D1CBA25AE006D039A /* UIView+Toast.m */,
+			);
+			name = Toast;
+			path = OpenSource/Toast;
 			sourceTree = "<group>";
 		};
 		BF6D12A41CA141BA00758CCF /* CustomViewController */ = {
@@ -430,6 +468,7 @@
 				8660B69E1C99989B006917FC /* StoryDetailViewController.m in Sources */,
 				8660B6831C999855006917FC /* AppDelegate.m in Sources */,
 				BF80EE801CA9055600FAE74C /* SectionCell.m in Sources */,
+				86E9308E1CBA25AE006D039A /* UIView+Toast.m in Sources */,
 				8660B6E31C9F0104006917FC /* FunStory.m in Sources */,
 				8660B6801C999855006917FC /* main.m in Sources */,
 				8660B6E21C9F0104006917FC /* FunStory+CoreDataProperties.m in Sources */,
@@ -444,7 +483,10 @@
 				86E9306D1CB29CE2006D039A /* ASProgressPopUpView.m in Sources */,
 				86E9306C1CB29CE2006D039A /* ASPopUpView.m in Sources */,
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
+				86E930871CB98111006D039A /* MMMaterialDesignSpinner.m in Sources */,
+				86E9308A1CB98DEF006D039A /* DetailToolBar.m in Sources */,
 				BF77A60C1CB3526600630BA0 /* MonthSelectView.m in Sources */,
+				86E930861CB98111006D039A /* DeformationButton.m in Sources */,
 				86E930591CB074CE006D039A /* WebViewController.m in Sources */,
 				86E9307C1CB4025B006D039A /* SettingView.m in Sources */,
 				8660B6D51C9C6CC9006917FC /* SearchForNewFun.m in Sources */,

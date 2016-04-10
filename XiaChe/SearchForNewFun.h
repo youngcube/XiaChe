@@ -12,6 +12,7 @@
 
 @property (nonatomic) NSUInteger loopTime;
 @property (nonatomic) BOOL isLoopDetail;
+@property (nonatomic) BOOL isDownloadOld;
 + (instancetype)sharedInstance;
 - (NSString *)fetchLastestDayFromStorage:(BOOL)lastest;
 - (void)accordingDateToLoopNewDataWithData:(BOOL)data;

@@ -20,33 +20,23 @@
 #import "UIColor+Extension.h"
 #import <WebKit/WebKit.h>
 #import "WebViewController.h"
+#import "DetailToolBar.h"
+#import "UIView+Toast.h"
+
+static CGFloat toolBarHeight = 44;
 
 @interface StoryDetailViewController()<WKNavigationDelegate,UIScrollViewDelegate>
-{
-    CGFloat webHeight;
-//    CGFloat _startScroll;
-}
 @property (nonatomic, weak) WKWebView *webView;
 @property (nonatomic, weak) UIImageView *topImage;
 @property (nonatomic, weak) UIView *headerView;
 @property (nonatomic, weak) UILabel *headerTitleLabel;
 @property (nonatomic, weak) UILabel *headerSourceLabel;
-@property (nonatomic, copy) NSString *dateString;
-@property (nonatomic) BOOL getNextFun;
-@property (nonatomic) double webViewProgress;
-@property (nonatomic, weak) MBProgressHUD *hud;
-@property (nonatomic, weak) UIProgressView *progressView;
-@property (nonatomic, weak) UIBarButtonItem *nextBtnItem;
-@property (nonatomic, weak) UIBarButtonItem *beforeBtnItem;
-@property (nonatomic, weak) UIBarButtonItem *dateItem;
+@property (nonatomic, weak) DeformationButton *nextBtn;
+@property (nonatomic, weak) DeformationButton *beforeBtn;
+@property (nonatomic, weak) UILabel *dateLabel;
 @property (nonatomic, copy) NSString *thisDate;
 @property (nonatomic, copy) NSString *cssString;
 @end
-
-typedef NS_ENUM(NSInteger, Steps){
-    kNext = 1,
-    kBefore = -1
-};
 
 @implementation StoryDetailViewController
 
@@ -64,31 +54,32 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    [self setupToolbar];
+    [self setupToolBar];
     [self setupWebView];
     [self decideIfShoudGetDataFromNet];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadWebNoti:) name:NOTIFICATION_LOAD_WEBVIEW object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showHud) name:NOTIFICATION_START_HUD object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideHud) name:NOTIFICATION_FINISH_HUD object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(noMoreNew) name:NOTIFICATION_NO_MORE_NEW object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadMore) name:NOTIFICATION_LOAD_MORE object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
 }
 
-- (void)showHud
+- (void)noMoreNew
 {
-    UIWindow *lastWindow = [[UIApplication sharedApplication].windows lastObject];
-    self.hud = [MBProgressHUD showHUDAddedTo:self.webView animated:YES];
-    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
+    [self.webView makeToast:[NSString stringWithFormat:@"没有更多的「%@」",self.predicateCache]
+                   duration:3.0
+                   position:CSToastPositionBottom];
 }
 
-- (void)hideHud
+- (void)loadMore
 {
-    [self.hud hide:YES afterDelay:0.3];
+    [self.webView makeToast:[NSString stringWithFormat:@"正在加载"]
+                   duration:3.0
+                   position:CSToastPositionBottom];
 }
 
 - (void)loadWebNoti:(NSNotification *)notification
 {
     self.passFun = [notification object];
-    NSLog(@"passfun = %@",self.passFun.storyDate);
     [self decideIfShoudGetDataFromNet];
 }
 
@@ -96,7 +87,6 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    [self.navigationController setToolbarHidden:NO animated:YES];
 }
 
 - (BOOL)hidesBottomBarWhenPushed
@@ -110,26 +100,19 @@ typedef NS_ENUM(NSInteger, Steps){
     [self.webView setNavigationDelegate:nil];
     [self.webView.scrollView setDelegate:nil];
     [self.webView stopLoading];
-    [self.webView removeObserver:self forKeyPath:@"estimatedProgress"];
 }
 
 - (void)setupWebView
 {
-    CGRect webFrame = CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height - 20);
+    CGRect webFrame = CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height - 20 - toolBarHeight);
     WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
     WKWebView *webView = [[WKWebView alloc] initWithFrame:webFrame configuration:config];
     webView.navigationDelegate = self;
     webView.scrollView.delegate = self;
-//    webView.backgroundColor = RGBCOLOR(249, 249, 249);
-//    webView.scrollView.backgroundColor = RGBCOLOR(249, 249, 249);
-//    webView.scrollView.showsVerticalScrollIndicator = NO;
     [self.view addSubview:webView];
     self.webView = webView;
     
-    // KVO 进度
-    [webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew context:NULL];
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
     UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, -40, self.view.frame.size.width, 260)];
     headerView.clipsToBounds = YES;
     [self.view addSubview:headerView];
@@ -173,19 +156,10 @@ typedef NS_ENUM(NSInteger, Steps){
 #pragma mark - webview delegate
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-//    NSLog(@"progress = %f",webView.estimatedProgress);
-//    self.hud.progress = webView.estimatedProgress;
-//    [self.hud hide:YES];
-    
-//    NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
-//    
-//    if ([self.passFun.storyDate isEqualToString:todayString]){
-//        [self.nextBtnItem setEnabled:NO];
-//    }else{
-//        [self.nextBtnItem setEnabled:YES];
-//    }
-//    [self.beforeBtnItem setEnabled:YES];
-//    [self setupToolbar];
+    self.nextBtn.enabled = YES;
+    self.nextBtn.isLoading = NO;
+    self.beforeBtn.enabled = YES;
+    self.beforeBtn.isLoading = NO;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 }
 
@@ -205,15 +179,13 @@ typedef NS_ENUM(NSInteger, Steps){
     NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
     
     if ([self.passFun.storyDate isEqualToString:todayString]){
-        [self.nextBtnItem setEnabled:NO];
+        [self.nextBtn setEnabled:NO];
     }else{
-        [self.nextBtnItem setEnabled:YES];
+        [self.nextBtn setEnabled:YES];
     }
-    [self.beforeBtnItem setEnabled:YES];
+    [self.beforeBtn setEnabled:YES];
     [self updateToolbar];
 }
-
-
 
 #pragma mark - ScrollView Delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -254,75 +226,68 @@ typedef NS_ENUM(NSInteger, Steps){
     return nil;
 }
 
-#pragma mark - UI
-- (void)setupToolbar
+#pragma mark - toolbar
+
+- (void)setupToolBar
 {
-    [self.navigationController setToolbarHidden:NO animated:YES];
+    DetailToolBar *tool = [DetailToolBar createToolBar];
+    [tool.backBtn addTarget:self action:@selector(popToLastVc) forControlEvents:UIControlEventTouchUpInside];
+    [tool.beforeBtn addTarget:self action:@selector(switchToBefore) forControlEvents:UIControlEventTouchUpInside];
+    [tool.nextBtn addTarget:self action:@selector(switchToNext) forControlEvents:UIControlEventTouchUpInside];
     
-    UIBarButtonItem *pop = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"] style:UIBarButtonItemStylePlain target:self action:@selector(popToLastVc)];
-    UIBarButtonItem *flex = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    UIBarButtonItem *fixWidth = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    self.dateLabel = tool.dateLabel;
+    self.beforeBtn = tool.beforeBtn;
+    self.nextBtn = tool.nextBtn;
     
+    [self.view addSubview:tool];
     
-    
-    UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"upArrow"] style:UIBarButtonItemStylePlain target:self action:@selector(switchToNewDetail:)];
-    
-//    UIButton *nextbutton = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [nextbutton setImage:[UIImage imageNamed:@"upArrow"] forState:UIControlStateNormal];
-//    [nextbutton setTitle:@"hao" forState:UIControlStateNormal];
-//    [nextbutton setTintColor:[UIColor customNavColor]];
-//    CGRect btnf = nextbutton.frame;
-//    btnf.size.width = 20;
-//    btnf.size.height = 20;
-//    nextbutton.frame = btnf;
-//    UIBarButtonItem *nextBtn = [[UIBarButtonItem alloc] initWithCustomView:nextbutton];
-//    nextbutton.enabled = NO;
-    
-    nextBtn.tag = 1001;
-    self.nextBtnItem = nextBtn;
-    
-    UIBarButtonItem *dateItem = [[UIBarButtonItem alloc] initWithTitle:self.thisDate style:UIBarButtonItemStylePlain target:self action:nil];
-    dateItem.enabled = NO;
-    self.dateItem = dateItem;
-    
-    UIBarButtonItem *beforeBtn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"downArrow"] style:UIBarButtonItemStylePlain target:self action:@selector(switchToNewDetail:)];
-    beforeBtn.tag = 1002;
-    self.beforeBtnItem = beforeBtn;
-    
-    if ([SearchForNewFun sharedInstance].loopTime == 0){
-        nextBtn.enabled = YES;
-        beforeBtn.enabled = YES;
-    }else{
-        nextBtn.enabled = NO;
-        beforeBtn.enabled = NO;
-    }
-    
-//    NSString *todayString = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
-//    //当天是最新的一天，禁用下一页
-//    if ([self.passFun.storyDate isEqualToString:todayString]){
-//        [self.nextBtnItem setEnabled:NO];
-//    }else{
-//        [self.nextBtnItem setEnabled:YES];
-//    }
-//    //当天是知乎日报头一天，禁用上一页
-//    if ([self.passFun.storyDate isEqualToString:FirstDayString]){
-//        [self.beforeBtnItem setEnabled:NO];
-//    }else{
-//        [self.beforeBtnItem setEnabled:YES];
-//    }
-    [self setToolbarItems:@[pop,flex,beforeBtn,flex,nextBtn,flex,fixWidth,dateItem,fixWidth] animated:YES];
+    [tool mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.bottom.equalTo(self.view);
+        make.height.mas_equalTo(toolBarHeight);
+    }];
 }
 
 - (void)updateToolbar
 {
     if ([SearchForNewFun sharedInstance].loopTime == 0){
-        self.nextBtnItem.enabled = YES;
-        self.beforeBtnItem.enabled = YES;
+        self.nextBtn.enabled = YES;
+        self.nextBtn.isLoading = NO;
+        self.beforeBtn.enabled = YES;
+        self.beforeBtn.isLoading = NO;
     }else{
-        self.nextBtnItem.enabled = NO;
-        self.beforeBtnItem.enabled = NO;
+        if ([SearchForNewFun sharedInstance].isDownloadOld){
+            self.nextBtn.enabled = YES;
+            self.nextBtn.isLoading = NO;
+            self.beforeBtn.enabled = YES;
+            self.beforeBtn.isLoading = NO;
+        }else{
+//            self.nextBtn.enabled = YES;
+//            self.nextBtn.isLoading = NO;
+//            
+//            self.beforeBtn.enabled = NO;
+//            self.beforeBtn.isLoading = YES;
+        }
     }
-    [self.dateItem setTitle:self.thisDate];
+    self.dateLabel.text = self.thisDate;
+}
+
+- (void)switchToNext
+{
+    
+    self.nextBtn.isLoading = YES;
+    self.nextBtn.enabled = NO;
+    self.topImage.image = nil;
+    [self.delegate nextStoryDetailFetchWithPassFun:self.passFun];
+    [self updateToolbar];
+}
+
+- (void)switchToBefore
+{
+    self.beforeBtn.isLoading = YES;
+    self.beforeBtn.enabled = NO;
+    self.topImage.image = nil;
+    [self.delegate beforeStoryDetailFetchWithPassFun:self.passFun];
+    [self updateToolbar];
 }
 
 - (NSString *)thisDate
@@ -340,12 +305,6 @@ typedef NS_ENUM(NSInteger, Steps){
 - (void)popToLastVc
 {
     [self.navigationController popViewControllerAnimated:YES];
-}
-
-#pragma mark - KVO
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
-{
-    [self.progressView setProgress:self.webView.estimatedProgress animated:YES];
 }
 
 #pragma mark - 网络逻辑
@@ -390,10 +349,10 @@ typedef NS_ENUM(NSInteger, Steps){
         st.detailId = detail.detailId;
         st.image = detail.image;
         st.image_source = detail.image_source;
-        [[StorageManager sharedInstance].managedObjectContext save:nil];
+//        [[StorageManager sharedInstance].managedObjectContext save:nil];
         
         if ([self fetchWebString].body == NULL ){
-            NSLog(@"今天没有瞎扯");
+            
             [self setupNoView];
         }else{
             [self loadWebView:[self fetchWebString]];
@@ -409,7 +368,7 @@ typedef NS_ENUM(NSInteger, Steps){
 {
     if([funDetail.body isEqualToString:@""]){
         [self setupNoView];
-        NSLog(@"今天没有瞎扯");
+        
     }else{
         [self.passFun setUnread:[NSNumber numberWithBool:NO]];
 //        [[StorageManager sharedInstance].managedObjectContext save:nil];
@@ -431,21 +390,8 @@ typedef NS_ENUM(NSInteger, Steps){
                                        self.headerTitleLabel.textColor = [UIColor whiteColor];
                                        self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
                                        self.headerSourceLabel.hidden = NO;
-                                       [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
                                    }
                                }];
-//        [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]];
-        
-//        NSMutableAttributedString *attrTitle = [[NSMutableAttributedString alloc] initWithString:self.passFun.title];
-//        NSShadow * shadow = [[NSShadow alloc] init];
-//        shadow.shadowColor = [UIColor cellHeaderColor];
-//        shadow.shadowBlurRadius = 0.5;
-//        shadow.shadowOffset = CGSizeMake(0.5, 0.5);
-//        NSDictionary * attris = @{NSShadowAttributeName:shadow};
-//        [attrTitle setAttributes:attris range:NSMakeRange(0,self.passFun.title.length)];
-//        self.headerTitleLabel.attributedText = attrTitle;
-//        self.headerTitleLabel.text = self.passFun.title;
-//        self.headerSourceLabel.text = funDetail.image_source;
         self.headerTitleLabel.text = self.passFun.title;
         self.headerSourceLabel.text = funDetail.image_source;
     }
@@ -479,77 +425,5 @@ typedef NS_ENUM(NSInteger, Steps){
     FunStory *funDate = [array firstObject];
     return funDate;
 }
-
-#pragma mark - 若storyId不存在，则按照时间来读
-
-//TODO 切换上下篇
-//TODO 优化等待界面
-- (void)switchToNewDetail:(UIButton *)sender
-{
-//    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-//    self.hud.mode = MBProgressHUDModeAnnularDeterminate;
-    
-    if (sender.tag == 1001){
-        [self.delegate nextStoryDetailFetchWithPassFun:self.passFun];
-//        [self loadWebView:[self fetchWebString]];
-    }else if(sender.tag == 1002){
-        [self.delegate beforeStoryDetailFetchWithPassFun:self.passFun];
-//        [self loadWebView:[self fetchWebString]];
-    }
-    [self updateToolbar];
-}
-
-//#pragma mark - 计算当前时间的前一天和后一天
-//- (NSString *)dateStringForInt:(Steps)step
-//{
-//    //传入时间 -1*86300
-//    NSString *todayString;
-//    if (self.passFun.storyId == NULL){
-//        todayString = self.passFun.storyDate;
-//    }else{
-//        FunStory *sto = [self fetchDate];
-//        todayString = sto.storyDate;
-//    }
-//    NSDateFormatter *format = [[NSDateFormatter alloc] init];
-//    [format setDateFormat:@"yyyyMMdd"];
-//    NSDate *todayDate = [format dateFromString:todayString];
-//    NSDate *nextRange = [NSDate dateWithTimeInterval:+86400*step sinceDate:todayDate];
-//    NSString *newDateRangeString = [format stringFromDate:nextRange];
-//    NSLog(@"前 = %@，当前storyID = %@",newDateRangeString,todayString);
-//    return newDateRangeString;
-//}
-
-//#pragma mark - 直接从CoreData读取最新的文章
-//- (NSString *)fetchLastestDayFromStorage
-//{
-//    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-//    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-//    [fetchRequest setEntity:entity];
-//    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO]; // YES返回最老的
-//    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-//    NSArray *late = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-//    FunStory *fun = [late firstObject];
-//    return fun.storyDate;
-//}
-//- (void)detailDidSave
-//{
-//    if (self.getNextFun == NO) {
-//        return;
-//    }else{
-//        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-//        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-//        [fetchRequest setEntity:entity];
-//        NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
-//        [fetchRequest setSortDescriptors:@[sort]];
-//        NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.dateString];
-////        NSLog(@"今天的日期是！ %@",self.dateString);
-//        [fetchRequest setPredicate:pre];
-//        NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-//        FunStory *funDate = [array firstObject];
-//        self.passFun = funDate;
-//        [self decideIfShoudGetDataFromNet];
-//        self.getNextFun = NO;
-//    }
-//}
 
 @end

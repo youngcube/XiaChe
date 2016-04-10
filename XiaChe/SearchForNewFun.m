@@ -138,7 +138,7 @@
         }
         [[StorageManager sharedInstance].managedObjectContext save:nil];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
+        
     }];
 }
 
@@ -201,7 +201,6 @@
                 st.storyDate = self.model.date;
                 st.title = @"本日没有深夜专栏";
             }
-//            [[StorageManager sharedInstance].managedObjectContext save:&error];
             self.isLoopDetail = NO;
             if (![[StorageManager sharedInstance].managedObjectContext save:&error]) {
                 abort();
@@ -210,7 +209,7 @@
         _ifHasXiaChe = NO;
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"failed! %@",error);
+        
     }];
 }
 
@@ -236,28 +235,5 @@
         
     }];
 }
-
-
-
-//- (BOOL)decideIfLastestIsToday
-//{
-//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-//    __block BOOL isToday;
-//    [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-//        
-//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//        SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
-//        if (model.date == [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]){
-//            isToday = YES;
-//            
-//        }else{
-//            NSLog(@"刷新");
-//            
-//        }
-//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//        [self decideIfLastestIsToday];
-//    }];
-//    return isToday;
-//}
 
 @end
