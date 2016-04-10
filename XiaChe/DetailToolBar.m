@@ -58,7 +58,7 @@
         
         [backBtn mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(self).offset(20);
-            make.width.height.equalTo(@40);
+            make.width.height.equalTo(@30);
             make.centerY.equalTo(self);
         }];
         

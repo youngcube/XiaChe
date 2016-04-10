@@ -370,6 +370,16 @@ static CGFloat toolBarHeight = 44;
         [self setupNoView];
         
     }else{
+        
+        // 5 .23
+        if ([self.passFun.storyDate isEqualToString:FirstDayString] && [self.predicateCache isEqualToString:@"瞎扯"]){
+            self.headerTitleLabel.hidden = YES;
+            self.headerSourceLabel.hidden = YES;
+        }else{
+            self.headerTitleLabel.hidden = NO;
+            self.headerSourceLabel.hidden = NO;
+        }
+        
         [self.passFun setUnread:[NSNumber numberWithBool:NO]];
 //        [[StorageManager sharedInstance].managedObjectContext save:nil];
 //        NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=%@ /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>%@</body></html>", funDetail.css, funDetail.body];
