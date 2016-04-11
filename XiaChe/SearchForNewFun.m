@@ -63,7 +63,8 @@
     NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"YYYYMMdd"];
     NSDate *mostBeforeDate = [dateFormatter dateFromString:FirstDayString];
-    NSDate *oldDate = [dateFormatter dateFromString:[self fetchLastestDayFromStorage:YES]];
+//    NSDate *oldDate = [dateFormatter dateFromString:[self fetchLastestDayFromStorage:YES]];
+    NSDate *oldDate = [dateFormatter dateFromString:[[StorageManager sharedInstance].dateArray lastObject]];
     NSTimeInterval time = [oldDate timeIntervalSinceDate:mostBeforeDate] * 2;
     NSUInteger days=((int)time)/(3600*24);
     return days;
@@ -87,10 +88,11 @@
 - (void)accordingDateToLoopOldData
 {
     NSString *oldString = [self fetchLastestDayFromStorage:YES];
-    [self getJsonWithString:oldString];
+    [self getJsonWithString:[[StorageManager sharedInstance].dateArray lastObject]];
 }
 
 #pragma mark - 获取CoreData内存储的 最新:NO / 最老:YES 日期
+// TODO 罪魁祸首
 - (NSString *)fetchLastestDayFromStorage:(BOOL)lastest
 {
     StorageManager *manager = [StorageManager sharedInstance];
@@ -100,8 +102,9 @@
     NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:lastest]; // YES返回最老的
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
     NSArray *late = [manager.managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    FunStory *fun = [late firstObject];
-    return fun.storyDate;
+    NSManagedObject *fun = [late firstObject];
+    
+    return [fun valueForKey:@"storyDate"];
 }
 
 #pragma mark - 获取最新 1 天的数据
@@ -148,6 +151,7 @@
                 [self getDetailJsonWithId:story.storyId];
             }
         }
+        [[StorageManager sharedInstance].dateArray addObject:_model.date];
         [[StorageManager sharedInstance].managedObjectContext save:nil];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         
@@ -231,7 +235,7 @@
             }
         }
         _ifHasXiaChe = NO;
-        
+        [[StorageManager sharedInstance].dateArray addObject:_model.date];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         
     }];
@@ -259,7 +263,7 @@
             st.imageData = data;
         }];
         self.isLoopDetail = YES;
-        [[StorageManager sharedInstance].managedObjectContext save:nil];
+//        [[StorageManager sharedInstance].managedObjectContext save:nil];
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         

@@ -11,6 +11,7 @@
 
 @interface StorageManager : NSObject
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, strong) NSMutableArray *dateArray;
 + (instancetype)sharedInstance;
 - (void)removeAllData;
 @end

@@ -52,7 +52,7 @@
 - (NSManagedObjectContext *)managedObjectContext
 {
     if (!_managedObjectContext){
-        _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+        _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         [_managedObjectContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _managedObjectContext;
@@ -92,6 +92,16 @@
     if (![_managedObjectContext save:&error]) {
         
     }
+}
+
+//@property (nonatomic, strong) NSMutableArray *dateArray;
+- (NSMutableArray *)dateArray
+{
+    if (!_dateArray){
+        NSMutableArray *date = [[NSMutableArray alloc] init];
+        _dateArray = date;
+    }
+    return _dateArray;
 }
 
 @end

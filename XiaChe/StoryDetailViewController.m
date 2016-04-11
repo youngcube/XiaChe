@@ -167,8 +167,24 @@ static CGFloat toolBarHeight = 44;
     self.beforeBtn.isLoading = NO;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     // TODO 不设置animated 就不会滚动 stackoverflow
-    CGPoint current = CGPointMake(0, [[self fetchWebString].contentOffset floatValue]);
-    [self.webView.scrollView setContentOffset:current animated:NO];
+    CGFloat currentY = [[self fetchWebString].contentOffset floatValue] + toolBarHeight;
+    
+    CGPoint current = CGPointMake(0, currentY);
+    
+    
+    
+    
+    
+    if (-currentY <= 80 && -currentY >= 0) { //顶部图片固定
+        self.headerView.frame = CGRectMake(0, -40 - currentY / 2, self.view.frame.size.width, 260 - currentY / 2);
+        
+    }else if (-currentY > 80) {
+        _webView.scrollView.contentOffset = CGPointMake(0, -80);
+        
+    }else if (currentY <= 300 ){
+        self.headerView.frame = CGRectMake(0, -40 - currentY, self.view.frame.size.width, 260);
+    }
+    [self.webView.scrollView setContentOffset:current animated:YES];
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
@@ -201,7 +217,8 @@ static CGFloat toolBarHeight = 44;
     if (![self.headerView isHidden]){
         _currentOffset = scrollView.contentOffset.y;
         FUNLog(@"offsetY = %f",_currentOffset);
-        if (_currentOffset>=self.headerView.frame.size.height - 40){
+        
+        if (_currentOffset>=self.headerView.frame.size.height - 40){ // 状态栏变色
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
         }else{
             if (!self.passFun.imageData){ // 如果没有图片 状态栏是黑色
@@ -210,21 +227,15 @@ static CGFloat toolBarHeight = 44;
                 [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
             }
         }
-        if (-_currentOffset <= 80 && -_currentOffset >= 0) {
+        
+        if (-_currentOffset <= 80 && -_currentOffset >= 0) { //顶部图片固定
             self.headerView.frame = CGRectMake(0, -40 - _currentOffset / 2, self.view.frame.size.width, 260 - _currentOffset / 2);
-            //        [_imaSourceLab setTop:240-offSetY/2];
-            //        [_titleLab setBottom:_imaSourceLab.bottom-20];
-            if (-_currentOffset > 40 && !_webView.scrollView.isDragging){
-//                            [self switchToNext];
-            }
+            
         }else if (-_currentOffset > 80) {
             _webView.scrollView.contentOffset = CGPointMake(0, -80);
+            
         }else if (_currentOffset <= 300 ){
             self.headerView.frame = CGRectMake(0, -40 - _currentOffset, self.view.frame.size.width, 260);
-        }
-        if (_currentOffset + self.view.frame.size.height > scrollView.contentSize.height + 160 && !_webView.scrollView.isDragging) {
-            //        [self.viewmodel getNextStoryContent];
-//            [self switchToBefore];
         }
     }
 }
@@ -349,6 +360,7 @@ static CGFloat toolBarHeight = 44;
     
     NSString *url = [NSString stringWithFormat:@"%@%@",DetailNewsString,self.passFun.storyId];
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    __weak typeof(self)weakSelf = self;
     [manager GET:url parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -362,11 +374,11 @@ static CGFloat toolBarHeight = 44;
         st.image_source = detail.image_source;
 //        [[StorageManager sharedInstance].managedObjectContext save:nil];
         
-        if ([self fetchWebString].body == NULL ){
+        if ([weakSelf fetchWebString].body == NULL ){
             
-            [self setupNoView];
+            [weakSelf setupNoView];
         }else{
-            [self loadWebView:[self fetchWebString]];
+            [weakSelf loadWebView:[weakSelf fetchWebString]];
         }
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -404,20 +416,17 @@ static CGFloat toolBarHeight = 44;
             self.headerSourceLabel.hidden = NO;
 //            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
         }else{
-            [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]
+            [_topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]
                              placeholderImage:nil
                                     completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                                        [self.passFun setImageData:UIImagePNGRepresentation(image)];
-                                        self.headerTitleLabel.textColor = [UIColor whiteColor];
-                                        self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
-                                        self.headerSourceLabel.hidden = NO;
+                                        [_passFun setImageData:UIImagePNGRepresentation(image)];
+                                        _headerTitleLabel.textColor = [UIColor whiteColor];
+                                        _headerSourceLabel.textColor = [UIColor cellHeaderColor];
+                                        _headerSourceLabel.hidden = NO;
                                     }];
         }
-        self.headerTitleLabel.text = self.passFun.title;
-        self.headerSourceLabel.text = funDetail.image_source;
-        
-        
-        
+        _headerTitleLabel.text = _passFun.title;
+        _headerSourceLabel.text = funDetail.image_source;
     }
 }
 
@@ -443,7 +452,7 @@ static CGFloat toolBarHeight = 44;
     [fetchRequest setEntity:entity];
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"storyId" ascending:YES];
     [fetchRequest setSortDescriptors:@[sort]];
-    NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyId == %@",self.passFun.storyId];
+    NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyId == %@",_passFun.storyId];
     [fetchRequest setPredicate:pre];
     NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
     FunStory *funDate = [array firstObject];

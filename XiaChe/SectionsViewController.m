@@ -178,6 +178,11 @@
     }
 }
 
+//- (NSString *)fetchLastDayFromStorage
+//{
+//    
+//}
+
 #pragma mark - Logic to Fetch Data
 - (void)decideIfShouldGetNewJson
 {
@@ -249,7 +254,9 @@
             NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:newDate];
             oldString = [self.formatter stringFromDate:oldDateRange];
         }else{
-            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
+//            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
+            oldString = [[StorageManager sharedInstance].dateArray lastObject];
+            NSLog(@"old = %@",oldString);
         }
         NSDate *oldDate = [self.formatter dateFromString:oldString];
         NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
