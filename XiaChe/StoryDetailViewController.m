@@ -65,15 +65,15 @@ static CGFloat toolBarHeight = 44;
 
 - (void)noMoreNew
 {
-    [self.webView makeToast:[NSString stringWithFormat:@"没有更多的「%@」",self.predicateCache]
-                   duration:3.0
+    [self.webView makeToast:[NSString stringWithFormat:@"没有更新的%@啦 (ㆆᴗㆆ) ",self.predicateCache]
+                   duration:1.0
                    position:CSToastPositionBottom];
 }
 
 - (void)loadMore
 {
-    [self.webView makeToast:[NSString stringWithFormat:@"正在加载"]
-                   duration:3.0
+    [self.webView makeToast:[NSString stringWithFormat:@"正在努力加载之前的%@ (,,・ω・,,) ",self.predicateCache]
+                   duration:1.0
                    position:CSToastPositionBottom];
 }
 
@@ -190,7 +190,6 @@ static CGFloat toolBarHeight = 44;
 #pragma mark - ScrollView Delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (![self.headerView isHidden]){
-//        _startScroll = scrollView.contentOffset.y;
         CGFloat offSetY = scrollView.contentOffset.y;
         if (offSetY>=self.headerView.frame.size.height - 40){
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
@@ -206,7 +205,7 @@ static CGFloat toolBarHeight = 44;
             //        [_imaSourceLab setTop:240-offSetY/2];
             //        [_titleLab setBottom:_imaSourceLab.bottom-20];
             if (-offSetY > 40 && !_webView.scrollView.isDragging){
-                //            [self.viewmodel getPreviousStoryContent];
+                            [self switchToNext];
             }
         }else if (-offSetY > 80) {
             _webView.scrollView.contentOffset = CGPointMake(0, -80);
@@ -215,6 +214,7 @@ static CGFloat toolBarHeight = 44;
         }
         if (offSetY + self.view.frame.size.height > scrollView.contentSize.height + 160 && !_webView.scrollView.isDragging) {
             //        [self.viewmodel getNextStoryContent];
+            [self switchToBefore];
         }
         
     }
@@ -387,7 +387,7 @@ static CGFloat toolBarHeight = 44;
         
         // 设置顶部图片
         if (self.passFun.imageData){
-            self.topImage.image = [UIImage imageWithData:self.passFun.imageData];
+            self.topImage.image = [UIImage imageWithData:funDetail.imageData];
             self.headerTitleLabel.textColor = [UIColor whiteColor];
             self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
             self.headerSourceLabel.hidden = NO;

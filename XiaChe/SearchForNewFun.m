@@ -124,7 +124,7 @@
                 st.title = story.title;
                 st.storyId = story.storyId;
                 st.image = [story.images firstObject];
-                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:[story.images firstObject]] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                     // 下载进度block
                 } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                     // 下载完成block
@@ -138,7 +138,7 @@
                 st.title = story.title;
                 st.storyId = story.storyId;
                 st.image = [story.images firstObject];
-                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:[story.images firstObject]] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                     // 下载进度block
                 } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                     // 下载完成block
@@ -190,7 +190,7 @@
                     st.title = story.title;
                     st.storyId = story.storyId;
                     st.image = [story.images firstObject];
-                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:[story.images firstObject]] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                         // 下载进度block
                     } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                         // 下载完成block
@@ -205,7 +205,7 @@
                     st.title = story.title;
                     st.storyId = story.storyId;
                     st.image = [story.images firstObject];
-                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:[story.images firstObject]] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
                         // 下载进度block
                     } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
                         // 下载完成block
@@ -252,7 +252,7 @@
         st.detailId = detail.detailId;
         st.image = detail.image;
         st.image_source = detail.image_source;
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:st.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:detail.image] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
             // 下载进度block
         } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
             // 下载完成block
