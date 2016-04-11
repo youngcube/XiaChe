@@ -2,7 +2,7 @@
 //  FunDetail+CoreDataProperties.h
 //  XiaChe
 //
-//  Created by cube on 4/11/16.
+//  Created by eusoft on 4/11/16.
 //  Copyright © 2016 cube. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *image;
 @property (nullable, nonatomic, retain) NSString *image_source;
 @property (nullable, nonatomic, retain) NSData *imageData;
+@property (nullable, nonatomic, retain) NSNumber *contentOffset;
 @property (nullable, nonatomic, retain) FunStory *storyId;
 
 @end

@@ -2,6 +2,7 @@
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10171" systemVersion="15E65" minimumToolsVersion="Xcode 7.0">
     <entity name="FunDetail" representedClassName="FunDetail" syncable="YES">
         <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="contentOffset" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="css" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="detailId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="image" optional="YES" attributeType="String" syncable="YES"/>
@@ -19,7 +20,7 @@
         <relationship name="detailId" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FunDetail" inverseName="storyId" inverseEntity="FunDetail" syncable="YES"/>
     </entity>
     <elements>
-        <element name="FunDetail" positionX="-54" positionY="-9" width="128" height="150"/>
+        <element name="FunDetail" positionX="-54" positionY="-9" width="128" height="165"/>
         <element name="FunStory" positionX="171" positionY="-9" width="128" height="150"/>
     </elements>
 </model>

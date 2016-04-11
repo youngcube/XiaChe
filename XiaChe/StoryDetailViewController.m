@@ -26,6 +26,9 @@
 static CGFloat toolBarHeight = 44;
 
 @interface StoryDetailViewController()<WKNavigationDelegate,UIScrollViewDelegate>
+{
+    CGFloat _currentOffset;
+}
 @property (nonatomic, weak) WKWebView *webView;
 @property (nonatomic, weak) UIImageView *topImage;
 @property (nonatomic, weak) UIView *headerView;
@@ -97,6 +100,8 @@ static CGFloat toolBarHeight = 44;
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    FunDetail *detail = [self fetchWebString];
+    detail.contentOffset = [NSNumber numberWithFloat:_currentOffset];
     [self.webView setNavigationDelegate:nil];
     [self.webView.scrollView setDelegate:nil];
     [self.webView stopLoading];
@@ -161,6 +166,9 @@ static CGFloat toolBarHeight = 44;
     self.beforeBtn.enabled = YES;
     self.beforeBtn.isLoading = NO;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    // TODO 不设置animated 就不会滚动 stackoverflow
+    CGPoint current = CGPointMake(0, [[self fetchWebString].contentOffset floatValue]);
+    [self.webView.scrollView setContentOffset:current animated:NO];
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
@@ -185,13 +193,15 @@ static CGFloat toolBarHeight = 44;
     }
     [self.beforeBtn setEnabled:YES];
     [self updateToolbar];
+    
 }
 
 #pragma mark - ScrollView Delegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (![self.headerView isHidden]){
-        CGFloat offSetY = scrollView.contentOffset.y;
-        if (offSetY>=self.headerView.frame.size.height - 40){
+        _currentOffset = scrollView.contentOffset.y;
+        FUNLog(@"offsetY = %f",_currentOffset);
+        if (_currentOffset>=self.headerView.frame.size.height - 40){
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
         }else{
             if (!self.passFun.imageData){ // 如果没有图片 状态栏是黑色
@@ -200,23 +210,22 @@ static CGFloat toolBarHeight = 44;
                 [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
             }
         }
-        if (-offSetY <= 80 && -offSetY >= 0) {
-            self.headerView.frame = CGRectMake(0, -40 - offSetY / 2, self.view.frame.size.width, 260 - offSetY / 2);
+        if (-_currentOffset <= 80 && -_currentOffset >= 0) {
+            self.headerView.frame = CGRectMake(0, -40 - _currentOffset / 2, self.view.frame.size.width, 260 - _currentOffset / 2);
             //        [_imaSourceLab setTop:240-offSetY/2];
             //        [_titleLab setBottom:_imaSourceLab.bottom-20];
-            if (-offSetY > 40 && !_webView.scrollView.isDragging){
-                            [self switchToNext];
+            if (-_currentOffset > 40 && !_webView.scrollView.isDragging){
+//                            [self switchToNext];
             }
-        }else if (-offSetY > 80) {
+        }else if (-_currentOffset > 80) {
             _webView.scrollView.contentOffset = CGPointMake(0, -80);
-        }else if (offSetY <= 300 ){
-            self.headerView.frame = CGRectMake(0, -40 - offSetY, self.view.frame.size.width, 260);
+        }else if (_currentOffset <= 300 ){
+            self.headerView.frame = CGRectMake(0, -40 - _currentOffset, self.view.frame.size.width, 260);
         }
-        if (offSetY + self.view.frame.size.height > scrollView.contentSize.height + 160 && !_webView.scrollView.isDragging) {
+        if (_currentOffset + self.view.frame.size.height > scrollView.contentSize.height + 160 && !_webView.scrollView.isDragging) {
             //        [self.viewmodel getNextStoryContent];
-            [self switchToBefore];
+//            [self switchToBefore];
         }
-        
     }
 }
 
@@ -227,7 +236,6 @@ static CGFloat toolBarHeight = 44;
 }
 
 #pragma mark - toolbar
-
 - (void)setupToolBar
 {
     DetailToolBar *tool = [DetailToolBar createToolBar];
@@ -273,7 +281,8 @@ static CGFloat toolBarHeight = 44;
 
 - (void)switchToNext
 {
-    
+    FunDetail *detail = [self fetchWebString];
+    detail.contentOffset = [NSNumber numberWithFloat:_currentOffset];
     self.nextBtn.isLoading = YES;
     self.nextBtn.enabled = NO;
     self.topImage.image = nil;
@@ -283,6 +292,8 @@ static CGFloat toolBarHeight = 44;
 
 - (void)switchToBefore
 {
+    FunDetail *detail = [self fetchWebString];
+    detail.contentOffset = [NSNumber numberWithFloat:_currentOffset];
     self.beforeBtn.isLoading = YES;
     self.beforeBtn.enabled = NO;
     self.topImage.image = nil;
@@ -391,7 +402,7 @@ static CGFloat toolBarHeight = 44;
             self.headerTitleLabel.textColor = [UIColor whiteColor];
             self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
             self.headerSourceLabel.hidden = NO;
-            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+//            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
         }else{
             [self.topImage sd_setImageWithURL:[NSURL URLWithString:funDetail.image]
                              placeholderImage:nil
@@ -404,6 +415,9 @@ static CGFloat toolBarHeight = 44;
         }
         self.headerTitleLabel.text = self.passFun.title;
         self.headerSourceLabel.text = funDetail.image_source;
+        
+        
+        
     }
 }
 
