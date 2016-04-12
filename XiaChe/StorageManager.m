@@ -49,10 +49,19 @@
     return _managedObjectModel;
 }
 
+- (NSManagedObjectContext *)mainManagedObjectContext
+{
+    if (!_mainManagedObjectContext){
+        _mainManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+        [_mainManagedObjectContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
+    }
+    return _mainManagedObjectContext;
+}
+
 - (NSManagedObjectContext *)managedObjectContext
 {
     if (!_managedObjectContext){
-        _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+        _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         [_managedObjectContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _managedObjectContext;

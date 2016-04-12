@@ -11,7 +11,6 @@
 @protocol MonthSelectDelegate<NSObject>;
 @required
 - (void)monthSelectAtIndex:(NSUInteger)index offset:(CGFloat)offset;
-
 @end
 
 @interface MonthSelectView : UIView
@@ -19,6 +18,5 @@
 @property (nonatomic) NSInteger selectIndex;
 @property (nonatomic, strong) NSArray *monthArray;
 @property (nonatomic, weak) id <MonthSelectDelegate> delegate;
-
 - (void)show;
 @end

@@ -63,7 +63,7 @@
     NSDateFormatter *dateFormatter=[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"YYYYMMdd"];
     NSDate *mostBeforeDate = [dateFormatter dateFromString:FirstDayString];
-    NSDate *oldDate = [dateFormatter dateFromString:[self fetchLastestDayFromStorage:YES]];
+    NSDate *oldDate = [dateFormatter dateFromString:[self.delegate fetchLastestDayFromStorage:YES]];
     NSTimeInterval time = [oldDate timeIntervalSinceDate:mostBeforeDate] * 2;
     NSUInteger days=((int)time)/(3600*24);
     return days;
@@ -73,7 +73,7 @@
 - (void)accordingDateToLoopNewDataWithData:(BOOL)data
 {
     if (data){
-        NSString *oldString = [self fetchLastestDayFromStorage:NO];
+        NSString *oldString = [self.delegate fetchLastestDayFromStorage:NO];
         NSDate *oldDate = [self.formatter dateFromString:oldString];
         NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:oldDate];
         NSString *oldDateRangeString = [self.formatter stringFromDate:oldDateRange];
@@ -86,23 +86,23 @@
 #pragma mark - 批量返回更老的数据
 - (void)accordingDateToLoopOldData
 {
-    NSString *oldString = [self fetchLastestDayFromStorage:YES];
+    NSString *oldString = [self.delegate fetchLastestDayFromStorage:YES];
     [self getJsonWithString:oldString];
 }
 
 #pragma mark - 获取CoreData内存储的 最新:NO / 最老:YES 日期
-- (NSString *)fetchLastestDayFromStorage:(BOOL)lastest
-{
-    StorageManager *manager = [StorageManager sharedInstance];
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
-    [fetchRequest setEntity:entity];
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:lastest]; // YES返回最老的
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    NSArray *late = [manager.managedObjectContext executeFetchRequest:fetchRequest error:nil];
-    FunStory *fun = [late firstObject];
-    return fun.storyDate;
-}
+//- (NSString *)fetchLastestDayFromStorage:(BOOL)lastest
+//{
+//    StorageManager *manager = [StorageManager sharedInstance];
+//    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+//    NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
+//    [fetchRequest setEntity:entity];
+//    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:lastest]; // YES返回最老的
+//    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+//    NSArray *late = [manager.managedObjectContext executeFetchRequest:fetchRequest error:nil];
+//    FunStory *fun = [late firstObject];
+//    return fun.storyDate;
+//}
 
 #pragma mark - 获取最新 1 天的数据
 - (void)getLastestJson
@@ -168,6 +168,9 @@
     [manager GET:str parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        FUNLog(@"thread = %@",[NSThread currentThread]);
+        
         NSError *error = nil;
         self.model = [SectionModel yy_modelWithJSON:responseObject];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];

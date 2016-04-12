@@ -172,6 +172,7 @@ static CGFloat kSectionHeader = 10.0;
     if (!cell){
         cell = [[MonthCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:selectCell];
     }
+    
     id <NSFetchedResultsSectionInfo> sectionInfo = nil;
     sectionInfo = [self.monthArray objectAtIndex:indexPath.row];
     [cell setTitle:[sectionInfo name]];
@@ -180,7 +181,6 @@ static CGFloat kSectionHeader = 10.0;
         NSIndexPath *index = [NSIndexPath indexPathForRow:self.selectIndex inSection:0];
         [tableView selectRowAtIndexPath:index animated:YES scrollPosition:UITableViewScrollPositionNone];
     }
-    
     return cell;
 }
 
@@ -196,14 +196,10 @@ static CGFloat kSectionHeader = 10.0;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
-    sectionInfo = [self.monthArray objectAtIndex:indexPath.row];
+//    id <NSFetchedResultsSectionInfo> sectionInfo = nil;
+//    sectionInfo = [self.monthArray objectAtIndex:indexPath.row];
     [self.delegate monthSelectAtIndex:indexPath.row offset:_thisOffset];
     [self dismissAnimation];
-    
 }
-
-
 
 @end

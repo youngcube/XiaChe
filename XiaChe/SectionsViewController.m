@@ -20,14 +20,13 @@
 #import "SettingView.h"
 #import <Masonry.h>
 
-#define HEIGHT_OF_SECTION_HEADER 50.5f
+#define HEIGHT_OF_SECTION_HEADER 30.0f
 
-@interface SectionsViewController ()<MonthSelectDelegate>
+@interface SectionsViewController ()<MonthSelectDelegate,SearchNewForFunDelegate>
 {
     NSUInteger _currentSection;
-
-    CGFloat _selectOffset;
     NSUInteger _selectIndex;
+    CGFloat _selectOffset;
 }
 @property (nonatomic, strong) SectionModel *model;
 @property (nonatomic, strong) NSDateFormatter *formatter;
@@ -79,6 +78,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.tableView.rowHeight = 90;
+    self.tableView.sectionHeaderHeight = HEIGHT_OF_SECTION_HEADER;
+    [SearchForNewFun sharedInstance].delegate = self;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
     self.formatter = [[NSDateFormatter alloc] init];
@@ -123,10 +125,6 @@
 }
 
 #pragma mark - tableview delegate
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-    return 30;
-}
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
@@ -150,8 +148,9 @@
 #pragma mark - UI
 - (void)setupFooter
 {
+    __weak typeof(self)weakSelf = self;
     self.autoHeader = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-        [self decideIfShouldGetNewJson];
+        [weakSelf decideIfShouldGetNewJson];
     }];
     self.autoHeader.lastUpdatedTimeLabel.hidden = YES;
     
@@ -160,42 +159,73 @@
     
     self.autoFooter = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         if ([[SearchForNewFun sharedInstance] calculateStartTimeToOldTime] == 0){
-            [self.autoFooter endRefreshingWithNoMoreData];
+            [_autoFooter endRefreshingWithNoMoreData];
         }else{
             [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
-            self.ifIsLoopNewData = NO;
+            _ifIsLoopNewData = NO;
             [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
         }
     }];
     
-    self.tableView.mj_footer = self.autoFooter;
-    if ([[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES] isEqualToString:FirstDayString]){
-        self.tableView.mj_footer.hidden = YES;
-        self.autoFooter.hidden = YES;
+    weakSelf.tableView.mj_footer = self.autoFooter;
+    if ([[weakSelf fetchLastestDayFromStorage:YES] isEqualToString:FirstDayString]){
+        weakSelf.tableView.mj_footer.hidden = YES;
+        _autoFooter.hidden = YES;
     }else{
-        self.tableView.mj_footer.hidden = NO;
-        self.autoFooter.hidden = NO;
+        weakSelf.tableView.mj_footer.hidden = NO;
+        _autoFooter.hidden = NO;
     }
 }
 
 #pragma mark - Logic to Fetch Data
+
+// 最新:NO / 最老:YES 日期
+- (NSString *)fetchLastestDayFromStorage:(BOOL)lastest
+{
+    if ([[_fetchedResultsController sections] count] == 0){
+        StorageManager *manager = [StorageManager sharedInstance];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
+        [fetchRequest setEntity:entity];
+        NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:lastest]; // YES返回最老的
+        [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+        NSArray *late = [manager.managedObjectContext executeFetchRequest:fetchRequest error:nil];
+        FunStory *fun = [late firstObject];
+        return fun.storyDate;
+    }else{
+        if (lastest){ //最老
+            NSUInteger totalSection = [[self.fetchedResultsController sections] count] - 1;
+            id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][totalSection];
+            NSUInteger totalRow = [sectionInfo numberOfObjects] - 1;
+            NSIndexPath *bottomIndex = [NSIndexPath indexPathForRow:totalRow inSection:totalSection];
+            NSManagedObject *topFun = [_fetchedResultsController objectAtIndexPath:bottomIndex];
+            return [topFun valueForKeyPath:@"storyDate"];
+        }else{ // 最新
+            NSIndexPath *topIndex = [NSIndexPath indexPathForRow:0 inSection:0];
+            NSManagedObject *topFun = [_fetchedResultsController objectAtIndexPath:topIndex];
+            return [topFun valueForKeyPath:@"storyDate"];
+        }
+    }
+}
+
 - (void)decideIfShouldGetNewJson
 {
     self.tableView.mj_footer.hidden = YES;
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    __weak typeof(self)weakSelf = self;
     [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         SectionModel *model = [SectionModel yy_modelWithJSON:responseObject];
         
-        if ([model.date isEqualToString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]]){
+        if ([model.date isEqualToString:[weakSelf fetchLastestDayFromStorage:NO]]){
             FUNLog(@"不要刷新");
-            self.tableView.mj_footer.hidden = NO;
-            [self.tableView.mj_header endRefreshing];
+            weakSelf.tableView.mj_footer.hidden = NO;
+            [weakSelf.tableView.mj_header endRefreshing];
         }else{
             FUNLog(@"刷新");
-            NSDate *newDate = [self.formatter dateFromString:[[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO]];
-            NSDate *today = [self.formatter dateFromString:model.date];
+            NSDate *newDate = [_formatter dateFromString:[weakSelf fetchLastestDayFromStorage:NO]];
+            NSDate *today = [_formatter dateFromString:model.date];
             NSTimeInterval interval = [today timeIntervalSinceDate:newDate];
             FUNLog(@" %@ %@ %f",newDate,today,interval);
             
@@ -207,23 +237,24 @@
             if(newDate == NULL){ // 首次刷新，列表为空的情况
                 FUNLog(@"这是第一次刷新");
                 [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:NO];
-                self.ifIsLoopNewData = NO;
+                _ifIsLoopNewData = NO;
                 [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
             }else{
                 [[SearchForNewFun sharedInstance] accordingDateToLoopNewDataWithData:YES];
-                self.ifIsLoopNewData = YES;
+                _ifIsLoopNewData = YES;
                 [SearchForNewFun sharedInstance].loopTime = days;
             }
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         FUNLog(@"failed! %@",error);
-        [self.tableView.mj_header endRefreshing];
+        [weakSelf.tableView.mj_header endRefreshing];
     }];
 }
+
 // 数据保存了
 - (void)dataDidSave
 {
-    FUNLog(@"loop time = %lu,",(unsigned long)[SearchForNewFun sharedInstance].loopTime);
+//    FUNLog(@"loop time = %lu,",(unsigned long)[SearchForNewFun sharedInstance].loopTime);
     
     // TODO 后台
     if ([SearchForNewFun sharedInstance].loopTime == 0) { //最后一次保存
@@ -244,12 +275,12 @@
         NSString *oldString;
         self.tableView.mj_footer.hidden = YES;
         if (self.ifIsLoopNewData == YES){
-            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:NO];
+            oldString = [self fetchLastestDayFromStorage:NO];
             NSDate *newDate = [self.formatter dateFromString:oldString];
             NSDate *oldDateRange = [NSDate dateWithTimeInterval:+86400*2 sinceDate:newDate];
             oldString = [self.formatter stringFromDate:oldDateRange];
         }else{
-            oldString = [[SearchForNewFun sharedInstance] fetchLastestDayFromStorage:YES];
+            oldString = [self fetchLastestDayFromStorage:YES];
         }
         NSDate *oldDate = [self.formatter dateFromString:oldString];
         NSString *oldDateRangeString = [self.formatter stringFromDate:oldDate];
@@ -291,10 +322,7 @@
 }
 
 #pragma mark - TableView Delegate
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    return 90;
-}
+
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -422,7 +450,7 @@
     if (!_fetchedResultsController){
         StorageManager *manager = [StorageManager sharedInstance];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.managedObjectContext];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:manager.mainManagedObjectContext];
         [fetchRequest setEntity:entity];
         
         NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"storyDate" ascending:NO];
@@ -430,7 +458,7 @@
         [fetchRequest setFetchBatchSize:20];
         [fetchRequest setPredicate:self.predicate];
         NSFetchedResultsController *fetchCtrl = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                                    managedObjectContext:manager.managedObjectContext
+                                                                                    managedObjectContext:manager.mainManagedObjectContext
                                                                                       sectionNameKeyPath:@"simpleMonth" cacheName:[NSString stringWithFormat:@"%@",self.predicateCache]];
         fetchCtrl.delegate = self;
         self.fetchedResultsController = fetchCtrl;

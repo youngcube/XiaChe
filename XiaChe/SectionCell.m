@@ -75,14 +75,13 @@
 - (void)setImageURL:(NSString *)imageURL
 {
     _imageURL = imageURL;
-    
     if (self.funStory.imageData){
         self.contentImage.image = [UIImage imageWithData:self.funStory.imageData];
     }else{
         [self.contentImage sd_setImageWithURL:[NSURL URLWithString:imageURL]
                              placeholderImage:[UIImage imageNamed:@"placeholder"]
                                     completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                                        [self.funStory setImageData:UIImagePNGRepresentation(image)];
+                                        [_funStory setImageData:UIImagePNGRepresentation(image)];
                                     }];
     }
 }
