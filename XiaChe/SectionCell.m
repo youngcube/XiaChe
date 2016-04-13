@@ -10,6 +10,7 @@
 #import <Masonry.h>
 #import "UIImageView+WebCache.h"
 #import "UIColor+Extension.h"
+#import "Consts.h"
 
 @interface SectionCell ()
 @property (nonatomic, weak) UIImageView *contentImage;
@@ -82,6 +83,9 @@
                              placeholderImage:[UIImage imageNamed:@"placeholder"]
                                     completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                                         [_funStory setImageData:UIImagePNGRepresentation(image)];
+                                        if (error){
+                                            FUNLog(@"SDWeb ERROR = %@",error);
+                                        }
                                     }];
     }
 }

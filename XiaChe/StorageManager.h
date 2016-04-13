@@ -12,6 +12,7 @@
 @interface StorageManager : NSObject
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSManagedObjectContext *mainManagedObjectContext;
+@property (nonatomic, strong) NSMutableSet *dateSet;
 + (instancetype)sharedInstance;
 - (void)removeAllData;
 @end

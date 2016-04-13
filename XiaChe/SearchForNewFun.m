@@ -111,16 +111,16 @@
     [manager GET:LatestNewsString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        self.model = [SectionModel yy_modelWithJSON:responseObject];
-        NSString *todayString = self.model.date;
+        _model = [SectionModel yy_modelWithJSON:responseObject];
+        NSString *todayString = _model.date;
         NSString *fetchNewestDay = [[NSUserDefaults standardUserDefaults] objectForKey:@"todayString"];
         if (![todayString isEqualToString:fetchNewestDay]){
             [[NSUserDefaults standardUserDefaults] setObject:todayString forKey:@"todayString"];
         }
-        for (Story *story in self.model.stories){
+        for (Story *story in _model.stories){
             if ([story.title hasPrefix:@"瞎扯"]) {
                 FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-                st.storyDate = self.model.date;
+                st.storyDate = _model.date;
                 st.title = story.title;
                 st.storyId = story.storyId;
                 st.image = [story.images firstObject];
@@ -145,6 +145,7 @@
                     st.imageData = data;
                 }];
                 [st setUnread:[NSNumber numberWithBool:YES]];
+                [[StorageManager sharedInstance].dateSet addObject:_model.date];
                 [self getDetailJsonWithId:story.storyId];
             }
         }
@@ -162,6 +163,7 @@
     
     // 知乎日报可能没有瞎扯，需要跳过的逻辑
     // http://news.at.zhihu.com/api/4/news/before/20140120
+    // 把时间放入nsset里。
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     
@@ -170,68 +172,81 @@
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         FUNLog(@"thread = %@",[NSThread currentThread]);
+        __block NSError *error = nil;
         
-        NSError *error = nil;
-        self.model = [SectionModel yy_modelWithJSON:responseObject];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-        [fetchRequest setEntity:entity];
-        NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.model.date];
+        __block FunStory *funDate;
+        [[StorageManager sharedInstance].managedObjectContext performBlock:^{
+            _model = [SectionModel yy_modelWithJSON:responseObject];
+            NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+            NSEntityDescription *entity = [NSEntityDescription entityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+            [fetchRequest setEntity:entity];
+            NSPredicate *pre = [NSPredicate predicateWithFormat:@"storyDate == %@",self.model.date];
+            
+            [fetchRequest setPredicate:pre];
+            NSError *fetchError = nil;
+            NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:&fetchError];
+            if (fetchError){
+                FUNLog(@"fetch ERROR = %@",fetchError);
+            }
+            
+            funDate = [array firstObject];
+        }];
         
-        [fetchRequest setPredicate:pre];
-        NSArray *array = [[StorageManager sharedInstance].managedObjectContext executeFetchRequest:fetchRequest error:nil];
-        
-        FunStory *funDate = [array firstObject];
         
         if (funDate.storyDate){
             return;
         }else{
-            for (Story *story in self.model.stories){
-                if ([story.title hasPrefix:@"瞎扯"]) {
-                    FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-                    st.storyDate = self.model.date;
-                    st.title = story.title;
-                    st.storyId = story.storyId;
-                    st.image = [story.images firstObject];
-                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:[story.images firstObject]] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                        // 下载进度block
-                    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                        // 下载完成block
-                        st.imageData = data;
-                    }];
-                    [st setUnread:[NSNumber numberWithBool:YES]];
-                    _ifHasXiaChe = YES;
-                    [self getDetailJsonWithId:story.storyId];
-                }else if ([story.title hasPrefix:@"深夜"]){
-                    FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-                    st.storyDate = self.model.date;
-                    st.title = story.title;
-                    st.storyId = story.storyId;
-                    st.image = [story.images firstObject];
-                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:[story.images firstObject]] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                        // 下载进度block
-                    } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                        // 下载完成block
-                        st.imageData = data;
-                    }];
-                    [st setUnread:[NSNumber numberWithBool:YES]];
-                    _isHasShenYe = YES;
-                    [self getDetailJsonWithId:story.storyId];
+            dispatch_queue_t queue = dispatch_queue_create("QUEUE", 0);
+            dispatch_async(queue, ^{
+                for (Story *story in self.model.stories){
+                    if ([story.title hasPrefix:@"瞎扯"]) {
+                        FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                        st.storyDate = self.model.date;
+                        st.title = story.title;
+                        st.storyId = story.storyId;
+                        st.image = [story.images firstObject];
+                        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:[story.images firstObject]] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                            // 下载进度block
+                        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                            // 下载完成block
+                            st.imageData = data;
+                        }];
+                        [st setUnread:[NSNumber numberWithBool:YES]];
+                        _ifHasXiaChe = YES;
+                        [self getDetailJsonWithId:story.storyId];
+                    }else if ([story.title hasPrefix:@"深夜"]){
+                        FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                        st.storyDate = self.model.date;
+                        st.title = story.title;
+                        st.storyId = story.storyId;
+                        st.image = [story.images firstObject];
+                        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:[story.images firstObject]] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                            // 下载进度block
+                        } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                            // 下载完成block
+                            st.imageData = data;
+                        }];
+                        [st setUnread:[NSNumber numberWithBool:YES]];
+                        _isHasShenYe = YES;
+                        //                    [self getDetailJsonWithId:story.storyId];
+                    }
                 }
-            }
-            if (!_ifHasXiaChe){
-                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-                st.storyDate = self.model.date;
-                st.title = @"本日没有瞎扯专栏";
-            }else if (!_isHasShenYe){
-                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
-                st.storyDate = self.model.date;
-                st.title = @"本日没有深夜专栏";
-            }
-            self.isLoopDetail = NO;
-            if (![[StorageManager sharedInstance].managedObjectContext save:&error]) {
-                abort();
-            }
+                //            if (!_ifHasXiaChe){
+                //                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                //                st.storyDate = self.model.date;
+                //                st.title = @"本日没有瞎扯专栏";
+                //            }else if (!_isHasShenYe){
+                //                FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
+                //                st.storyDate = self.model.date;
+                //                st.title = @"本日没有深夜专栏";
+                //            }
+                self.isLoopDetail = NO;
+                if (![[StorageManager sharedInstance].managedObjectContext save:&error]) {
+                    FUNLog(@"context save = %@",error);
+                    abort();
+                }
+            });
+            
         }
         _ifHasXiaChe = NO;
         

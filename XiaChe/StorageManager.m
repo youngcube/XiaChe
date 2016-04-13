@@ -7,7 +7,7 @@
 //
 
 #import "StorageManager.h"
-
+#import "SearchForNewFun.h"
 @interface StorageManager()
 @property (nonatomic, strong) NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
@@ -24,6 +24,21 @@
         manager = [[self alloc] init];
     });
     return manager;
+}
+
+- (instancetype)init
+{
+    if (self = [super init]){
+//        [[NSNotificationCenter defaultCenter] addObserverForName:NSManagedObjectContextDidSaveNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+//            NSManagedObjectContext *moc = self.mainManagedObjectContext;
+//            if (note.object!=moc && [SearchForNewFun sharedInstance].loopTime % 5 == 1){
+//                [moc performBlock:^{
+//                    [moc mergeChangesFromContextDidSaveNotification:note];
+//                }];
+//            }
+//        }];
+    }
+    return self;
 }
 
 - (NSPersistentStoreCoordinator *)persistentStoreCoordinator
@@ -62,6 +77,7 @@
 {
     if (!_managedObjectContext){
         _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        _managedObjectContext.undoManager = nil;
         [_managedObjectContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _managedObjectContext;
