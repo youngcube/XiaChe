@@ -108,15 +108,16 @@
 - (void)setUnread:(NSNumber *)unread
 {
     _unread = unread;
-    _titleLabel.font = [UIFont boldSystemFontOfSize:15];
     if ([unread boolValue]){
+        _titleLabel.font = [UIFont boldSystemFontOfSize:15];
         _titleLabel.textColor = [UIColor customBlack];
         _dateLabel.textColor = [UIColor customBlack];
         _contentImage.alpha = 1.0f;
     }else{
+        _titleLabel.font = [UIFont systemFontOfSize:15];
         _titleLabel.textColor = [UIColor grayColor];
         _dateLabel.textColor = [UIColor grayColor];
-        _contentImage.alpha = 0.6f;
+        _contentImage.alpha = 0.4f;
     }
 }
 

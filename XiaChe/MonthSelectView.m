@@ -93,7 +93,7 @@ static CGFloat kSectionHeader = 10.0;
         _header.backgroundColor = [UIColor customNavColor];
         UILabel *label = [UILabel new];
         label.textColor = [UIColor whiteColor];
-        label.font = [UIFont systemFontOfSize:14];
+        label.font = [UIFont systemFontOfSize:17];
         [_header addSubview:label];
         label.text = NSLocalizedString(@"月份跳转", nil);
         [label mas_makeConstraints:^(MASConstraintMaker *make) {

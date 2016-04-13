@@ -132,7 +132,7 @@ static CGFloat kSectionHeader = 10.0;
         _header.backgroundColor = [UIColor customNavColor];
         UILabel *label = [UILabel new];
         label.textColor = [UIColor whiteColor];
-        label.font = [UIFont systemFontOfSize:14];
+        label.font = [UIFont systemFontOfSize:17];
         [_header addSubview:label];
         label.text = NSLocalizedString(@"缓冲", nil);
         [label mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -181,6 +181,7 @@ static CGFloat kSectionHeader = 10.0;
 }
 
 - (void)dismissAnimation{
+    [self stopDownload];
     [UIView animateWithDuration:0.3 animations:^{
         self.alpha = 0;
     } completion:^(BOOL finished) {
@@ -243,11 +244,11 @@ typedef NS_ENUM(NSInteger, SectionOne){
                         cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     }else{
                         cell.contentImage.image = [UIImage imageNamed:@"download"];
-                        cell.settingLabel.text = @"缓存之前的列表";
+                        cell.settingLabel.text = @"开始缓冲";
                     }
                 }else{
                     cell.contentImage.image = [UIImage imageNamed:@"download"];
-                    cell.settingLabel.text = @"暂停";
+                    cell.settingLabel.text = @"暂停缓冲";
                 }
                 break;
             case kProgressList:

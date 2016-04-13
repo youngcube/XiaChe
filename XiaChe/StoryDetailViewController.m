@@ -167,8 +167,8 @@ static CGFloat toolBarHeight = 44;
     self.beforeBtn.isLoading = NO;
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     // TODO 不设置animated 就不会滚动 stackoverflow
-    CGPoint current = CGPointMake(0, [[self fetchWebString].contentOffset floatValue]);
-    [self.webView.scrollView setContentOffset:current animated:NO];
+//    CGPoint current = CGPointMake(0, [[self fetchWebString].contentOffset floatValue]);
+//    [self.webView.scrollView setContentOffset:current animated:NO];
 }
 
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation
@@ -397,8 +397,9 @@ static CGFloat toolBarHeight = 44;
         self.navigationItem.title = funDetail.storyId.title;
         
         // 设置顶部图片
-        if (self.passFun.imageData){
+        if (self.passFun.imageData == NULL){
             self.topImage.image = [UIImage imageWithData:funDetail.imageData];
+            FUNLog(@"top image = %@",funDetail.imageData);
             self.headerTitleLabel.textColor = [UIColor whiteColor];
             self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
             self.headerSourceLabel.hidden = NO;
@@ -415,9 +416,6 @@ static CGFloat toolBarHeight = 44;
         }
         self.headerTitleLabel.text = self.passFun.title;
         self.headerSourceLabel.text = funDetail.image_source;
-        
-        
-        
     }
 }
 
