@@ -376,11 +376,18 @@
         if (thisSection == totalSection - 1){ //到底了，需要加载新数据或者直接到底5.23
             // new data
             // fetch 3天 防止有没有的情况出现
-            [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_MORE object:nil];
-            [SearchForNewFun sharedInstance].loopTime = 3; //抓之后3天的避免没有瞎扯
-            self.ifIsLoopNewData = NO;
-            [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
-            self.getFun = passFun; //传递passfun，通知fetch并loadweb
+            
+            if ([passFun.storyDate isEqualToString:FirstDayString]){
+                [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_NO_MORE_OLD object:nil];
+            }else{
+                [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_LOAD_MORE object:nil];
+                [SearchForNewFun sharedInstance].loopTime = 3; //抓之后3天的避免没有瞎扯
+                self.ifIsLoopNewData = NO;
+                [[SearchForNewFun sharedInstance] accordingDateToLoopOldData];
+                self.getFun = passFun; //传递passfun，通知fetch并loadweb
+            }
+            
+            
         }else{ //本月1号，需要后退到上个月31号
             thisSection++;
             thisRow = 0;

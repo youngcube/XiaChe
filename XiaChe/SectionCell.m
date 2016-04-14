@@ -79,11 +79,17 @@
     if (self.funStory.imageData){
         self.contentImage.image = [UIImage imageWithData:self.funStory.imageData];
     }else{
-        [self.contentImage sd_setImageWithURL:[NSURL URLWithString:imageURL]
-                             placeholderImage:[UIImage imageNamed:@"placeholder"]
-                                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                                        [self.funStory setImageData:UIImagePNGRepresentation(image)];
-                                    }];
+        if (!self.funStory.image){ // 如果没有瞎扯
+            self.contentImage.image = [UIImage imageNamed:@"placeholder"];
+        }else{ //如果当天有瞎扯
+            
+            [self.contentImage sd_setImageWithURL:[NSURL URLWithString:imageURL]
+                                 placeholderImage:[UIImage imageNamed:@"placeholder"]
+                                        completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                                            [self.funStory setImageData:UIImagePNGRepresentation(image)];
+                                        }];
+            
+        }
     }
 }
 

@@ -157,7 +157,10 @@
 #pragma mark - 获取新数据
 - (void)getJsonWithString:(NSString *)dateString
 {
-    if ([dateString isEqualToString:FirstDayString]) return;
+    if ([dateString isEqualToString:FirstDayString]){
+        [[NSUserDefaults standardUserDefaults] setObject:dateString forKey:@"lastDay"];
+        return;
+    }
     NSString *str = [NSString stringWithFormat:@"%@%@",BeforeNewsString,dateString];
     
     // 知乎日报可能没有瞎扯，需要跳过的逻辑
@@ -222,11 +225,11 @@
             if (!_ifHasXiaChe){
                 FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
                 st.storyDate = self.model.date;
-                st.title = @"本日没有瞎扯专栏";
+                st.title = @"瞎扯 · 当天没有噢";
             }else if (!_isHasShenYe){
                 FunStory *st = [NSEntityDescription insertNewObjectForEntityForName:@"FunStory" inManagedObjectContext:[StorageManager sharedInstance].managedObjectContext];
                 st.storyDate = self.model.date;
-                st.title = @"本日没有深夜专栏";
+                st.title = @"深夜 · 当天没有噢";
             }
             self.isLoopDetail = NO;
             if (![[StorageManager sharedInstance].managedObjectContext save:&error]) {

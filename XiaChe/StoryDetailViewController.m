@@ -62,6 +62,7 @@ static CGFloat toolBarHeight = 44;
     [self decideIfShoudGetDataFromNet];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadWebNoti:) name:NOTIFICATION_LOAD_WEBVIEW object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(noMoreNew) name:NOTIFICATION_NO_MORE_NEW object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(noMoreOld) name:NOTIFICATION_NO_MORE_OLD object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadMore) name:NOTIFICATION_LOAD_MORE object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
@@ -69,6 +70,13 @@ static CGFloat toolBarHeight = 44;
 - (void)noMoreNew
 {
     [self.webView makeToast:[NSString stringWithFormat:@"没有更新的%@啦 (ㆆᴗㆆ) ",self.predicateCache]
+                   duration:1.0
+                   position:CSToastPositionBottom];
+}
+
+- (void)noMoreOld
+{
+    [self.webView makeToast:[NSString stringWithFormat:@"没有更旧的%@啦 (ㆆᴗㆆ) ",self.predicateCache]
                    duration:1.0
                    position:CSToastPositionBottom];
 }
@@ -126,12 +134,13 @@ static CGFloat toolBarHeight = 44;
     UIImageView *topImage = [[UIImageView alloc] init];
     topImage.frame = CGRectMake(0, 0, self.view.bounds.size.width, 300);
     topImage.contentMode = UIViewContentModeScaleAspectFill;;
-    topImage.backgroundColor = [UIColor clearColor];
+//    topImage.backgroundColor = [UIColor clearColor];
     [headerView addSubview:topImage];
     self.topImage = topImage;
     
     UILabel *headerTitleLabel = [[UILabel alloc] init];
     headerTitleLabel.numberOfLines = 0;
+//    headerTitleLabel.backgroundColor = [UIColor grayColor];
     headerTitleLabel.font = [UIFont boldSystemFontOfSize:20];
     headerTitleLabel.textColor = [UIColor blackColor];
     headerTitleLabel.textAlignment = NSTextAlignmentLeft;
@@ -200,7 +209,7 @@ static CGFloat toolBarHeight = 44;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (![self.headerView isHidden]){
         _currentOffset = scrollView.contentOffset.y;
-        FUNLog(@"offsetY = %f",_currentOffset);
+//        FUNLog(@"offsetY = %f",_currentOffset);
         if (_currentOffset>=self.headerView.frame.size.height - 40){
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
         }else{
@@ -331,17 +340,28 @@ static CGFloat toolBarHeight = 44;
 //TODO 404页面
 - (void)setupNoView
 {
-    NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\" type=\"text/css\" href= /><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body>抱歉，今天没有瞎扯！</body></html>"];
-    [self.webView loadHTMLString:htmlString baseURL:nil];
-    
-    self.topImage.image = nil;
-    self.headerTitleLabel.text = @"";
+    self.topImage.image = [UIImage imageNamed:@"placeholder"];
+    self.headerTitleLabel.textColor = [UIColor grayColor];
+    self.headerTitleLabel.text = @"抱歉，当天没有噢";
     self.headerSourceLabel.text = @"";
+    NSString *htmlString = [NSString stringWithFormat:@"<html><head><link rel=\"stylesheet\"/><style type = \"text/css\" ></style><meta name=\"viewport\" content=\"initial-scale=1.0\" /></head><body></body></html>"];
+    [self.webView loadHTMLString:htmlString baseURL:nil];
+}
+
+- (void)displayLoadingView
+{
+    
+}
+
+- (void)hideLoadingView
+{
+    
 }
 
 #pragma mark 将JSON装载到DetailItem中
 - (void)loadDetailData
 {
+    FUNLog(@"story ID = %@",self.passFun.storyId);
     if (self.passFun.storyId == NULL){
         [self setupNoView];
         return;
@@ -399,7 +419,6 @@ static CGFloat toolBarHeight = 44;
         // 设置顶部图片
         if (self.passFun.imageData == NULL){
             self.topImage.image = [UIImage imageWithData:funDetail.imageData];
-            FUNLog(@"top image = %@",funDetail.imageData);
             self.headerTitleLabel.textColor = [UIColor whiteColor];
             self.headerSourceLabel.textColor = [UIColor cellHeaderColor];
             self.headerSourceLabel.hidden = NO;
