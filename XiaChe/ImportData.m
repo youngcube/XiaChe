@@ -222,7 +222,9 @@
         
         //        }
         _ifHasXiaChe = NO;
-        
+        NSLog(@"before = %lu",(unsigned long)[SearchForNewFun sharedInstance].loopTime);
+        [SearchForNewFun sharedInstance].loopTime--;
+        NSLog(@"after = %lu",(unsigned long)[SearchForNewFun sharedInstance].loopTime);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         [self main];
     }];

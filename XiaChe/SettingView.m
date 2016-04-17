@@ -324,6 +324,7 @@ typedef NS_ENUM(NSInteger, SectionOne){
     NSNumber *listP = (NSNumber *)[change objectForKey:NSKeyValueChangeNewKey];
     double this = [listP doubleValue];
     NSUInteger all = [[SearchForNewFun sharedInstance] calculateStartTimeToNow];
+    NSLog(@"all = %lu , this = %f",(unsigned long)all,this);
     double pro = this/all;
     self.listProgress.progress = 1 - pro;
     [self.listProgress showPopUpViewAnimated:YES];

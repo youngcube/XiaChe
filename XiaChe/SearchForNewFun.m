@@ -160,7 +160,7 @@
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     queue.maxConcurrentOperationCount = 1;
     NSString *oldString = [self.delegate fetchLastestDayFromStorage:YES];
-    [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
+//    [SearchForNewFun sharedInstance].loopTime = EACH_TIME_FETCH_NUM;
     ImportData *data;
     NSMutableArray *dataArray = [NSMutableArray arrayWithCapacity:EACH_TIME_FETCH_NUM];
     
@@ -173,15 +173,15 @@
         
         
         data = [[ImportData alloc] initWithDateString:oldDateRangeString];
-        
-        [dataArray addObject:data];
+        [queue addOperations:@[data] waitUntilFinished:YES];
+//        [dataArray addObject:data];
         
         if (i == [SearchForNewFun sharedInstance].loopTime - 1){
             [[NSNotificationCenter defaultCenter] postNotificationName:NOTIFICATION_END_REFRESH object:nil];
         }
         
     }
-    [queue addOperations:dataArray waitUntilFinished:YES];
+//    [queue addOperations:dataArray waitUntilFinished:YES];
 }
 
 #pragma mark - 获取新数据
