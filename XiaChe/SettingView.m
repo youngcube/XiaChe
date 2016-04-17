@@ -60,9 +60,6 @@
             make.height.equalTo(@5);
             make.centerY.equalTo(self).offset(13);
         }];
-        
-        
-        
     }
     return self;
 }
@@ -181,7 +178,7 @@ static CGFloat kSectionHeader = 10.0;
 }
 
 - (void)dismissAnimation{
-    [self stopDownload];
+    
     [UIView animateWithDuration:0.3 animations:^{
         self.alpha = 0;
     } completion:^(BOOL finished) {
@@ -313,8 +310,9 @@ typedef NS_ENUM(NSInteger, SectionOne){
 - (void)download
 {
     self.listProgress.hidden = NO;
-    self.fetchCount = [[SearchForNewFun sharedInstance] calculateStartTimeToOldTime];
-    [SearchForNewFun sharedInstance].loopTime = self.fetchCount;
+//    self.fetchCount = [[SearchForNewFun sharedInstance] calculateStartTimeToOldTime];
+//    [SearchForNewFun sharedInstance].loopTime = self.fetchCount;
+    [SearchForNewFun sharedInstance].loopTime = [[SearchForNewFun sharedInstance] calculateStartTimeToOldTime];
     // 正在下载老数据，防止上下篇切换失效
     [SearchForNewFun sharedInstance].isDownloadOld = YES;
     self.ifIsLoopNewData = NO;

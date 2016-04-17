@@ -11,6 +11,8 @@
 
 @interface StorageManager : NSObject
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+- (NSManagedObjectContext *)newPrivate;
+- (void)saveContext;
 + (instancetype)sharedInstance;
 - (void)removeAllData;
 @end

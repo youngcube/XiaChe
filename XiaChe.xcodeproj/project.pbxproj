@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8656A2BF1CC2BDCB00F087CC /* ImportData.m in Sources */ = {isa = PBXBuildFile; fileRef = 8656A2BE1CC2BDCB00F087CC /* ImportData.m */; };
 		8660B6801C999855006917FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B67F1C999855006917FC /* main.m */; };
 		8660B6831C999855006917FC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8660B6821C999855006917FC /* AppDelegate.m */; };
 		8660B68B1C999855006917FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8660B68A1C999855006917FC /* Assets.xcassets */; };
@@ -47,6 +48,8 @@
 		05C763C8077018BB0496F602 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		61292C93D30E7820BF32A7C1 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		65E49BE52C9BF52D623685A7 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8656A2BD1CC2BDCB00F087CC /* ImportData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImportData.h; sourceTree = "<group>"; };
+		8656A2BE1CC2BDCB00F087CC /* ImportData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImportData.m; sourceTree = "<group>"; };
 		8660B67B1C999855006917FC /* XiaChe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XiaChe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8660B67F1C999855006917FC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8660B6811C999855006917FC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -198,6 +201,8 @@
 				8660B6971C99989B006917FC /* SectionModel.m */,
 				8660B6D31C9C6CC9006917FC /* SearchForNewFun.h */,
 				8660B6D41C9C6CC9006917FC /* SearchForNewFun.m */,
+				8656A2BD1CC2BDCB00F087CC /* ImportData.h */,
+				8656A2BE1CC2BDCB00F087CC /* ImportData.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -485,6 +490,7 @@
 				86E9306C1CB29CE2006D039A /* ASPopUpView.m in Sources */,
 				BF6D12A81CA141EA00758CCF /* CustomNavigationController.m in Sources */,
 				86E930871CB98111006D039A /* MMMaterialDesignSpinner.m in Sources */,
+				8656A2BF1CC2BDCB00F087CC /* ImportData.m in Sources */,
 				86E9308A1CB98DEF006D039A /* DetailToolBar.m in Sources */,
 				BF77A60C1CB3526600630BA0 /* MonthSelectView.m in Sources */,
 				86E930861CB98111006D039A /* DeformationButton.m in Sources */,

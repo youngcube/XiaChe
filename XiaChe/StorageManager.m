@@ -26,6 +26,31 @@
     return manager;
 }
 
+- (void)saveContext
+{
+    if ([_managedObjectContext hasChanges] && ![_managedObjectContext save:nil]){
+        abort();
+    }
+}
+
+- (instancetype)init
+{
+    if (self = [super init]){
+        [[NSNotificationCenter defaultCenter] addObserverForName:NSManagedObjectContextDidSaveNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification* note) {
+                                                          NSManagedObjectContext *moc = _managedObjectContext;
+                                                          if (note.object != moc) {
+                                                              [moc performBlock:^(){
+                                                                  [moc mergeChangesFromContextDidSaveNotification:note];
+                                                              }];
+                                                          }
+                                                      }];
+    }
+    return self;
+}
+
 - (NSPersistentStoreCoordinator *)persistentStoreCoordinator
 {
     if (!_persistentStoreCoordinator){
@@ -47,6 +72,13 @@
         _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     }
     return _managedObjectModel;
+}
+
+- (NSManagedObjectContext *)newPrivate
+{
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    context.persistentStoreCoordinator = _persistentStoreCoordinator;
+    return context;
 }
 
 - (NSManagedObjectContext *)managedObjectContext

@@ -81,7 +81,8 @@
     self.tableView.rowHeight = 90;
     self.tableView.sectionHeaderHeight = HEIGHT_OF_SECTION_HEADER;
     [SearchForNewFun sharedInstance].delegate = self;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataDidSave) name:NSManagedObjectContextDidSaveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(endRefresh) name:NOTIFICATION_END_REFRESH object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveNoti) name:NSManagedObjectContextDidSaveNotification object:nil];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
     self.formatter = [[NSDateFormatter alloc] init];
     [self.formatter setDateFormat:@"yyyyMMdd"];
@@ -99,6 +100,24 @@
     self.navigationItem.titleView = titleNew;
     
     self.navTitle = titleNew;
+}
+
+- (void)saveNoti
+{
+//    NSLog(@"save time = %lu",(unsigned long)[SearchForNewFun sharedInstance].loopTime);
+    if ([SearchForNewFun sharedInstance].loopTime == 0) { //最后一次保存
+        self.tableView.mj_footer.hidden = NO;
+        [self.tableView.mj_header endRefreshing];
+        [self.tableView.mj_footer endRefreshing];
+    }
+}
+
+- (void)endRefresh
+{
+//    self.tableView.mj_footer.hidden = NO;
+//    [self.tableView.mj_header endRefreshing];
+//    [self.tableView.mj_footer endRefreshing];
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -254,8 +273,6 @@
 // 数据保存了
 - (void)dataDidSave
 {
-//    FUNLog(@"loop time = %lu,",(unsigned long)[SearchForNewFun sharedInstance].loopTime);
-    
     // TODO 后台
     if ([SearchForNewFun sharedInstance].loopTime == 0) { //最后一次保存
         if (self.getFun){ //如果getfun存在，说明需要loadwebview
@@ -315,7 +332,7 @@
 {
     FunStory *fun = [self.fetchedResultsController objectAtIndexPath:indexPath];
     cell.funStory = fun;
-    cell.title = fun.title;
+    cell.title = fun.storyDate;
     cell.date = fun.storyDate;
     cell.imageURL = fun.image;
     cell.unread = fun.unread;

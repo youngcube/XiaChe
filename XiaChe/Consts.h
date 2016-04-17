@@ -20,4 +20,5 @@ static NSString* const NOTIFICATION_LOAD_WEBVIEW = @"notification_load_webview";
 static NSString* const NOTIFICATION_NO_MORE_NEW = @"notification_no_more_new";
 static NSString* const NOTIFICATION_NO_MORE_OLD = @"notification_no_more_old";
 static NSString* const NOTIFICATION_LOAD_MORE = @"notification_load_more";
+static NSString* const NOTIFICATION_END_REFRESH = @"notification_end_refresh";
 static NSString* const FirstDayString = @"20130523";
